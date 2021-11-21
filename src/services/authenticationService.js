@@ -1,31 +1,17 @@
-import https from 'https';
+import axios from 'axios';
 
-const makeZendeskRequest = (path, method) => {
+const makeZendeskRequest = async (path, method, payload) => {
     const options = {
-        hostname: process.env.URL,
-        port: 443,
-        path: path,
-        method: method,
         headers: {
-            'Authorization': 'Basic ' + Buffer.from(`${process.env.EMAIL}/token:${process.env.APITOKEN}`).toString('base64') 
-         }  
+            'Authorization': 'Basic ' + Buffer.from(`${process.env.EMAIL}/token:${process.env.APITOKEN}`).toString('base64')
+        }
     }
 
-    console.log(options);
-
-    const req = https.request(options, res => {
-        console.log(`statusCode: ${res.statusCode}`)
-
-        res.on('data', d => {
-            console.log(`response: ${d}`)
-          })
-    })
-
-    req.on('error', error => {
-        console.error(error)
-      })
-      
-    req.end()
+    let res;
+    if (method === 'GET')  res = await axios.get(`${process.env.URL}${path}`, options);
+    if (method === 'PUT')  res = await axios.put(`${process.env.URL}${path}`, payload, options);
+    if (method === 'POST')  res = await axios.post(`${process.env.URL}${path}`, payload, options);
+    return res.data;
 }
 
 export default makeZendeskRequest;

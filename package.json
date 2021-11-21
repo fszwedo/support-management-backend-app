@@ -1,0 +1,24 @@
+{
+  "name": "helpscout-ticket-management",
+  "version": "1.0.0",
+  "description": "helpscout client application to manage the tickets",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fszwedo/helpscout-ticket-management.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fszwedo/helpscout-ticket-management/issues"
+  },
+  "homepage": "https://github.com/fszwedo/helpscout-ticket-management#readme",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1"
+  },
+  "type": "module"
+}

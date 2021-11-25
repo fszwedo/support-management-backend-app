@@ -6,10 +6,10 @@ const assignTicket = async (agentId, ticketId) => {
           "assignee_id": agentId
         }
       }
-
+    console.log(`ticket id is ${ticketId}`)
     const tickets = await makeZendeskRequest(`/api/v2/tickets/${ticketId}`, 'PUT', ticketBody);
 
-    return tickets; //array of users
+    return tickets; //array of tickets
 }
 
 export default assignTicket;

@@ -5,17 +5,35 @@ import { readTextFile } from "../services/readWriteCsv.js";
 import getTodayShifts from "../services/getTodayShift.js";
 import selectAgentToAssign from "../services/selectAgentToAssign.js";
 
-const assignNewTicket = async (shiftFileName, lastAssignedUserId) => {
+const assignNewTicket = async (shiftFileName, lastAssignedUserId, listofAssignedTickets) => {
     let agentToAssign = lastAssignedUserId;
+    let assignedTicketId;
+
     const agents = await getAgents();
     const newTickets = await getNewTickets();
+    console.log(newTickets)
     const shiftData = await readTextFile(shiftFileName)
     const todayShifts = getTodayShifts(shiftData);
-    if(newTickets.length > 0) 
-    agentToAssign = selectAgentToAssign(agents, lastAssignedUserId, todayShifts);
+    console.log(`tickets = ${newTickets.length}`)
 
-   // console.log(agents);
-    return agentToAssign;   
+    if(newTickets.length > 0) {
+        for (let i = 0; i < newTickets.length; i++){
+            agentToAssign = selectAgentToAssign(agents, lastAssignedUserId, todayShifts);
+            lastAssignedUserId = agentToAssign;            
+            if(agentToAssign) {
+                console.log(`${agentToAssign} will be assigned!`);
+                await assignTicket(agentToAssign, newTickets[i].id);
+                assignedTicketId = newTickets[i].id;
+            }
+            else console.log(`no agent is available!`);
+        }        
+        return [agentToAssign, assignedTicketId];
+    }
+
+    console.log(`nothing to assign!`);
+    return [agentToAssign, assignedTicketId];   
 }
 
 export default assignNewTicket;
+
+

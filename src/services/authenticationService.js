@@ -6,7 +6,7 @@ const makeZendeskRequest = async (path, method, payload) => {
             'Authorization': 'Basic ' + Buffer.from(`${process.env.EMAIL}/token:${process.env.APITOKEN}`).toString('base64')
         }
     }
-
+    
     let res;
     if (method === 'GET')  res = await axios.get(`${process.env.URL}${path}`, options);
     if (method === 'PUT')  res = await axios.put(`${process.env.URL}${path}`, payload, options);

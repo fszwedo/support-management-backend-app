@@ -9,13 +9,11 @@ import selectAgentToAssign from "../services/selectAgentToAssign.js";
 
 const assignNewTicket = async (shiftFileName, lastAssignedUserId) => {
     let agentToAssign = lastAssignedUserId;
-    let assignedTickets = [];
 
     const newTickets = await getNewTickets();
-    console.log(newTickets)
 
     //if there are no new tickets - stop execution
-    if (!newTickets) {
+    if (newTickets.length === 0) {
         console.log(`nothing to assign!`);
         return lastAssignedUserId;
     }
@@ -24,7 +22,7 @@ const assignNewTicket = async (shiftFileName, lastAssignedUserId) => {
     const agents = await getAgents();
 
     //if there are no agents - stop execution
-    if (!agents) {
+    if (agents.length === 0) {
         console.log(`no available agents!`);
         return lastAssignedUserId;
     }
@@ -37,28 +35,23 @@ const assignNewTicket = async (shiftFileName, lastAssignedUserId) => {
     let newTicketPayload = {
         "tickets": []
     };
-    let ticket = {
-        "id": null,
-        "assignee_id": null
-    }
 
     //iterate over the tickets and add them to the payload for batch update
     for (let i = 0; i < newTickets.length; i++) {
         agentToAssign = selectAgentToAssign(agents, agentToAssign, todayShifts);
 
-        if (agentToAssign) {
-            console.log(`Ticket ${newTickets[i].id} will be assigned to ${agentToAssign}`); 
-           
-            ticket.id = newTickets[i].id;
-            ticket.assignee_id = agentToAssign;
-
-            newTicketPayload.push(ticket);
-            assignedTickets.push(newTickets[i].id);
+        if (agentToAssign) {            
+            let ticket = {
+                "id": newTickets[i].id,
+                "assignee_id": agentToAssign
+            }
+            newTicketPayload.tickets.push(ticket);
         } 
         else console.log(`no agent is available!`);
     }
 
     assignTicket(newTicketPayload);
+    console.log(`Following tickets were assigned: ${newTicketPayload}`)
     return agentToAssign;
 }
 

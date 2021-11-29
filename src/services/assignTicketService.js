@@ -10,7 +10,7 @@ import makeZendeskRequest from "./authenticationService.js";
 */
 
 const assignTicket = async (payload) => {
-    const tickets = await makeZendeskRequest(`/api/v2/tickets/update_many.json`, 'PUT', payload);
+    const tickets = await makeZendeskRequest(`/api/v2/tickets/update_many`, 'PUT', payload);
     return tickets; //array of tickets
 }
 

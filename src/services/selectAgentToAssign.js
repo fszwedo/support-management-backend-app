@@ -14,9 +14,6 @@ const selectAgentToAssign = (agents, lastAssignedAgentId, shiftSchedule) => {
     }
 
     //then select the agent that should get the ticket assigned
-    console.log(`last assigned = ${lastAssignedAgentId}`)
-    console.log(`all avaiable = ${currentlyAvailableAgents}`)
-    
     for (let agent in currentlyAvailableAgents){
         if (currentlyAvailableAgents[agent] > lastAssignedAgentId)
             return currentlyAvailableAgents[agent]

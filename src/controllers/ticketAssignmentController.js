@@ -18,18 +18,19 @@ const assignNewTicket = async (shiftFileName, lastAssignedUserId) => {
         return lastAssignedUserId;
     }
 
-    //if there are new tickets - check available agents
-    const agents = await getAgents();
-
-    //if there are no agents - stop execution
-    if (agents.length === 0) {
-        console.log(`no available agents!`);
-        return lastAssignedUserId;
-    }
-
     //get the shift data
     const shiftData = await readTextFile(shiftFileName)
     const todayShifts = getTodayShifts(shiftData);
+
+    //if there are new tickets - check available agents
+    const agents = await getAgents();
+    const isAvailableAgent = selectAgentToAssign(agents, agentToAssign, todayShifts);
+
+    //if there are no agents - stop execution
+    if (!isAvailableAgent) {
+        console.log(`no available agents!`);
+        return lastAssignedUserId;
+    }
 
     //initialize the batch ticket update request payload values
     let newTicketPayload = {
@@ -40,18 +41,16 @@ const assignNewTicket = async (shiftFileName, lastAssignedUserId) => {
     for (let i = 0; i < newTickets.length; i++) {
         agentToAssign = selectAgentToAssign(agents, agentToAssign, todayShifts);
 
-        if (agentToAssign) {            
-            let ticket = {
-                "id": newTickets[i].id,
-                "assignee_id": agentToAssign
-            }
-            newTicketPayload.tickets.push(ticket);
-        } 
-        else console.log(`no agent is available!`);
+        let ticket = {
+            "id": newTickets[i].id,
+            "assignee_id": agentToAssign
+        }
+        newTicketPayload.tickets.push(ticket);
     }
 
     assignTicket(newTicketPayload);
-    console.log(`Following tickets were assigned: ${newTicketPayload}`)
+    console.log(`Following tickets were assigned:`);
+    console.log(`${newTicketPayload}`);
     return agentToAssign;
 }
 

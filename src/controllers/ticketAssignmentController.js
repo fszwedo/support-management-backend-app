@@ -50,7 +50,7 @@ const assignNewTicket = async (shiftFileName, lastAssignedUserId) => {
 
     assignTicket(newTicketPayload);
     console.log(`Following tickets were assigned:`);
-    console.log(`${newTicketPayload}`);
+    console.log(newTicketPayload);
     return agentToAssign;
 }
 

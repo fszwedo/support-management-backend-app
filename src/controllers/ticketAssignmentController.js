@@ -8,13 +8,14 @@ import getTodayShifts from "../services/getTodayShift.js";
 import selectAgentToAssign from "../services/selectAgentToAssign.js";
 
 const assignNewTicket = async (shiftFileName, lastAssignedUserId) => {
-    let agentToAssign = lastAssignedUserId;
+    let agentToAssignId = lastAssignedUserId;
+    let agentToAssignName = '';
 
     const newTickets = await getNewTickets();
 
     //if there are no new tickets - stop execution
     if (newTickets.length === 0) {
-        console.log(`nothing to assign!`);
+        //console.log(`nothing to assign!`);
         return lastAssignedUserId;
     }
 
@@ -24,7 +25,7 @@ const assignNewTicket = async (shiftFileName, lastAssignedUserId) => {
 
     //if there are new tickets - check available agents
     const agents = await getAgents();
-    const isAvailableAgent = selectAgentToAssign(agents, agentToAssign, todayShifts);
+    const isAvailableAgent = selectAgentToAssign(agents, agentToAssignId, todayShifts);
 
     //if there are no agents - stop execution
     if (!isAvailableAgent) {
@@ -39,19 +40,21 @@ const assignNewTicket = async (shiftFileName, lastAssignedUserId) => {
 
     //iterate over the tickets and add them to the payload for batch update
     for (let i = 0; i < newTickets.length; i++) {
-        agentToAssign = selectAgentToAssign(agents, agentToAssign, todayShifts);
+        [agentToAssignId, agentToAssignName] = selectAgentToAssign(agents, agentToAssignId, todayShifts);
 
         let ticket = {
             "id": newTickets[i].id,
-            "assignee_id": agentToAssign
+            "assignee_id": agentToAssignId
         }
         newTicketPayload.tickets.push(ticket);
     }
 
     assignTicket(newTicketPayload);
-    console.log(`Following tickets were assigned:`);
-    console.log(newTicketPayload);
-    return agentToAssign;
+
+    for(let i = 0; i < newTicketPayload.tickets.length; i++){
+        console.log(new Date().toLocaleString() + ' ticket id ' + newTicketPayload.tickets[i].id + ' was assigned to ' + agentToAssignName)
+    }
+    return agentToAssignId;
 }
 
 export default assignNewTicket;

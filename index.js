@@ -6,6 +6,8 @@ import assignNewTicket from './src/controllers/ticketAssignmentController.js';
 
 const app = express();
 
+console.log('App started at '+ new Date().toLocaleString())
+
 let lastAssignedUserId = 0;
 
 app.listen(process.env.PORT, () => {

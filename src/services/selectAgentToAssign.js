@@ -3,6 +3,8 @@ const selectAgentToAssign = (agents, lastAssignedAgentId, shiftSchedule) => {
     const currentHour = currentDate.getHours() + 1;
     const currentMinute = currentDate.getMinutes();
 
+    console.log('current hour ' + currentHour)
+
     let currentlyAvailableAgents = [];
 
     //first select the agents available at the current hour

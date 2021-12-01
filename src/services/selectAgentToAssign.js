@@ -22,7 +22,8 @@ const selectAgentToAssign = (agents, lastAssignedAgentId, shiftSchedule) => {
             return currentlyAvailableAgents[agent]
     }
 
-    return [currentlyAvailableAgents[0].id, currentlyAvailableAgents[0].name];
+    if(currentlyAvailableAgents.length > 0) return [currentlyAvailableAgents[0].id, currentlyAvailableAgents[0].name];
+    return;
 }
 
 export default selectAgentToAssign;

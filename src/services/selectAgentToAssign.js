@@ -3,9 +3,6 @@ const selectAgentToAssign = (agents, lastAssignedAgentId, shiftSchedule) => {
     const currentHour = currentDate.getHours() + 1;
     const currentMinute = currentDate.getMinutes();
 
-    console.log('current hour ' + currentHour)
-    console.log(shiftSchedule)
-
     let currentlyAvailableAgents = [];
 
     //first select the agents available at the current hour
@@ -24,7 +21,8 @@ const selectAgentToAssign = (agents, lastAssignedAgentId, shiftSchedule) => {
         if (currentlyAvailableAgents[agent] > lastAssignedAgentId)
             return currentlyAvailableAgents[agent]
     }
-
+    
+    console.log(currentlyAvailableAgents)
     if(currentlyAvailableAgents.length > 0) return [currentlyAvailableAgents[0].id, currentlyAvailableAgents[0].name];
     return;
 }

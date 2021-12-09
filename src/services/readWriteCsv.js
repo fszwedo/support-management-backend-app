@@ -1,5 +1,6 @@
 import fs from 'fs';
 import csvparser from 'csv-parser';
+import { stringify } from 'csv-stringify';
 
 const readTextFile = async (filePath) => {
   let arr = [];
@@ -22,6 +23,16 @@ const readTextFile = async (filePath) => {
   })
 }
 
+//this function takes content parameter which is an array of objects
+const writeTextFile = async(filePath, content) => {
+  stringify(content, {
+    header:true
+  }, function (err, output) {
+    fs.writeFile(filePath, output, (err) => console.log(err))
+  })
+
+}
+
 export {
-  readTextFile
+  readTextFile, writeTextFile
 };

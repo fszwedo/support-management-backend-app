@@ -5,6 +5,8 @@ import assignNewTicket from './src/controllers/ticketAssignmentController.js';
 import shiftRota from './src/routes/shiftRota.js';
 import mongoose from 'mongoose';
 
+import getTodayShifts from './src/services/getTodayShift.js';
+
 
 const app = express();
 app.use(express.json());
@@ -22,26 +24,24 @@ app.listen(process.env.PORT, () => {
      console.log(`listening on ${process.env.PORT}`)
 })
 
-async function createShiftRota () {
-    const shiftRotaSchema = new mongoose.Schema({
-        date: Date,
-        agents: [ String ],
-        hours: [ String ],
-        isWeekend: {Boolean, default: false}
-    }) 
-    
-    const ShiftRota = mongoose.model('ShiftRota', shiftRotaSchema);
-    const shiftRota = new ShiftRota({
-        date: new Date,
-        agents: [ 'phil', 'shehroze' ],
-        hours: [ '9-17', '14-22' ]
-    })
-    
-    const result = await shiftRota.save();  
-    console.log(result)
-}
 
-//createShiftRota();
+
+
+// async function getShiftRota () {
+//     const shiftRota = await ShiftRota.find({
+//         date: {
+//             $gte: new Date('2021-12-11'),
+//             $lt: new Date('2021-12-12')
+//         }
+//     })
+//     console.log(shiftRota);
+// }
+
+console.log(await getTodayShifts())
+
+// getShiftRota();
+
+// createShiftRota();
 
 
 // const job = new CronJob('1/10 * 7-22 * * *',  async function () {

@@ -5,7 +5,7 @@ import assignNewTicket from './src/controllers/ticketAssignmentController.js';
 import shiftRota from './src/routes/shiftRota.js';
 import mongoose from 'mongoose';
 
-import getTodayShifts from './src/services/getTodayShift.js';
+import { getTodayShifts, saveShiftRotaEntry} from './src/services/shiftRotaServices.js';
 
 
 const app = express();
@@ -24,24 +24,7 @@ app.listen(process.env.PORT, () => {
      console.log(`listening on ${process.env.PORT}`)
 })
 
-
-
-
-// async function getShiftRota () {
-//     const shiftRota = await ShiftRota.find({
-//         date: {
-//             $gte: new Date('2021-12-11'),
-//             $lt: new Date('2021-12-12')
-//         }
-//     })
-//     console.log(shiftRota);
-// }
-
 console.log(await getTodayShifts())
-
-// getShiftRota();
-
-// createShiftRota();
 
 
 // const job = new CronJob('1/10 * 7-22 * * *',  async function () {

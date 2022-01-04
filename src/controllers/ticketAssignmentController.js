@@ -4,8 +4,9 @@ import assignTicket from "../services/assignTicketService.js";
 import {
     readTextFile
 } from "../services/readWriteCsv.js";
-import { getTodayShifts } from "../services/shiftRotaServices.js";
 import selectAgentToAssign from "../services/selectAgentToAssign.js";
+import shiftRotaService from "../services/shiftRotaServices.js";
+import shiftRotaRepository from "../repositories/shiftRotaRepository.js";
 
 const assignNewTicket = async (shiftFileName, lastAssignedUserId) => {
     let agentToAssignId = lastAssignedUserId;

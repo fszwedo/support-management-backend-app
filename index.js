@@ -1,12 +1,13 @@
 import express from 'express';
 import 'dotenv/config';
 import { CronJob } from 'cron';
-import assignNewTicket from './src/controllers/ticketAssignmentController.js';
+// import assignNewTicket from './src/controllers/ticketAssignmentController.js';
 import shiftRota from './src/routes/shiftRota.js';
 import mongoose from 'mongoose';
 
-import { getTodayShifts, saveShiftRotaEntry} from './src/services/shiftRotaServices.js';
-
+import shiftRotaRepository from './src/repositories/shiftRotaRepository.js';
+import shiftRotaService from './src/services/shiftRotaServices.js';
+import shiftRotaModel from './src/models/shiftRotaModel.js';
 
 const app = express();
 app.use(express.json());
@@ -24,10 +25,12 @@ app.listen(process.env.PORT, () => {
      console.log(`listening on ${process.env.PORT}`)
 })
 
-console.log(await getTodayShifts())
-
 
 // const job = new CronJob('1/10 * 7-22 * * *',  async function () {
 //     lastAssignedUserId = await assignNewTicket('./src/lastAssignmentTimestamps.csv', lastAssignedUserId);
 // });
 // job.start();
+
+
+
+

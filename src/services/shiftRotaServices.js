@@ -1,31 +1,33 @@
 import shiftRotaModel from "../models/shiftRotaModel.js";
 import shiftRotaRepository from "../repositories/shiftRotaRepository.js";
 
-const getAllShifts = () => {
-    const shiftRepository = new shiftRotaRepository(shiftRotaModel);
-    return shiftRepository.getAll();
-}
+export default class shiftRotaService {
 
-const getTodayShifts = () => {
-    const shiftRepository = new shiftRotaRepository(shiftRotaModel);
-    return shiftRepository.getShiftForToday();
-}
-
-const saveShiftRotaEntry = async (shiftRotaEntry) => {
-    const shiftRepository = new shiftRotaRepository(shiftRotaModel);
-
-    const newShiftRota = new shiftRotaModel(shiftRotaEntry);
-
-    try {
-       await newShiftRota.validate();
-    }
-    catch (ex) {
-        console.log(ex.message)
-        return ex.message;
+    shiftRepository;
+    constructor(shiftRepository){
+        this.shiftRepository = shiftRepository;
     }
 
-    shiftRepository.create(shiftRotaEntry);
+    getAllShifts = () => { 
+        return this.shiftRepository.getAll();
+    }
+    
+    getTodayShifts = () => {
+        return this.shiftRepository.getShiftForToday();
+    }
+
+    saveShiftRotaEntry = async (shiftRotaEntry) => {
+        const newShiftRota = new shiftRotaModel(shiftRotaEntry);
+    
+        try {
+           await newShiftRota.validate();
+        }
+        catch (ex) {
+            console.log(ex.message)
+            return ex.message;
+        }
+    
+        this.shiftRepository.create(shiftRotaEntry);
+    }
+
 }
-
-
-export { getTodayShifts, saveShiftRotaEntry };

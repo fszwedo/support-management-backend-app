@@ -8,18 +8,24 @@ export default class shiftRotaService {
         this.shiftRepository = shiftRepository;
     }
 
-    getAllShifts = () => { 
+    getAllShifts = async () => { 
         return this.shiftRepository.getAll();
     }
     
-    getTodayShifts = () => {
+    getTodayShifts =  async () => {
         return this.shiftRepository.getShiftForToday();
+    }
+
+    getShiftsForSpecifiedDay = async (day) => {
+        return this.shiftRepository.getShiftForSpecifiedDay(new Date(day));
     }
 
     saveShiftRotaEntry = async (shiftRotaEntry) => {
         const newShiftRota = new shiftRotaModel(shiftRotaEntry);
-    
+        
         try {
+           const checkIfThisShiftExists = await this.shiftRepository.getShiftForSpecifiedDay(new Date(shiftRotaEntry.date))
+           if (checkIfThisShiftExists.length >=1) throw 'There already is an entry for this date!'
            await newShiftRota.validate();
         }
         catch (ex) {
@@ -28,6 +34,6 @@ export default class shiftRotaService {
         }
     
         this.shiftRepository.create(shiftRotaEntry);
+        return shiftRotaEntry;
     }
-
 }

@@ -11,4 +11,14 @@ export default class shiftRotaRepository extends Repository {
             }
         })
     }
+
+    //day should be in standard js date format!
+    async getShiftForSpecifiedDay(day) {      
+        return this.model.find({
+            date: {
+                $gte: dateFNS.startOfDay(day),
+                $lte: dateFNS.endOfDay(day)
+            }
+        })
+    }
 };

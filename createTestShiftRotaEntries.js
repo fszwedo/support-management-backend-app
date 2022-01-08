@@ -3,7 +3,8 @@ import shiftRotaService from './src/services/shiftRotaServices.js';
 import shiftRotaModel from './src/models/shiftRotaModel.js';
 import mongoose from 'mongoose';
 import 'dotenv/config';
-import { readTextFile } from './src/services/readWriteCsv.js'
+import { readTextFile } from './src/services/readWriteCsv.js';
+import selectAgentToAssign from './src/services/selectAgentToAssign.js';
 
 await mongoose.connect(`mongodb+srv://${process.env.MONGOLOGIN}:${process.env.MONGOPW}@cluster0.mgkhb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`)
     .then(() => console.log('Connected to MongoDB...'))
@@ -13,15 +14,24 @@ const shiftData = await readTextFile('./src/lastAssignmentTimestamps.csv')
 
 const shiftRota = new shiftRotaService(new shiftRotaRepository(shiftRotaModel));
 
-await shiftRota.saveShiftRotaEntry({
-    date: new Date('11 Jan 2021'),
+const shiftRotaEntry = {
+    date: new Date('10 Jan 2021 12:11'),
     agents: ['Phil', 'Shehroze'],
     hours: ['9-11', '11-22']
-})
-
-for (let i = 0; i < shiftData.length; i++){
-    let shifts = await shiftRota.getShiftsForSpecifiedDay(shiftData[i].date);
-    console.log(shiftData[i].date);
-    console.log(shifts)
 }
+
+let shiftRotaForToday = await shiftRota.getTodayShifts(new Date());
+
+let agents = ['Shehroze', 'Phil'];
+
+console.log(selectAgentToAssign(agents,0,shiftRotaForToday));
+
+// shiftRota.saveShiftRotaEntriesFromCsv(shiftData)
+
+// for (let i = 0; i < shiftData.length; i++){
+//     let shifts = await shiftRota.getShiftsForSpecifiedDay(shiftData[i].date);
+//     console.log(shiftData[i].date);
+//     console.log(shifts)
+// }
+
 

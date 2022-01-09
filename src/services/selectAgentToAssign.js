@@ -40,8 +40,3 @@ const selectAgentToAssign = (agents, lastAssignedAgentId, shiftSchedule) => {
 }
 
 export default selectAgentToAssign;
-
-
-
-
-

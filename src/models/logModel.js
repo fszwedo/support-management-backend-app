@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 
-
 const logSchema = new mongoose.Schema({
     timestamp: { type: String, default: new Date().toUTCString() },
     type: { type: String, required: true },

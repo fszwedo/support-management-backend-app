@@ -1,12 +1,9 @@
-import logModel from "../models/logModel.js";
-import loggerRepository from "../repositories/logRepository.js";
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 
-
+//function to get the caller filename for the logs
 function _getCallerFile() {
     var originalFunc = Error.prepareStackTrace;
-
     var callerfile;
     try {
         var err = new Error();
@@ -24,7 +21,6 @@ function _getCallerFile() {
     } catch (e) {}
 
     Error.prepareStackTrace = originalFunc; 
-
     return callerfile;
 }
 

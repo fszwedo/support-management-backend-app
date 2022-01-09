@@ -15,7 +15,4 @@ logger.saveLog({
     message: 'test warning message'
 })
 
-console.log('log saved')
-
-
-
+console.log('log saved');

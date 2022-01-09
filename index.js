@@ -32,7 +32,3 @@ const job = new CronJob('1/10 * 7-22 * * *',  async function () {
     lastAssignedUserId = await assignNewTicket('./src/lastAssignmentTimestamps.csv', lastAssignedUserId, logger);
 });
 job.start();
-
-
-
-

@@ -10,7 +10,7 @@ const selectAgentToAssign = (agents, lastAssignedAgentId, shiftSchedule) => {
     let currentlyAvailableAgents = [];
     
     //first select the agents available at the current hour
-    for (let agent in agents) {
+    for (let agent in agents) {       
 
         //if in the array of available agents we have a name of the agent that was returned Zendesk - get his working hours
         if (shiftSchedule.agents.find(e => e === agents[agent].name)) {
@@ -24,7 +24,6 @@ const selectAgentToAssign = (agents, lastAssignedAgentId, shiftSchedule) => {
                     /*then*/ currentlyAvailableAgents.push(agents[agent]);
         }        
     }
-
 
     //then select the agent that should get the ticket assigned
     for (let agent in currentlyAvailableAgents) {

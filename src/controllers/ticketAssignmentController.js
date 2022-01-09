@@ -1,14 +1,14 @@
 import getAgents from "../services/getAgentsService.js";
 import getNewTickets from "../services/getNewTicketsService.js";
 import assignTicket from "../services/assignTicketService.js";
-import {
-    readTextFile
-} from "../services/readWriteCsv.js";
 import selectAgentToAssign from "../services/selectAgentToAssign.js";
 import shiftRotaService from "../services/shiftRotaServices.js";
 import shiftRotaRepository from "../repositories/shiftRotaRepository.js";
+import shiftRotaModel from '../models/shiftRotaModel.js'
 
 const assignNewTicket = async (shiftFileName, lastAssignedUserId) => {
+    const shiftRota = new shiftRotaService(new shiftRotaRepository(shiftRotaModel));
+
     let agentToAssignId = lastAssignedUserId;
     let agentToAssignName = '';
 
@@ -21,8 +21,7 @@ const assignNewTicket = async (shiftFileName, lastAssignedUserId) => {
     }
 
     //get the shift data
-    const shiftData = await readTextFile(shiftFileName)
-    const todayShifts = getTodayShifts(shiftData);
+    const todayShifts = await shiftRota.getTodayShifts();
 
     //if there are new tickets - check available agents
     const agents = await getAgents();
@@ -48,13 +47,11 @@ const assignNewTicket = async (shiftFileName, lastAssignedUserId) => {
             "assignee_id": agentToAssignId
         }
         newTicketPayload.tickets.push(ticket);
+        console.log(new Date().toLocaleString() + ' ticket id ' + newTicketPayload.tickets[i].id + ' was assigned to ' + agentToAssignName)
     }
 
     assignTicket(newTicketPayload);
 
-    for(let i = 0; i < newTicketPayload.tickets.length; i++){
-        console.log(new Date().toLocaleString() + ' ticket id ' + newTicketPayload.tickets[i].id + ' was assigned to ' + agentToAssignName)
-    }
     return agentToAssignId;
 }
 

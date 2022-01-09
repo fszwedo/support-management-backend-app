@@ -21,12 +21,12 @@ const shiftRotaEntry = {
     hours: ['9-11', '11-22']
 }
 
-let shiftRotaForToday = await shiftRota.getTodayShifts(new Date());
+// let shiftRotaForToday = await shiftRota.getTodayShifts(new Date());
 
-let agents = await getAgents();
-console.log(selectAgentToAssign(agents,0,shiftRotaForToday));
+// let agents = await getAgents();
+// console.log(selectAgentToAssign(agents,0,shiftRotaForToday));
 
-// shiftRota.saveShiftRotaEntriesFromCsv(shiftData)
+shiftRota.saveShiftRotaEntriesFromCsv(shiftData)
 
 // for (let i = 0; i < shiftData.length; i++){
 //     let shifts = await shiftRota.getShiftsForSpecifiedDay(shiftData[i].date);

@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import 'dotenv/config';
 import { readTextFile } from './src/services/readWriteCsv.js';
 import selectAgentToAssign from './src/services/selectAgentToAssign.js';
+import getAgents from './src/services/getAgentsService.js'
 
 await mongoose.connect(`mongodb+srv://${process.env.MONGOLOGIN}:${process.env.MONGOPW}@cluster0.mgkhb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`)
     .then(() => console.log('Connected to MongoDB...'))
@@ -22,8 +23,7 @@ const shiftRotaEntry = {
 
 let shiftRotaForToday = await shiftRota.getTodayShifts(new Date());
 
-let agents = ['Shehroze', 'Phil'];
-
+let agents = await getAgents();
 console.log(selectAgentToAssign(agents,0,shiftRotaForToday));
 
 // shiftRota.saveShiftRotaEntriesFromCsv(shiftData)

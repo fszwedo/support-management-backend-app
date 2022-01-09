@@ -6,7 +6,7 @@ import shiftRotaService from "../services/shiftRotaServices.js";
 import shiftRotaRepository from "../repositories/shiftRotaRepository.js";
 import shiftRotaModel from '../models/shiftRotaModel.js'
 
-const assignNewTicket = async (shiftFileName, lastAssignedUserId) => {
+const assignNewTicket = async (shiftFileName, lastAssignedUserId, logger) => {
     const shiftRota = new shiftRotaService(new shiftRotaRepository(shiftRotaModel));
 
     let agentToAssignId = lastAssignedUserId;
@@ -48,6 +48,11 @@ const assignNewTicket = async (shiftFileName, lastAssignedUserId) => {
         }
         newTicketPayload.tickets.push(ticket);
         console.log(new Date().toLocaleString() + ' ticket id ' + newTicketPayload.tickets[i].id + ' was assigned to ' + agentToAssignName)
+        
+        logger.saveLog({
+            type: 'info/ticket assignment',
+            message: 'Ticket id ' + newTicketPayload.tickets[i].id + ' was assigned to ' + agentToAssignName
+        })
     }
 
     assignTicket(newTicketPayload);

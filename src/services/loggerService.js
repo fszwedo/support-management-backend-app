@@ -41,6 +41,7 @@ export default class loggerService {
 
     saveLog = async (log) => {
         log.origin = path.basename(fileURLToPath(_getCallerFile()));
+        log.timestamp = new Date().toUTCString();
         return this.loggerRepository.create(log);
     }
 

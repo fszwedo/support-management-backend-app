@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const logSchema = new mongoose.Schema({
-    timestamp: { type: String, default: new Date().toUTCString() },
+    timestamp: { type: String, required: true },
     type: { type: String, required: true },
     message: { type: String, required: true },
     additionalInfo: { type: String },

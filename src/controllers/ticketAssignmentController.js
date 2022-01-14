@@ -29,7 +29,7 @@ const assignNewTicket = async (shiftFileName, lastAssignedUserId, logger) => {
     
     //if there are no agents - stop execution
     if (!isAvailableAgent[0]) {
-        console.log(`no available agents!`);
+        //console.log(`no available agents!`);
         return lastAssignedUserId;
     }
 

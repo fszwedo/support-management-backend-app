@@ -7,10 +7,12 @@ import mongoose from 'mongoose';
 import logModel from './src/models/logModel.js';
 import loggerRepository from './src/repositories/logRepository.js';
 import loggerService from './src/services/loggerService.js';
+import * as cors from 'cors';
 
 const app = express();
 app.use(express.json());
 app.use('/api/shiftRota', shiftRota);
+app.use(cors());
 const logger = new loggerService(new loggerRepository(logModel));
 
 await mongoose.connect(`mongodb+srv://${process.env.MONGOLOGIN}:${process.env.MONGOPW}@cluster0.mgkhb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`)

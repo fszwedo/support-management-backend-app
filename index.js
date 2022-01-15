@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 import logModel from './src/models/logModel.js';
 import loggerRepository from './src/repositories/logRepository.js';
 import loggerService from './src/services/loggerService.js';
-import * as cors from 'cors';
+import cors from 'cors';
 
 const app = express();
 app.use(express.json());

@@ -32,10 +32,13 @@ export default class shiftRotaService {
         await newShiftRota.validate();
            const checkIfThisShiftExists = await this.shiftRepository.getShiftsForSpecifiedDay(new Date(shiftRotaEntry.date))
            if (checkIfThisShiftExists.length >=1) {
-               console.log(`There already is a shift rota entry for the date ${shiftRotaEntry.date}! Updating entry...`)
+             //  console.log(`There already is a shift rota entry for the date ${shiftRotaEntry.date}! Updating entry...`)
                this.shiftRepository.updateByDate(shiftRotaEntry);
            }
-           else this.shiftRepository.create(shiftRotaEntry);
+           else {
+               this.shiftRepository.create(shiftRotaEntry);
+              // console.log(`Creating shift rota entry for the date ${shiftRotaEntry.date}...`)
+            }
         }
         catch (ex) {
             console.log(ex.message)

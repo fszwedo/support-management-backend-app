@@ -14,5 +14,3 @@ const shiftData = await readTextFile('./src/SHIFTROTA.csv')
 const shiftRota = new shiftRotaService(new shiftRotaRepository(shiftRotaModel));
 
 shiftRota.saveShiftRotaEntriesFromCsv(shiftData)
-
-return ('success')

@@ -32,12 +32,12 @@ export default class shiftRotaService {
         await newShiftRota.validate();
            const checkIfThisShiftExists = await this.shiftRepository.getShiftsForSpecifiedDay(new Date(shiftRotaEntry.date))
            if (checkIfThisShiftExists.length >=1) {
-             //  console.log(`There already is a shift rota entry for the date ${shiftRotaEntry.date}! Updating entry...`)
+               console.log(`Updating entry for ${shiftRotaEntry.date.toLocaleDateString('en-US')}...`)
                this.shiftRepository.updateByDate(shiftRotaEntry);
            }
            else {
                this.shiftRepository.create(shiftRotaEntry);
-              // console.log(`Creating shift rota entry for the date ${shiftRotaEntry.date}...`)
+               console.log(`Creating entry for ${shiftRotaEntry.date.toLocaleDateString('en-US')}...`)
             }
         }
         catch (ex) {
@@ -53,12 +53,12 @@ export default class shiftRotaService {
     }
 
     saveShiftRotaEntriesFromCsv = async (shiftData) => {
+        
         let successCount = shiftData.length;
         let formattedShiftData = {
         }
         let agents = [];
         let hours  =[]
-
         for (let i = 0; i < shiftData.length; i++){
             try {
                 agents = Object.keys(shiftData[i]);

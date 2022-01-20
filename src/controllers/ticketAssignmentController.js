@@ -5,6 +5,7 @@ import selectAgentToAssign from "../services/zendesk/selectAgentToAssign.js";
 import shiftRotaService from "../services/shiftRotaServices.js";
 import shiftRotaRepository from "../repositories/shiftRotaRepository.js";
 import shiftRotaModel from '../models/shiftRotaModel.js'
+import makeZendeskRequest from "../services/zendesk/authenticationService.js";
 
 const assignNewTicket = async (shiftFileName, lastAssignedUserId, logger) => {
     const shiftRota = new shiftRotaService(new shiftRotaRepository(shiftRotaModel));
@@ -24,7 +25,7 @@ const assignNewTicket = async (shiftFileName, lastAssignedUserId, logger) => {
     const todayShifts = await shiftRota.getTodayShifts();
 
     //if there are new tickets - check available agents
-    const agents = await getAgents();
+    const agents = await getAgents(makeZendeskRequest);
     const isAvailableAgent = selectAgentToAssign(agents, agentToAssignId, todayShifts);
     
     //if there are no agents - stop execution

@@ -1,12 +1,10 @@
 const selectAgentToAssign = (agents, lastAssignedAgentId, shiftSchedule) => {
-
     //extract the data if the shift rota is provided as an array with one object-type element (instead of object itself)
     if (Array.isArray(shiftSchedule) === true) shiftSchedule = shiftSchedule[0];
     
     const currentDate = new Date();
     const currentHour = currentDate.getHours() + 1;
     const currentMinute = currentDate.getMinutes();
-    console.log(currentDate)
 
     let currentlyAvailableAgents = [];
     
@@ -17,7 +15,7 @@ const selectAgentToAssign = (agents, lastAssignedAgentId, shiftSchedule) => {
         if (shiftSchedule.agents.find(e => e === agents[agent].name)) {
             const agentPositionInArray = shiftSchedule.agents.indexOf(agents[agent].name);
             const agentShiftLimits = shiftSchedule.hours[agentPositionInArray].split('-');
-            
+            if(agents[agent].name === 'Kate') console.log(agentShiftLimits, currentHour, currentMinute)
             //check if the agent works at the moment with 30 minute offset (so agent working till 5pm will get the tickets assigned till 4:30pm) - if yes then push him to the array
             if (agentShiftLimits[0] <= currentHour && 
                     (agentShiftLimits[1] > currentHour + 1 || 

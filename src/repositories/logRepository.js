@@ -1,6 +1,6 @@
 import { Repository } from "./repository.js";
 
-export default class loggerRepository extends Repository {
+export default class LoggerRepository extends Repository {
     searchLogs = async (textQuery) => {
         return this.model.find({
             $text: {

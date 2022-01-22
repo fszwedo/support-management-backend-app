@@ -5,7 +5,7 @@ import assignNewTicket from './src/controllers/ticketAssignmentController.js';
 import shiftRota from './src/routes/shiftRota.js';
 import mongoose from 'mongoose';
 import logModel from './src/models/logModel.js';
-import loggerRepository from './src/repositories/logRepository.js';
+import LoggerRepository from './src/repositories/logRepository.js';
 import loggerService from './src/services/loggerService.js';
 import cors from 'cors';
 
@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 app.use('/api/shiftRota', shiftRota);
 
-const logger = new loggerService(new loggerRepository(logModel));
+const logger = new loggerService(new LoggerRepository(logModel));
 
 await mongoose.connect(`mongodb+srv://${process.env.MONGOLOGIN}:${process.env.MONGOPW}@cluster0.mgkhb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`)
     .then(() => console.log('Connected to MongoDB...'))

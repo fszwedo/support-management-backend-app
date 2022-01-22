@@ -46,16 +46,16 @@ const testAgentList = [
 
 jest
   .useFakeTimers()
-  .setSystemTime(new Date('2021-01-21 13:45').getTime());
+  .setSystemTime(new Date('2021-01-21 12:00').getTime());
 
-describe('Test selectAgentToAssign service', () => {    
+describe('Test selectAgentToAssign service', () => {   
 
     //Konrad was already assigned - ticket assignment should start with Greg
     it('returns agent who is working at the current hour', () => {
         expect(selectAgentToAssign(testAgentList, testLastAssignedId, testShiftRota)).toEqual([2, 'Greg']);
     });
 
-    //we assign the first ticket to Greg, then expect shehroze to be assigned
+    // //we assign the first ticket to Greg, then expect shehroze to be assigned
     it('if two agents work at the same time - returns agent who was not assigned to the previous ticket', () => {
         const [id, agent] = selectAgentToAssign(testAgentList, testLastAssignedId, testShiftRota)
         expect(selectAgentToAssign(testAgentList, id, testShiftRota)).toEqual([3, 'Shehroze']);
@@ -67,7 +67,7 @@ describe('Test selectAgentToAssign service', () => {
     });
 
     it('stops assigning tickets to agents 30 minutes before the shift ends', () => {
-        jest.setSystemTime(new Date('2021-01-21 20:25').getTime());
+        jest.setSystemTime(new Date('2021-01-21 15:30').getTime());
         expect(selectAgentToAssign(testAgentList, testLastAssignedId, testShiftRota)).toEqual([5, 'Kate']);
     });
 

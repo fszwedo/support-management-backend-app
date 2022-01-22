@@ -83,13 +83,10 @@ describe('Test getNewTickets service', () => {
     })
     
     it('returns new tickets from the recent tickets', async () => {
-        //console.log(await makeZendeskRequest())
         expect(await getNewTickets(makeZendeskRequest)).toEqual(expectedTicketsArray);
     });
 
-
     it('if there are no new tickets - nothing is returned', async () => {
-        //console.log(await makeZendeskRequest())
         expect(await getNewTickets(makeZendeskRequest)).toEqual([]);
     });
 });

@@ -7,8 +7,7 @@ export const enum METHODS {
 }
 
 const makeHelpscoutRequest = async (path: string, method: METHODS, payload?) => {
-    let res;
-
+    let res, err;
     let retryCount = 2;
     while (retryCount >= 0) {
         
@@ -26,6 +25,7 @@ const makeHelpscoutRequest = async (path: string, method: METHODS, payload?) => 
             return res.data;
         } catch (error) {
             console.log(`Request failed with error: ${error.response.statusText} ${error.response.status}`)
+            err = `${error.response.statusText} ${error.response.status}`;
             if (error.response.status === 401) {
                 const tokenAcquisitionPayload = {
                     grant_type: "client_credentials",
@@ -38,7 +38,7 @@ const makeHelpscoutRequest = async (path: string, method: METHODS, payload?) => 
             }
         }        
     }
-    return;
+    return err;
 }
 
 

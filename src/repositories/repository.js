@@ -19,12 +19,12 @@ export class Repository {
         this.model.create(obj);
     }
 
-    async updateById() {
-
+    async updateById(id, payload) {
+        return await this.model.findByIdAndUpdate(id, payload, {useFindAndModify: false, upsert: false});
     }
 
-    async deleteByID(){
-
+    async deleteByID(id){
+        return this.model.findByIdAndDelete({_id: id});
     }
 
     async save(document){

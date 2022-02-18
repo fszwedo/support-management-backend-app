@@ -1,20 +1,12 @@
 import ShiftChangeRepository from "../repositories/shiftChangeRequestRepository";
 import { ShiftChangeRequest } from "../models/shiftChangeRequestModel";
 import ShiftRotaRepository from "../repositories/shiftRotaRepository";
-import mongoose from 'mongoose'
-
-export interface shiftRota {
-    _id: mongoose.ObjectId,
-    date:  String,
-    agents: [ String ],
-    hours: [ String ], 
-    isWeekend: Boolean
-}
-
+import mongoose from 'mongoose';
+import { ShiftRota } from "../models/shiftRotaModel";
 
 export default class ShiftChangeService {
-    private shiftChangeRepository: ShiftChangeRepository
-    private shiftRotaRepository: ShiftRotaRepository
+    private shiftChangeRepository: ShiftChangeRepository;
+    private shiftRotaRepository: ShiftRotaRepository;
 
     constructor(shiftChangeRepository: ShiftChangeRepository, shiftRotaRepository: ShiftRotaRepository){
         this.shiftChangeRepository = shiftChangeRepository;
@@ -38,7 +30,7 @@ export default class ShiftChangeService {
 
         //iterate over the changes in a single request
         for(let i = 0; i < shiftChangeRequest.requestedChanges.length; i++){
-            const shiftRotaToBeAdjusted: shiftRota = await this.shiftRotaRepository.getShiftsForSpecifiedDay(new Date(shiftChangeRequest.requestedChanges[i].date));
+            const shiftRotaToBeAdjusted: ShiftRota = await this.shiftRotaRepository.getShiftsForSpecifiedDay(new Date(shiftChangeRequest.requestedChanges[i].date));
             const agentIndex = shiftRotaToBeAdjusted.agents.findIndex(el => el === shiftChangeRequest.agent);
             //replace element at agents index with incoming change
             shiftRotaToBeAdjusted.hours[agentIndex] = shiftChangeRequest.requestedChanges[i].hours;

@@ -1,8 +1,8 @@
-import shiftRotaModel from "../models/shiftRotaModel.js";
-import { Repository } from "./repository.js";
+import { Repository } from "./repository";
 import * as dateFNS from 'date-fns';
+import * as mongoose from 'mongoose';
 
-export default class shiftRotaRepository extends Repository {
+export default class ShiftRotaRepository extends Repository {
     async getShiftForToday() {      
         return this.model.find({
             date: {
@@ -13,8 +13,8 @@ export default class shiftRotaRepository extends Repository {
     }
 
     //day should be in standard js date format!
-    async getShiftsForSpecifiedDay(day) {      
-        return this.model.find({
+     getShiftsForSpecifiedDay = async (day: Date) => {      
+        return this.model.findOne({
             date: {
                 $gte: dateFNS.startOfDay(day),
                 $lte: dateFNS.endOfDay(day)
@@ -23,7 +23,7 @@ export default class shiftRotaRepository extends Repository {
     }
 
     //day should be in standard js date format!
-    async getShiftsForCurrentMonthOnwards(day) {      
+    async getShiftsForCurrentMonthOnwards(day: Date) {      
         return this.model.find({
             date: {
                 $gte: dateFNS.startOfMonth(day),

@@ -1,4 +1,4 @@
-import { Repository } from "./repository.js";
+import { Repository } from "./repository";
 
 export default class LoggerRepository extends Repository {
     searchLogs = async (textQuery) => {

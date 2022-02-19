@@ -9,7 +9,7 @@ import shiftRota from './src/routes/shiftRota';
 
 import logModel from './src/models/logModel';
 import LoggerRepository from './src/repositories/logRepository';
-import LoggerService from './src/services/loggerServicew';
+import LoggerService from './src/services/loggerService';
 
 import shiftRotaModel from './src/models/shiftRotaModel';
 import ShiftRotaRepository from './src/repositories/shiftRotaRepository';
@@ -53,9 +53,8 @@ logger.saveLog({
         message: 'App started at '+ new Date().toUTCString()
     })
 
-
-
+assignNewTicket(lastAssignedUserId, logger);
 const job = new cron.CronJob('1/10 * 7-22 * * *',  async function () {
-   // lastAssignedUserId = await assignNewTicket('./src/lastAssignmentTimestamps.csv', lastAssignedUserId, logger);
+    lastAssignedUserId = await assignNewTicket(lastAssignedUserId, logger);
 });
 job.start();

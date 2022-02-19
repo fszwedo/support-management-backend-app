@@ -4,7 +4,7 @@ import * as mongoose from 'mongoose';
 
 export default class ShiftRotaRepository extends Repository {
     async getShiftForToday() {      
-        return this.model.find({
+        return this.model.findOne({
             date: {
                 $gte: dateFNS.startOfDay(new Date()),
                 $lte: dateFNS.endOfDay(new Date())
@@ -32,11 +32,12 @@ export default class ShiftRotaRepository extends Repository {
     }
 
     async updateByDate(shiftData) {
-        const date = new Date(shiftData.date)
+        shiftData.date = new Date(shiftData.date)
+
         return this.model.updateOne({
             date: {
-                $gte: dateFNS.startOfDay(date),
-                $lte: dateFNS.endOfDay(date)
+                $gte: dateFNS.startOfDay(shiftData.date),
+                $lte: dateFNS.endOfDay(shiftData.date)
             }
         }, shiftData);
     }

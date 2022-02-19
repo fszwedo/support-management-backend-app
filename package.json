@@ -5,7 +5,9 @@
   "main": "index.ts",
   "scripts": {
     "test": "jest",
-    "start": "node index.js"
+    "start": "ts-node index.ts",
+    "createTestZendeskTickets": "ts-node ./utilities/createTestTickets.ts",
+    "updateDbShifts": "ts-node ./utilities/updateDBShiftsFromCSV.ts"
   },
   "repository": {
     "type": "git",

@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import makeZendeskRequest from './src/services/helpscout/authenticationService.js'
+import makeZendeskRequest from '../src/services/zendesk/authenticationService'
 
 let ticket;
 let ticketPayload = {

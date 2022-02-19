@@ -1,4 +1,4 @@
-import makeZendeskRequest from "./authenticationService.js";
+import makeZendeskRequest from "./authenticationService";
 
 /*payload should be in format
 {
@@ -9,7 +9,7 @@ import makeZendeskRequest from "./authenticationService.js";
 }
 */
 
-const assignTicket = async (payload) => {
+const assignTicket = async (payload: object) => {
     const tickets = await makeZendeskRequest(`/api/v2/tickets/update_many`, 'PUT', payload);
     return tickets; //array of tickets
 }

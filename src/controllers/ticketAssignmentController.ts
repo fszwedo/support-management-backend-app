@@ -1,20 +1,20 @@
-import getAgents from "../services/zendesk/getAgentsService.js";
-import getNewTickets from "../services/zendesk/getNewTicketsService.js";
-import assignTicket from "../services/zendesk/assignTicketService.js";
-import selectAgentToAssign from "../services/zendesk/selectAgentToAssign.js";
-import shiftRotaService from "../services/shiftRotaServices.js";
-import shiftRotaRepository from "../repositories/shiftRotaRepository.js";
-import shiftRotaModel from '../models/shiftRotaModel.js'
-import makeZendeskRequest from "../services/zendesk/authenticationService.js";
+import getAgents from "../services/zendesk/getAgentsService";
+import getNewTickets from "../services/zendesk/getNewTicketsService";
+import assignTicket from "../services/zendesk/assignTicketService";
+import selectAgentToAssign from "../services/zendesk/selectAgentToAssign";
+import shiftRotaService from "../services/shiftRotaServices";
+import ShiftRotaRepository from "../repositories/shiftRotaRepository";
+import shiftRotaModel from '../models/shiftRotaModel'
+import makeZendeskRequest from "../services/zendesk/authenticationService";
 
-const assignNewTicket = async (shiftFileName, lastAssignedUserId, logger) => {
-    const shiftRota = new shiftRotaService(new shiftRotaRepository(shiftRotaModel));
+const assignNewTicket = async (lastAssignedUserId, logger) => {
+    const shiftRota = new shiftRotaService(new ShiftRotaRepository(shiftRotaModel));
 
     let agentToAssignId = lastAssignedUserId;
     let agentToAssignName = '';
 
     const newTickets = await getNewTickets();
-
+    
     //if there are no new tickets - stop execution
     if (newTickets.length === 0) {
         //console.log(`nothing to assign!`);
@@ -26,6 +26,7 @@ const assignNewTicket = async (shiftFileName, lastAssignedUserId, logger) => {
 
     //if there are new tickets - check available agents
     const agents = await getAgents(makeZendeskRequest);
+
     const isAvailableAgent = selectAgentToAssign(agents, agentToAssignId, todayShifts);
     
     //if there are no agents - stop execution

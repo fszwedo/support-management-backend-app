@@ -1,32 +1,19 @@
 import express from "express";
-import { readTextFile , writeTextFile } from '../services/readWriteCsv'
-import shiftRotaRepository from "../repositories/shiftRotaRepository";
-import shiftRotaService from "../services/shiftRotaServices";
-import shiftRotaModel from "../models/shiftRotaModel";
+import ShiftRotaController from "../controllers/shiftRotaController";
 
-const router = express.Router();
-const shiftRota = new shiftRotaService(new shiftRotaRepository(shiftRotaModel));
+const shiftRotaRoutes = (shiftRotaController: ShiftRotaController) => {
+    const router = express.Router();
 
-router.get('/', async (req,res) => {
-    res.send(await shiftRota.getAllShifts());
-})
+    router.get('/', shiftRotaController.getShiftRotaData)
+    
+    //user can get the shift data for specific day here
+    router.get('/:date', shiftRotaController.getShiftRotaForSelectedDate)
+ 
+    //user can save the shift data for specific day here
+    router.put('/', shiftRotaController.setShiftRotaForSelectedDate)
 
-router.get('/:id', async (req,res) => {
-    const fileContent =  await readTextFile('./src/lastAssignmentTimestamps.csv')
-    res.send(fileContent);
-})
+    return router;
+}
 
-router.post('/', async (req,res) => {
-    //verify the file content here 
-    //res.send(fileContent);
-})
 
-router.put('/', async (req,res) => {
-    //verify the file content here
-    const fileContent =  await readTextFile('./src/lastAssignmentTimestamps.csv');
-    writeTextFile('./src/newdata.csv', req.body)
-
-    res.send(fileContent);
-})
-
-export default router;
+export default shiftRotaRoutes;

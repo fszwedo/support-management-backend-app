@@ -13,6 +13,8 @@ import LoggerService from './src/services/loggerService';
 
 import shiftRotaModel from './src/models/shiftRotaModel';
 import ShiftRotaRepository from './src/repositories/shiftRotaRepository';
+import ShiftRotaService from './src/services/shiftRotaService';
+import ShiftRotaController from './src/controllers/shiftRotaController';
 
 import shiftChangeRequestModel from './src/models/shiftChangeRequestModel';
 import ShiftChangeRepository from './src/repositories/shiftChangeRequestRepository';
@@ -21,6 +23,8 @@ import ShiftChangeController from './src/controllers/shiftChangeController';
 import shiftChangeRoute from './src/routes/shiftChangeRequest';
 
 const shiftRotaRepository = new ShiftRotaRepository(shiftRotaModel);
+const shiftRotaService = new ShiftRotaService(shiftRotaRepository);
+const shiftRotaController = new ShiftRotaController(shiftRotaService);
 
 const shiftChangeRepository = new ShiftChangeRepository(shiftChangeRequestModel);
 const shiftChangeService = new ShiftChangeService(shiftChangeRepository, shiftRotaRepository);
@@ -30,7 +34,7 @@ const shiftChangeController = new ShiftChangeController(shiftChangeService);
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use('/api/shiftRota', shiftRota);
+app.use('/api/shiftRota', shiftRota(shiftRotaController));
 app.use('/api/shiftChangeRequest', shiftChangeRoute(shiftChangeController)); 
 
 const logger = new LoggerService(new LoggerRepository(logModel));
@@ -53,8 +57,8 @@ logger.saveLog({
         message: 'App started at '+ new Date().toUTCString()
     })
 
-assignNewTicket(lastAssignedUserId, logger);
-const job = new cron.CronJob('1/10 * 7-22 * * *',  async function () {
-    lastAssignedUserId = await assignNewTicket(lastAssignedUserId, logger);
-});
-job.start();
+// assignNewTicket(lastAssignedUserId, logger);
+// const job = new cron.CronJob('1/10 * 7-22 * * *',  async function () {
+//     lastAssignedUserId = await assignNewTicket(lastAssignedUserId, logger);
+// });
+// job.start();

@@ -1,5 +1,5 @@
 import ShiftRotaRepository from '../src/repositories/shiftRotaRepository';
-import shiftRotaService from '../src/services/shiftRotaServices';
+import shiftRotaService from '../src/services/shiftRotaService';
 import shiftRotaModel from '../src/models/shiftRotaModel';
 import mongoose from 'mongoose';
 import 'dotenv/config';

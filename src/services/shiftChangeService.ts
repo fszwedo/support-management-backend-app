@@ -30,7 +30,7 @@ export default class ShiftChangeService {
 
         //iterate over the changes in a single request
         for(let i = 0; i < shiftChangeRequest.requestedChanges.length; i++){
-            const shiftRotaToBeAdjusted: ShiftRota = await this.shiftRotaRepository.getShiftsForSpecifiedDay(new Date(shiftChangeRequest.requestedChanges[i].date));
+            const shiftRotaToBeAdjusted: ShiftRota = await this.shiftRotaRepository.getShiftsForSpecifiedDay(new Date(shiftChangeRequest.requestedChanges[i].date))[0];
             const agentIndex = shiftRotaToBeAdjusted.agents.findIndex(el => el === shiftChangeRequest.agent);
             //replace element at agents index with incoming change
             shiftRotaToBeAdjusted.hours[agentIndex] = shiftChangeRequest.requestedChanges[i].hours;

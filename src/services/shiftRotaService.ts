@@ -2,7 +2,7 @@ import shiftRotaModel from "../models/shiftRotaModel";
 import ShiftRotaRepository from "../repositories/shiftRotaRepository";
 import { ShiftRota } from "../models/shiftRotaModel";
 
-export default class shiftRotaService {
+export default class ShiftRotaService {
     private shiftRepository: ShiftRotaRepository;
 
     constructor(shiftRepository){
@@ -48,10 +48,6 @@ export default class shiftRotaService {
         }
 
         return shiftRotaEntry;
-    }
-
-    adjustShiftRotaEntry = async (shiftRotaEntry: ShiftRota) => {
-        return this.shiftRepository.updateByDate(shiftRotaEntry);
     }
 
     saveShiftRotaEntriesFromCsv = async (shiftData: ShiftRota[]) => {

@@ -8,13 +8,15 @@ const readTextFile = async (filePath) => {
   return new Promise((resolve, reject) => {
     fs.createReadStream(filePath)
       .pipe(csvparser({
+        //I'm sorry, but...
+        //@ts-ignore
         delimiter: ','
       }))
       .on('data', (row) => {
         arr.push(row);
       })
       .on('error', () => {
-        reject(error)
+        reject(Error)
       })
       .on('end', () => {
        // console.log('CSV file successfully processed');

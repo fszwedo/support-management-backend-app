@@ -1,7 +1,11 @@
+import { ShiftRota } from "../../models/shiftRotaModel";
+import { Agent } from './getAgentsService';
+
+
 // in this component we assume the times in shift schedule are in CET 
 //we convert everything to UTC for clarity
 
-const selectAgentToAssign = (agents, lastAssignedAgentId, shiftSchedule) => {
+const selectAgentToAssign = (agents: Agent[], lastAssignedAgentId: string, shiftSchedule: ShiftRota) => {
     //extract the data if the shift rota is provided as an array with one object-type element (instead of object itself)
     if (Array.isArray(shiftSchedule) === true) shiftSchedule = shiftSchedule[0];
     
@@ -20,8 +24,8 @@ const selectAgentToAssign = (agents, lastAssignedAgentId, shiftSchedule) => {
             const agentPositionInArray = shiftSchedule.agents.indexOf(agents[agent].name);
             const agentShiftLimits = shiftSchedule.hours[agentPositionInArray].split('-');
             //setting hours in current date
-            const agentStartTime = new Date(currentDate.setHours(agentShiftLimits[0], 0,0,0)).getUTCHours();
-            const agentEndTime = new Date(currentDate.setHours(agentShiftLimits[1], 0,0,0)).getUTCHours();
+            const agentStartTime = new Date(currentDate.setHours(parseInt(agentShiftLimits[0]), 0,0,0)).getUTCHours();
+            const agentEndTime = new Date(currentDate.setHours(parseInt(agentShiftLimits[1]), 0,0,0)).getUTCHours();
             
             //check if the agent works at the moment with 30 minute offset (so agent working till 5pm will get the tickets assigned till 4:30pm) - if yes then push him to the array
             if (agentStartTime <= currentHour && 

@@ -1,4 +1,4 @@
-import makeZendeskRequest from "./authenticationService.js";
+import makeZendeskRequest from "./authenticationService";
 
 const getNewTickets = async () => {
     const ticketsResponse = await makeZendeskRequest('/api/v2/tickets.json?page[size]=100&sort=-id', 'GET');

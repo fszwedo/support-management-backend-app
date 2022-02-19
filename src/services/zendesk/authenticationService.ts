@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const makeZendeskRequest = async (path, method, payload) => {
+const makeZendeskRequest = async (path: string, method: string, payload?: object) => {
     const options = {
         headers: {
             'Authorization': 'Basic ' + Buffer.from(`${process.env.EMAIL}/token:${process.env.APITOKEN}`).toString('base64')

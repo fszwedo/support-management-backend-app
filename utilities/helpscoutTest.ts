@@ -1,4 +1,4 @@
-import makeHelpscoutRequest, { METHODS } from './src/services/helpscout/authenticationService';
+import makeHelpscoutRequest, { METHODS } from '../src/services/helpscout/authenticationService';
 import 'dotenv/config';
 
 const test = async () => {

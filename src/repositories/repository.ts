@@ -1,0 +1,35 @@
+import * as mongoose from 'mongoose';
+
+export type MongoModel = mongoose.Model<any & mongoose.Document>;
+
+export class Repository {
+    model: MongoModel;
+    constructor(model: MongoModel){
+        this.model = model;
+        return this;
+    }
+
+    async getAll() {
+        return this.model.find();
+    }
+
+    async getById(id: mongoose.ObjectId) {
+        return this.model.findOne(id);
+    }
+
+    async create(obj: object) {
+        this.model.create(obj);
+    }
+
+    async updateById(id: mongoose.ObjectId, payload: object) {
+        return await this.model.findByIdAndUpdate(id, payload, {useFindAndModify: false, upsert: false});
+    }
+
+    async deleteByID(id: mongoose.ObjectId){
+        return this.model.findByIdAndDelete({_id: id});
+    }
+
+    async save(document: mongoose.Document){
+        return document.save();
+    }
+}

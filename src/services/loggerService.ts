@@ -1,7 +1,5 @@
-
 import LoggerRepository from '../repositories/logRepository';
 import { Log } from '../models/logModel';
-
 
 export default class LoggerService {
     loggerRepository;
@@ -18,8 +16,7 @@ export default class LoggerService {
         return this.loggerRepository.searchLogs(textQuery);
     }
 
-    saveLog = async (log: Log) => {     
-        //log.origin = path.basename(fileURLToPath(_getCallerFile()));
+    saveLog = async (log: Log) => {    
         log.timestamp = new Date().toUTCString();
         return this.loggerRepository.create(log);
     }

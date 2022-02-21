@@ -1,9 +1,12 @@
 import makeZendeskRequest from "./authenticationService";
 
 const getNewTickets = async () => {
+    let newTickets;
     const ticketsResponse = await makeZendeskRequest('/api/v2/tickets.json?page[size]=100&sort=-id', 'GET');
-    const tickets = ticketsResponse.tickets;
-    const newTickets = tickets.filter(ticket => ticket.status === 'new');
+    if (ticketsResponse.tickets) {
+        const tickets = ticketsResponse.tickets;    
+        newTickets = tickets.filter(ticket => ticket.status === 'new');
+    }    
     return newTickets;
 }
 

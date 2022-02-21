@@ -19,7 +19,6 @@ const LogSchema = new mongoose.Schema({
 LogSchema.index({
     type: 'text',
     message: 'text',
-    origin: 'text',
     additionalInfo: 'text'
 })
 

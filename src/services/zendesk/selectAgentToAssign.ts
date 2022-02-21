@@ -15,7 +15,6 @@ const selectAgentToAssign = (agents: Agent[], lastAssignedAgentId: string, shift
     const currentMinute = currentDate.getUTCMinutes();
 
     let currentlyAvailableAgents = [];
-    
     //first select the agents available at the current hour
     for (let agent in agents) {       
 
@@ -24,9 +23,9 @@ const selectAgentToAssign = (agents: Agent[], lastAssignedAgentId: string, shift
             const agentPositionInArray = shiftSchedule.agents.indexOf(agents[agent].name);
             const agentShiftLimits = shiftSchedule.hours[agentPositionInArray].split('-');
             //setting hours in current date
-            const agentStartTime = new Date(currentDate.setHours(parseInt(agentShiftLimits[0]), 0,0,0)).getUTCHours();
-            const agentEndTime = new Date(currentDate.setHours(parseInt(agentShiftLimits[1]), 0,0,0)).getUTCHours();
-            
+            const date = new Date();
+            const agentStartTime = new Date(date.setHours(parseInt(agentShiftLimits[0]), 0,0,0)).getUTCHours();
+            const agentEndTime = new Date(date.setHours(parseInt(agentShiftLimits[1]), 0,0,0)).getUTCHours();
             //check if the agent works at the moment with 30 minute offset (so agent working till 5pm will get the tickets assigned till 4:30pm) - if yes then push him to the array
             if (agentStartTime <= currentHour && 
                     (agentEndTime > currentHour + 1 || 

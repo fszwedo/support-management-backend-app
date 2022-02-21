@@ -2,7 +2,7 @@ import getAgents from "../services/zendesk/getAgentsService";
 import getNewTickets from "../services/zendesk/getNewTicketsService";
 import assignTicket from "../services/zendesk/assignTicketService";
 import selectAgentToAssign from "../services/zendesk/selectAgentToAssign";
-import shiftRotaService from "../services/shiftRotaServices";
+import shiftRotaService from "../services/shiftRotaService";
 import ShiftRotaRepository from "../repositories/shiftRotaRepository";
 import shiftRotaModel from '../models/shiftRotaModel'
 import makeZendeskRequest from "../services/zendesk/authenticationService";

@@ -15,10 +15,11 @@ const makeZendeskRequest = async (path: string, method: string, payload?: object
         if (method === 'POST') res = await axios.post(`${process.env.URL}${path}`, payload, options);
         return res.data;
     } catch (error) {
-        console.log(`Request failed with error: ${error.response.statusText}`)
-        if (error.response.status === 429) {
+        console.log(`Request failed with error: ${error}`)
+        if (error.response.status && error.response.status === 429) {
             console.log(`Time to restart ${error.response.headers['retry-after']/60} minutes`)
         }
+        return;
     }
 
     return;

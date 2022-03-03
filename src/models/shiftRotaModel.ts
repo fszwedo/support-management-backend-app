@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 export interface ShiftRota {
     _id?: mongoose.ObjectId,
-    date:  Date,
+    date: string, //date has to be in format yy-mm-dd!!!!
     agents: string[],
     hours: string[]
 }
@@ -10,12 +10,28 @@ export interface ShiftRota {
 const Schema = mongoose.Schema;
 
 const ShiftRotaSchema = new Schema({
-    date: { type: Date, required: true },
-    agents: { type: [ String ],
-        validate: v => Array.isArray(v) && v.length > 0},
-    hours: { type: [ String ], 
-        validate: v => Array.isArray(v) && v.length > 0}
-}) 
+    date: {
+        type: String, required: true,
+        validate: {
+            validator: v => {
+                const dateParts = v.split('-');
+                if (dateParts.length === 3 &&
+                    !dateParts.find(e => e.length != 2) &&
+                    !dateParts.find(e => typeof (e) != 'string')) return true;
+                return false
+            },
+            message: 'Date has to be in format yy-mm-dd!'
+        }
+    },
+    agents: {
+        type: [String],
+        validate: v => Array.isArray(v) && v.length > 0
+    },
+    hours: {
+        type: [String],
+        validate: v => Array.isArray(v) && v.length > 0
+    }
+})
 
 export default mongoose.model<ShiftRota & mongoose.Document>('ShiftRota', ShiftRotaSchema);
 export { ShiftRotaSchema };

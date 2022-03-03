@@ -18,15 +18,14 @@ export default class ShiftRotaService {
     }
 
     getShiftsForSpecifiedDay = async (day: string) => {
-        return this.shiftRepository.getShiftsForSpecifiedDay(new Date(day));
+        return this.shiftRepository.getShiftsForSpecifiedDay(day);
     }
 
     getShiftsFromCurrentMonthOnwards = async (day: string) => {
-        return this.shiftRepository.getShiftsForCurrentMonthOnwards(new Date(day));
+        return this.shiftRepository.getShiftsForCurrentMonthOnwards(day);
     }
 
     saveShiftRotaEntry = async (shiftRotaEntry: ShiftRota) => {
-        shiftRotaEntry.date = new Date(shiftRotaEntry.date); 
         const newShiftRota = new shiftRotaModel(shiftRotaEntry);
         
         try {
@@ -34,12 +33,12 @@ export default class ShiftRotaService {
            const checkIfThisShiftExists = await this.shiftRepository.getShiftsForSpecifiedDay(shiftRotaEntry.date)
                        
            if (checkIfThisShiftExists) {
-               console.log(`Updating entry for ${shiftRotaEntry.date.toLocaleDateString('en-US')}...`)
+               console.log(`Updating entry for ${shiftRotaEntry.date}...`)
                this.shiftRepository.updateByDate(shiftRotaEntry);
            }
            else {
                this.shiftRepository.create(shiftRotaEntry);
-               console.log(`Creating entry for ${shiftRotaEntry.date.toLocaleDateString('en-US')}...`)
+               console.log(`Creating entry for ${shiftRotaEntry.date}...`)
             }
         }
         catch (ex) {

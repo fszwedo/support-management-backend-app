@@ -3,42 +3,31 @@ import * as dateFNS from 'date-fns';
 import * as mongoose from 'mongoose';
 
 export default class ShiftRotaRepository extends Repository {
-    async getShiftForToday() {      
+    async getShiftForToday() {  
         return this.model.findOne({
-            date: {
-                $gte: dateFNS.startOfDay(new Date()),
-                $lte: dateFNS.endOfDay(new Date())
-            }
+            date: new Date().toISOString().substring(2).split('T')[0]
         })
     }
 
     //day should be in standard js date format!
-     getShiftsForSpecifiedDay = async (day: Date) => { 
+     getShiftsForSpecifiedDay = async (day: String) => { 
         return this.model.findOne({
-            date: {
-                $gte: dateFNS.startOfDay(day),
-                $lte: dateFNS.endOfDay(day)
-            }
+            date: day
         })
     }
 
     //day should be in standard js date format!
-    async getShiftsForCurrentMonthOnwards(day: Date) {      
+    async getShiftsForCurrentMonthOnwards(day: String) { 
+        const date = day.slice(0, -2) + '01';
+        
         return this.model.find({
-            date: {
-                $gte: dateFNS.startOfMonth(day),
-            }
+            date: date
         })
     }
 
-    async updateByDate(shiftData) {
-        shiftData.date = new Date(shiftData.date)
-
+    async updateByDate(shiftData) {      
         return this.model.updateOne({
-            date: {
-                $gte: dateFNS.startOfDay(shiftData.date),
-                $lte: dateFNS.endOfDay(shiftData.date)
-            }
+            date: shiftData.date
         }, shiftData);
     }
 };

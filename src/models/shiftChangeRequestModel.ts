@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose';
 export interface ShiftChangeRequest {
     _id: mongoose.ObjectId,
     agent: string
-    requestedChanges: [{date: Date,
+    requestedChanges: [{date: string,
             hours: string
         }]
 };
@@ -11,7 +11,7 @@ export interface ShiftChangeRequest {
 const ShiftChangeRequestSchema = new mongoose.Schema({
     agent: { type: String },
     requestedChanges: {
-        type: [{date: Date,
+        type: [{date: String,
             hours: String
         }],
         validate:   v => Array.isArray(v) 

@@ -3,9 +3,9 @@ import { Agent } from './getAgentsService';
 
 
 // in this component we assume the times in shift schedule are in CET 
-//we convert everything to UTC for clarity
+// we convert everything to UTC for clarity
 
-const selectAgentToAssign = (agents: Agent[], lastAssignedAgentId: string, shiftSchedule: ShiftRota) => {
+const selectAgentToAssign = async (agents: Agent[], getLastAssignedAgentId: Function, shiftSchedule: ShiftRota) => {
     //extract the data if the shift rota is provided as an array with one object-type element (instead of object itself)
     if (Array.isArray(shiftSchedule) === true) shiftSchedule = shiftSchedule[0];
     
@@ -22,10 +22,12 @@ const selectAgentToAssign = (agents: Agent[], lastAssignedAgentId: string, shift
         if (shiftSchedule.agents.find(e => e === agents[agent].name)) {
             const agentPositionInArray = shiftSchedule.agents.indexOf(agents[agent].name);
             const agentShiftLimits = shiftSchedule.hours[agentPositionInArray].split('-');
+            
             //setting hours in current date
             const date = new Date();
             const agentStartTime = new Date(date.setHours(parseInt(agentShiftLimits[0]), 0,0,0)).getUTCHours();
             const agentEndTime = new Date(date.setHours(parseInt(agentShiftLimits[1]), 0,0,0)).getUTCHours();
+            
             //check if the agent works at the moment with 30 minute offset (so agent working till 5pm will get the tickets assigned till 4:30pm) - if yes then push him to the array
             if (agentStartTime <= currentHour && 
                     (agentEndTime > currentHour + 1 || 
@@ -36,8 +38,11 @@ const selectAgentToAssign = (agents: Agent[], lastAssignedAgentId: string, shift
     }
 
     //then select the agent that should get the ticket assigned
+    
+    const lastAssignedAgentId = await getLastAssignedAgentId();
+
     for (let agent in currentlyAvailableAgents) {
-        if (currentlyAvailableAgents[agent].id > lastAssignedAgentId){
+        if (currentlyAvailableAgents[agent].id > lastAssignedAgentId.agentId){
            return [currentlyAvailableAgents[agent].id, currentlyAvailableAgents[agent].name]
         } 
     }

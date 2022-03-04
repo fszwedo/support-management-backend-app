@@ -7,32 +7,37 @@ import ShiftRotaRepository from "../repositories/shiftRotaRepository";
 import shiftRotaModel from '../models/shiftRotaModel'
 import makeZendeskRequest from "../services/zendesk/authenticationService";
 
-const assignNewTicket = async (lastAssignedUserId, logger) => {
-    const shiftRota = new shiftRotaService(new ShiftRotaRepository(shiftRotaModel));
+import lastAssignedAgentService from '../services/lastAssignedAgentService';
+import lastAssignedAgentModel from "../models/lastAssignedAgentModel";
+import LastAssignedAgentRepository from '../repositories/lastAssignedAgentRepository';
 
-    let agentToAssignId = lastAssignedUserId;
-    let agentToAssignName = '';
+const assignNewTickets = async (logger) => {
+    const shiftRota = new shiftRotaService(new ShiftRotaRepository(shiftRotaModel));
+    const lastAssignedAgent = new lastAssignedAgentService(new LastAssignedAgentRepository(lastAssignedAgentModel));
+    
+    let agentToAssignId, agentToAssignName;
 
     const newTickets = await getNewTickets();
     
     //if there are no new tickets - stop execution
     if (newTickets.length === 0) {
         //console.log(`nothing to assign!`);
-        return lastAssignedUserId;
+        return;
     }
 
     //get the shift data
     const todayShifts = await shiftRota.getTodayShifts();
 
-    //if there are new tickets - check available agents
+    //if there are new tickets - get agents from Zendesk
     const agents = await getAgents(makeZendeskRequest);
 
-    const isAvailableAgent = selectAgentToAssign(agents, agentToAssignId, todayShifts);
+    //check which agents are available at the current time
+    const isAvailableAgent = await selectAgentToAssign(agents, lastAssignedAgent.getLastAgent, todayShifts);
     
     //if there are no agents - stop execution
     if (!isAvailableAgent[0]) {
         //console.log(`no available agents!`);
-        return lastAssignedUserId;
+        return;
     }
 
     //initialize the batch ticket update request payload values
@@ -42,7 +47,7 @@ const assignNewTicket = async (lastAssignedUserId, logger) => {
 
     //iterate over the tickets and add them to the payload for batch update
     for (let i = 0; i < newTickets.length; i++) {
-        [agentToAssignId, agentToAssignName] = selectAgentToAssign(agents, agentToAssignId, todayShifts);
+        [agentToAssignId, agentToAssignName] = await selectAgentToAssign(agents, lastAssignedAgent.getLastAgent, todayShifts);
         
         let ticket = {
             "id": newTickets[i].id,
@@ -57,9 +62,13 @@ const assignNewTicket = async (lastAssignedUserId, logger) => {
         })
     }
 
-    assignTicket(newTicketPayload);
+    //save info about last assigned agent in the db
+    lastAssignedAgent.saveLastAgent(agentToAssignId);
 
-    return agentToAssignId;
+    //finally - assign the tickets :)
+   // assignTicket(newTicketPayload);
+
+    return;
 }
 
-export default assignNewTicket;
+export default assignNewTickets;

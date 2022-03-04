@@ -24,8 +24,6 @@ const assignNewTicket = async (lastAssignedUserId, logger) => {
     //get the shift data
     const todayShifts = await shiftRota.getTodayShifts();
 
-    console.log(todayShifts)
-
     //if there are new tickets - check available agents
     const agents = await getAgents(makeZendeskRequest);
 

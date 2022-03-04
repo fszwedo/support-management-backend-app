@@ -58,7 +58,7 @@ logger.saveLog({
         message: 'App started at '+ new Date().toUTCString()
     })
 
-const job = new cron.CronJob('1/10 * 7-22 * * *',  async function () {
+const job = new cron.CronJob('1/10 * 6-24 * * *',  async function () {
     lastAssignedUserId = await assignNewTicket(lastAssignedUserId, logger);
 });
 job.start();

@@ -17,7 +17,7 @@ const assignNewTicket = async (lastAssignedUserId, logger) => {
     
     //if there are no new tickets - stop execution
     if (newTickets.length === 0) {
-        console.log(`nothing to assign!`);
+        //console.log(`nothing to assign!`);
         return lastAssignedUserId;
     }
 
@@ -33,7 +33,7 @@ const assignNewTicket = async (lastAssignedUserId, logger) => {
     
     //if there are no agents - stop execution
     if (!isAvailableAgent[0]) {
-        console.log(`no available agents!`);
+        //console.log(`no available agents!`);
         return lastAssignedUserId;
     }
 
@@ -59,7 +59,7 @@ const assignNewTicket = async (lastAssignedUserId, logger) => {
         })
     }
 
-    //assignTicket(newTicketPayload);
+    assignTicket(newTicketPayload);
 
     return agentToAssignId;
 }

@@ -3,13 +3,13 @@ import { Agent } from './getAgentsService';
 
 
 // in this component we assume the times in shift schedule are in CET 
-//we convert everything to UTC for clarity
+// we then convert everything to UTC for clarity
 
-const selectAgentToAssign = (agents: Agent[], lastAssignedAgentId: string, shiftSchedule: ShiftRota) => {
+const selectAgentToAssign = async (agents: Agent[], getLastAssignedAgentId: Function, shiftSchedule: ShiftRota) => {
     //extract the data if the shift rota is provided as an array with one object-type element (instead of object itself)
     if (Array.isArray(shiftSchedule) === true) shiftSchedule = shiftSchedule[0];
-    
-    //assure the date will be in UTC
+
+    //get hour and minute in UTC
     const currentDate = new Date();
     const currentHour = currentDate.getUTCHours();    
     const currentMinute = currentDate.getUTCMinutes();
@@ -20,24 +20,32 @@ const selectAgentToAssign = (agents: Agent[], lastAssignedAgentId: string, shift
 
         //if in the array of available agents we have a name of the agent that was returned Zendesk - get his working hours
         if (shiftSchedule.agents.find(e => e === agents[agent].name)) {
+            //extract agent from the shift rota array
             const agentPositionInArray = shiftSchedule.agents.indexOf(agents[agent].name);
+            //extract the shift start and end hours to two-element array
             const agentShiftLimits = shiftSchedule.hours[agentPositionInArray].split('-');
-            //setting hours in current date
-            const date = new Date();
-            const agentStartTime = new Date(date.setHours(parseInt(agentShiftLimits[0]), 0,0,0)).getUTCHours();
-            const agentEndTime = new Date(date.setHours(parseInt(agentShiftLimits[1]), 0,0,0)).getUTCHours();
+
+            //get CET hours and decrement to get UTC hours
+            const agentStartTime = parseInt(agentShiftLimits[0]) - 1;
+            const agentEndTime = parseInt(agentShiftLimits[1]) - 1;
+
             //check if the agent works at the moment with 30 minute offset (so agent working till 5pm will get the tickets assigned till 4:30pm) - if yes then push him to the array
+            //agents working till 10pm are getting the tickets assigned till the end of the shift
             if (agentStartTime <= currentHour && 
-                    (agentEndTime > currentHour + 1 || 
+                    (agentEndTime - 1 > currentHour || 
                     (agentEndTime - 1 === currentHour && currentMinute < 30) || 
-                    (agentEndTime  === 22 && currentHour === 21))) 
+                    //below we check if end hour is 10PM CET - but it is 9PM UTC, thus 'agentEndTime  === 21'
+                    (agentEndTime  === 21 && currentHour === 20))) 
                     /*then*/ currentlyAvailableAgents.push(agents[agent]);
         }        
     }
 
     //then select the agent that should get the ticket assigned
+    
+    const lastAssignedAgentId = await getLastAssignedAgentId();
+
     for (let agent in currentlyAvailableAgents) {
-        if (currentlyAvailableAgents[agent].id > lastAssignedAgentId){
+        if (currentlyAvailableAgents[agent].id > lastAssignedAgentId.agentId){
            return [currentlyAvailableAgents[agent].id, currentlyAvailableAgents[agent].name]
         } 
     }

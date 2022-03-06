@@ -43,7 +43,7 @@ export default class ShiftRotaService {
         }
         catch (ex) {
             console.log(ex.message)
-            return ex.message;
+            throw ex.message;
         }
 
         return shiftRotaEntry;
@@ -68,12 +68,13 @@ export default class ShiftRotaService {
                 }
                 await this.saveShiftRotaEntry(formattedShiftData);                
             } catch (error) {
-                console.log(error)
+                console.log(error)                
                 successCount--;
-            }
-            
+            }            
         }
-
-        return `${successCount} entries have been created!`
+        
+        console.log(`${successCount} entries have been created/updated!`)
+        if (successCount != shiftData.length) console.log(`${shiftData.length - successCount} error/s occured during the process! Check your data sheet.`)
+        return;
     }
 }

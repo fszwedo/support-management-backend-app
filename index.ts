@@ -4,7 +4,7 @@ var cors = require('cors');
 require('dotenv').config()
 import cron from 'cron'
 
-import assignNewTicket from './src/controllers/ticketAssignmentController';
+import assignNewTickets from './src/controllers/ticketAssignmentController';
 import shiftRota from './src/routes/shiftRota';
 
 import logModel from './src/models/logModel';
@@ -47,8 +47,6 @@ const mongooseConnection = async () => {
 }
 mongooseConnection();
 
-let lastAssignedUserId = 0;
-
 app.listen(process.env.PORT, () => {
      console.log(`listening on ${process.env.PORT}`)
 })
@@ -59,6 +57,6 @@ logger.saveLog({
     })
 
 const job = new cron.CronJob('1/10 * 6-22 * * *',  async function () {
-    lastAssignedUserId = await assignNewTicket(lastAssignedUserId, logger);
+    assignNewTickets(logger);
 });
 job.start();

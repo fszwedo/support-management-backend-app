@@ -18,7 +18,7 @@ const updateShiftsInDb = async () => {
     //@ts-ignore
     shiftRota.saveShiftRotaEntriesFromCsv(shiftData)
 
-    return null;
+    return;
 }
 
 updateShiftsInDb();

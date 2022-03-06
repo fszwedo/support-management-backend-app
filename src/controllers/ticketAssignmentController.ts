@@ -66,7 +66,7 @@ const assignNewTickets = async (logger) => {
     lastAssignedAgent.saveLastAgent(agentToAssignId);
 
     //finally - assign the tickets :)
-   // assignTicket(newTicketPayload);
+    assignTicket(newTicketPayload);
 
     return;
 }

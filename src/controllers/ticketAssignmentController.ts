@@ -49,6 +49,9 @@ const assignNewTickets = async (logger) => {
     for (let i = 0; i < newTickets.length; i++) {
         [agentToAssignId, agentToAssignName] = await selectAgentToAssign(agents, lastAssignedAgent.getLastAgent, todayShifts);
         
+        //save info about last assigned agent in the db
+        await lastAssignedAgent.saveLastAgent(agentToAssignId);
+
         let ticket = {
             "id": newTickets[i].id,
             "assignee_id": agentToAssignId
@@ -60,10 +63,7 @@ const assignNewTickets = async (logger) => {
             type: 'info/ticket assignment',
             message: 'Ticket id ' + newTicketPayload.tickets[i].id + ' was assigned to ' + agentToAssignName
         })
-    }
-
-    //save info about last assigned agent in the db
-    lastAssignedAgent.saveLastAgent(agentToAssignId);
+    }    
 
     //finally - assign the tickets :)
     assignTicket(newTicketPayload);

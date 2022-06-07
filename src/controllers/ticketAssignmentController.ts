@@ -57,7 +57,7 @@ const assignNewTickets = async (logger) => {
             "assignee_id": agentToAssignId
         }
         newTicketPayload.tickets.push(ticket);
-        console.log(new Date().toLocaleString() + ' ticket id ' + newTicketPayload.tickets[i].id + ' was assigned to ' + agentToAssignName)
+        console.log(new Date().toLocaleString() + ' UTC ticket id ' + newTicketPayload.tickets[i].id + ' was assigned to ' + agentToAssignName)
         
         logger.saveLog({
             type: 'info/ticket assignment',

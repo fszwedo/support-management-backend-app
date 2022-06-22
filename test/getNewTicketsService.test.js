@@ -71,7 +71,21 @@ const expectedTicketsArray = [
         "via": {
             "channel": "web"
         }
-    }
+    },
+    {
+        "assignee_id": 235323,
+        "status": "new",
+        "tags": [
+            "enterprise",
+            "other_tag"
+        ],
+        "type": "incident",
+        "updated_at": "2011-05-05T10:38:52Z",
+        "url": "https://company.zendesk.com/api/v2/tickets/35436.json",
+        "via": {
+            "channel": "web"
+        }
+    },
 ]
 
 describe('Test getNewTickets service', () => {

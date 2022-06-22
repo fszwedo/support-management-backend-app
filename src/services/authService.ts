@@ -25,16 +25,37 @@ export default class AuthService {
             { expiresIn: expiresIn });
     };
 
-    hashPassword = async (user: UserModel) => {
-        return await bcrypt.hash(user.password, this.saltRounds);
+    hashPassword = async (password: string) => {
+        return await bcrypt.hash(password, this.saltRounds);
     }
 
     checkPassword = async (password: string, user: User) => {
         return await bcrypt.compare(password, user.password)
     }
 
+    findUser = async (email: string) => {
+        return await this.repository.find({email: email})
+    }
+
     saveUser = async (user: User) => {
         return await this.repository.create(user);
     }
+
+    decodeToken = (token: string) => {
+        return jwt.decode(token);
+    }
+
+    getToken = (req: express.Request) => {
+        return req.header(this.tokenName);
+    }
+
+    isUser = (token: string): boolean => {
+        return this.decodeToken(token).type === UserType.User
+    }
+
+    isAdmin = (token: string): boolean => {
+        return this.decodeToken(token).type === UserType.Admin
+    }
+
 
 }

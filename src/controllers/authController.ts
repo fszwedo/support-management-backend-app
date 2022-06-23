@@ -14,7 +14,8 @@ export default class AuthController {
 
     register = async (req: express.Request, res: express.Response, next?: express.NextFunction) => {
         try {
-            let user = this.service.findUser(req.body.email)
+            let user = await this.service.findUser(req.body.email)
+            console.log(req.body)
             if (user) return res.status(400).json({message: 'User with this email already exists!'});
             req.body.password = await this.service.hashPassword(req.body.password)
             user = new User(req.body)

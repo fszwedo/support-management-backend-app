@@ -22,6 +22,12 @@ import ShiftChangeService from './src/services/shiftChangeService';
 import ShiftChangeController from './src/controllers/shiftChangeController';
 import shiftChangeRoute from './src/routes/shiftChangeRequest';
 
+import userModel from './src/models/userModel';
+import UserRepository from './src/repositories/userRepository';
+import AuthService from './src/services/authService';
+import AuthController from './src/controllers/authController';
+import auth from './src/routes/auth';
+
 const shiftRotaRepository = new ShiftRotaRepository(shiftRotaModel);
 const shiftRotaService = new ShiftRotaService(shiftRotaRepository);
 const shiftRotaController = new ShiftRotaController(shiftRotaService);
@@ -30,6 +36,10 @@ const shiftChangeRepository = new ShiftChangeRepository(shiftChangeRequestModel)
 const shiftChangeService = new ShiftChangeService(shiftChangeRepository, shiftRotaRepository);
 const shiftChangeController = new ShiftChangeController(shiftChangeService);
 
+const userRepository = new UserRepository(userModel);
+const authService = new AuthService(userRepository, process.env.JWTPRIVATEKEY);
+const authController = new AuthController(authService);
+
 console.log('starting for ' + process.env.URL)
 
 const app = express();
@@ -37,6 +47,7 @@ app.use(cors());
 app.use(express.json());
 app.use('/api/shiftRota', shiftRota(shiftRotaController));
 app.use('/api/shiftChangeRequest', shiftChangeRoute(shiftChangeController)); 
+app.use('/api', auth(authController));
 
 const logger = new LoggerService(new LoggerRepository(logModel));
 
@@ -57,6 +68,6 @@ logger.saveLog({
     })
 
 const job = new cron.CronJob('1/10 * 6-22 * * *',  async function () {
-    assignNewTickets(logger);
+   // assignNewTickets(logger);
 });
 job.start();

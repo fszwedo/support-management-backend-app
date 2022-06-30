@@ -9,19 +9,34 @@ export default class lastAssignedAgentService {
         this.lastAssignedAgentRepository = lastAssignedAgentRepository;
     }
 
-    saveLastAgent = async (lastAssignedAgentId: string) => { 
-        const previousAssignedAgent = await this.lastAssignedAgentRepository.getLast();
-        if (previousAssignedAgent) return this.lastAssignedAgentRepository.updateById(previousAssignedAgent._id, {
-            agentId: lastAssignedAgentId
-        })
+    saveLastAgent = async (lastAssignedAgentId: string, ticketLevel: string = null) => { 
+        const previousAssignedAgent = await this.lastAssignedAgentRepository.getLast(ticketLevel);
+        if(ticketLevel === null) {
+            if (previousAssignedAgent) return this.lastAssignedAgentRepository.updateById(previousAssignedAgent._id, {
+                agentId: lastAssignedAgentId
+            })
 
-        return this.lastAssignedAgentRepository.create({
-            agentId: lastAssignedAgentId
-        })
+            return this.lastAssignedAgentRepository.create({
+                agentId: lastAssignedAgentId                
+            })
+        }
+        else {
+
+            if (previousAssignedAgent) return this.lastAssignedAgentRepository.updateById(previousAssignedAgent._id, {
+                agentId: lastAssignedAgentId,
+                level: ticketLevel
+            })
+
+            return this.lastAssignedAgentRepository.create({
+                agentId: lastAssignedAgentId,
+                level: ticketLevel
+            })
+
+        }
     }
 
-    getLastAgent = async () => {
-        const lastAgentId = await this.lastAssignedAgentRepository.getLast();
+    getLastAgent = async (ticketLevel: string = null) => {
+        const lastAgentId = await this.lastAssignedAgentRepository.getLast(ticketLevel);
 
         if (lastAgentId) return lastAgentId;
         return 0;

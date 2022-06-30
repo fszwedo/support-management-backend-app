@@ -18,14 +18,12 @@ const assignNewTickets = async (logger) => {
     
     let agentToAssignId, agentToAssignName;
 
-    const newTickets = await filterTicketsByKeyword(getNewTickets);
-    
+    const newTickets = await filterTicketsByKeyword(getNewTickets);    
     //if there are no new tickets - stop execution
     if (newTickets.length === 0) {
-        //console.log(`nothing to assign!`);
+       // console.log(`nothing to assign!`);
         return;
     }
-
 
     //get the shift data
     const todayShifts = await shiftRota.getTodayShifts();
@@ -34,8 +32,8 @@ const assignNewTickets = async (logger) => {
     const agents = await getAgents(makeZendeskRequest);
 
     //check which agents are available at the current time
-    const isAvailableAgent = await selectAgentToAssign(agents, lastAssignedAgent.getLastAgent, todayShifts,'any');
-    
+    const isAvailableAgent = await selectAgentToAssign(agents, lastAssignedAgent.getLastAgent, todayShifts,null);
+  //  return;
     //if there are no agents - stop execution
     if (!isAvailableAgent[0]) {
         //console.log(`no available agents!`);
@@ -46,25 +44,25 @@ const assignNewTickets = async (logger) => {
     let newTicketPayload = {
         "tickets": []
     };
-
+   
     //iterate over the tickets and add them to the payload for batch update
     for (let i = 0; i < newTickets.length; i++) {
         [agentToAssignId, agentToAssignName] = await selectAgentToAssign(agents, lastAssignedAgent.getLastAgent, todayShifts, newTickets[i].level);
-        
+        console.log("selectLastAgent:",agentToAssignId, agentToAssignName, newTickets[i].level);
         //save info about last assigned agent in the db
-        await lastAssignedAgent.saveLastAgent(agentToAssignId);
+        await lastAssignedAgent.saveLastAgent(agentToAssignId, newTickets[i].level);
 
         let ticket = {
             "id": newTickets[i].id,
             "assignee_id": agentToAssignId,
-            'level': newTickets[i].level
+            "level": newTickets[i].level
         }
         newTicketPayload.tickets.push(ticket);
-        console.log(new Date().toLocaleString() + ' ticket id ' + newTicketPayload.tickets[i].id + ' ticket level ' + newTicketPayload.tickets[i].level + ' was assigned to ' + agentToAssignName)
+        console.log(new Date().toLocaleString() + ' ticket id ' + newTicketPayload.tickets[i].id + ', ticket level ' + newTicketPayload.tickets[i].level + ' was assigned to ' + agentToAssignName)
         
         logger.saveLog({
             type: 'info/ticket assignment',
-            message: 'Ticket id ' + newTicketPayload.tickets[i].id + ' was assigned to ' + agentToAssignName
+            message: 'Ticket id ' + newTicketPayload.tickets[i].id + ', ticket level ' + newTicketPayload.tickets[i].level + ' was assigned to ' + agentToAssignName
         })
     }    
 

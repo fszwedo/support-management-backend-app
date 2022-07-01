@@ -24,6 +24,8 @@ import shiftChangeRoute from './src/routes/shiftChangeRequest';
 
 import userModel from './src/models/userModel';
 import UserRepository from './src/repositories/userRepository';
+import UserService from './src/services/userService';
+
 import AuthService from './src/services/authService';
 import AuthController from './src/controllers/authController';
 import auth from './src/routes/auth';
@@ -37,13 +39,17 @@ const shiftChangeService = new ShiftChangeService(shiftChangeRepository, shiftRo
 const shiftChangeController = new ShiftChangeController(shiftChangeService);
 
 const userRepository = new UserRepository(userModel);
+const userService = new UserService(userRepository)
+
 const authService = new AuthService(userRepository, process.env.JWTPRIVATEKEY);
-const authController = new AuthController(authService);
+const authController = new AuthController(authService, userService);
 
 console.log('starting for ' + process.env.URL)
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    exposedHeaders: 'x-auth-token'
+}));
 app.use(express.json());
 app.use('/api/shiftRota', shiftRota(shiftRotaController));
 app.use('/api/shiftChangeRequest', shiftChangeRoute(shiftChangeController)); 

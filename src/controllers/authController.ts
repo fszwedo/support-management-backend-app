@@ -2,24 +2,21 @@ import bcrypt from 'bcrypt';
 import jsonwebtoken from 'jsonwebtoken';
 import AuthService from '../services/authService';
 import * as express from 'express';
-import User from '../models/userModel'
+import User from '../models/userModel';
+import UserService from '../services/userService';
 
 
 export default class AuthController {
-    private service;
 
-    constructor(service: AuthService) {
-        this.service = service
-    }
+    constructor(private authService: AuthService, private userService: UserService) {}
 
     register = async (req: express.Request, res: express.Response, next?: express.NextFunction) => {
         try {
-            let user = await this.service.findUser(req.body.email)
-            console.log(req.body)
+            let user = await this.userService.findUser(req.body.email)
             if (user) return res.status(400).json({message: 'User with this email already exists!'});
-            req.body.password = await this.service.hashPassword(req.body.password)
+            req.body.password = await this.authService.hashPassword(req.body.password)
             user = new User(req.body)
-            await this.service.saveUser(user);
+            await this.userService.saveUser(user);
             res.status(201).json({message: 'User created!'});
         }
         catch (err) {
@@ -29,11 +26,11 @@ export default class AuthController {
 
     login = async (req: express.Request, res: express.Response, next?: express.NextFunction) => {
         try {
-            const user = await this.service.findUser(req.body.email);
+            const user = await this.userService.findUser(req.body.email);
             if (!user) return res.status(401).json({message: 'Invalid email or password.'});
-            const passwordCheckResult = await this.service.checkPassword(req.body.password, user)
+            const passwordCheckResult = await this.authService.checkPassword(req.body.password, user)
             if (!passwordCheckResult)  return res.status(401).json({message: 'Invalid email or password.'});
-            const token = this.service.generateToken(user);
+            const token = this.authService.generateToken(user);
             res.header('x-auth-token', token).status(200).json({_id: user._id, type: user.type});
         }
         catch {

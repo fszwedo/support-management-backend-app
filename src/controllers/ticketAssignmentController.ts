@@ -12,13 +12,15 @@ import lastAssignedAgentModel from "../models/lastAssignedAgentModel";
 import LastAssignedAgentRepository from '../repositories/lastAssignedAgentRepository';
 import filterTicketsByKeyword from "../services/zendesk/filterTicketsByKeyword";
 
+const chalk = require('chalk');
+
 const assignNewTickets = async (logger) => {
     const shiftRota = new shiftRotaService(new ShiftRotaRepository(shiftRotaModel));
     const lastAssignedAgent = new lastAssignedAgentService(new LastAssignedAgentRepository(lastAssignedAgentModel));
     
     let agentToAssignId, agentToAssignName;
 
-    const newTickets = await filterTicketsByKeyword(getNewTickets);    
+    const newTickets = await filterTicketsByKeyword(getNewTickets);  
     //if there are no new tickets - stop execution
     if (newTickets.length === 0) {
        // console.log(`nothing to assign!`);
@@ -48,17 +50,17 @@ const assignNewTickets = async (logger) => {
     //iterate over the tickets and add them to the payload for batch update
     for (let i = 0; i < newTickets.length; i++) {
         [agentToAssignId, agentToAssignName] = await selectAgentToAssign(agents, lastAssignedAgent.getLastAgent, todayShifts, newTickets[i].level);
-        console.log("selectLastAgent:",agentToAssignId, agentToAssignName, newTickets[i].level);
         //save info about last assigned agent in the db
         await lastAssignedAgent.saveLastAgent(agentToAssignId, newTickets[i].level);
 
         let ticket = {
             "id": newTickets[i].id,
             "assignee_id": agentToAssignId,
-            "level": newTickets[i].level
+            "level": newTickets[i].level,
+            "subject": newTickets[i].subject
         }
         newTicketPayload.tickets.push(ticket);
-        console.log(new Date().toLocaleString() + ' ticket id ' + newTicketPayload.tickets[i].id + ', ticket level ' + newTicketPayload.tickets[i].level + ' was assigned to ' + agentToAssignName)
+        console.log(new Date().toLocaleString() + chalk.blue(' ticket id ' + newTicketPayload.tickets[i].id) + chalk.red(', level ' + newTicketPayload.tickets[i].level) + chalk.yellow(', was assigned to ' + agentToAssignName) + chalk.green(' subject: ' + newTicketPayload.tickets[i].subject))
         
         logger.saveLog({
             type: 'info/ticket assignment',

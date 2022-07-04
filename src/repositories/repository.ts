@@ -22,7 +22,7 @@ export class Repository {
     }
 
     async create(obj: object) {
-        this.model.create(obj);
+        return this.model.create(obj);
     }
 
     async updateById(id: mongoose.ObjectId, payload: object) {

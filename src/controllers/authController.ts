@@ -20,7 +20,7 @@ export default class AuthController {
             res.status(201).json({message: 'User created!'});
         }
         catch (err) {
-            return res.status(500).json({message: 'Something went wrong...'});
+            return res.status(500).json({message: err.message});
         }
     }
 

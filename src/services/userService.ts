@@ -8,8 +8,8 @@ export default class UserService {
         return await this.repository.find({email: email})
     }
 
-    saveUser = async (user: User) => {
-        return await this.repository.create(user);
+    saveUser = (user: User) => {
+        return this.repository.create(user);
     }
 
     getAllUsers = async () => {

@@ -11,7 +11,8 @@ export interface User {
     email: string;
     password: string;
     type: UserType;
-    created: Date
+    created: Date;
+    isActive: boolean
 }
 
 const UserSchema = new mongoose.Schema({
@@ -46,6 +47,10 @@ const UserSchema = new mongoose.Schema({
     created: {
         type: Date,
         default: Date.now
+    },
+    isActive: {
+        type: Boolean,
+        default: false
     }
 })
 

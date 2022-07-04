@@ -30,6 +30,7 @@ export default class AuthController {
             if (!user) return res.status(401).json({message: 'Invalid email or password.'});
             const passwordCheckResult = await this.authService.checkPassword(req.body.password, user)
             if (!passwordCheckResult)  return res.status(401).json({message: 'Invalid email or password.'});
+            if (!user.isActive)  return res.status(401).json({message: 'Your user is not active.'});
             const token = this.authService.generateToken(user);
             res.header('x-auth-token', token).status(200).json({_id: user._id, type: user.type});
         }

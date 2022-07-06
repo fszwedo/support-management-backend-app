@@ -16,12 +16,10 @@ const makeZendeskRequest = async (path: string, method: string, payload?: object
         return res.data;
     } catch (error) {
         console.log(`Request failed with error: ${error}`)
-        if (error.response.status && error.response.status === 429) {
+        if (error.response && error.response.status === 429) {
             console.log(`Time to restart ${error.response.headers['retry-after']/60} minutes`)
         }
-        return;
     }
-
     return;
 }
 

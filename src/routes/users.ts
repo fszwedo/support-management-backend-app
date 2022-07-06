@@ -1,21 +1,30 @@
 import express from "express";
+import UserController from "../controllers/userController";
+import { authorize } from "..//middlewares/authMiddleware";
+import { UserType } from "../models/userModel";
 
-export default () => {
+export default (userController: UserController) => {
     const router = express.Router();
 
-    router.get('/', //here get all users
+    router.get('/',
+        authorize([UserType.Admin]),
+        userController.getAllUsers
     )
 
-    router.get('/me', //here get current user data
-    )
- 
-    router.post('/', //here handle user creation (similar to register)
-    )
-
-    router.put('/:id', //here handle user adjustment
+    router.get('/me',
+        authorize([UserType.User, UserType.Admin]),
+        userController.getMe
     )
 
+    router.route('/:id').put(
+        authorize([UserType.Admin]),
+        userController.changeUser
+    )
 
+    router.route('/').post(
+        authorize([UserType.Admin]),
+        userController.createUser
+    )
     return router;
 }
 

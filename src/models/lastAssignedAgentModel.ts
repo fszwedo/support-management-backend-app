@@ -13,5 +13,5 @@ const LastAssignedAgentSchema = new Schema({
     level: { type: String, required: true }
 })
 
-export default mongoose.model<LastAssignedAgent & mongoose.Document>('LastAssignedAgentTEST', LastAssignedAgentSchema);
+export default mongoose.model<LastAssignedAgent & mongoose.Document>('LastAssignedAgent', LastAssignedAgentSchema);
 export { LastAssignedAgentSchema };

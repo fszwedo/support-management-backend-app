@@ -1,12 +1,11 @@
 import { ShiftRota } from "../../models/shiftRotaModel";
 import { Agent } from './getAgentsService';
+import { TicketLevels } from "src/CONSTANTS";
 //import filterTicketsByKeyword from "./filterTicketsByKeyword";
-
-
 // in this component we assume the times in shift schedule are in CET 
 // we then convert everything to UTC for clarity
 
-const selectAgentToAssign = async (agents: Agent[], getLastAssignedAgentId: Function, shiftSchedule: ShiftRota, ticketLevel: 'L1' | 'L2' | 'other' | 'any' = null) => {
+const selectAgentToAssign = async (agents: Agent[], getLastAssignedAgentId: Function, shiftSchedule: ShiftRota, ticketLevel: TicketLevels = null) => {
     //extract the data if the shift rota is provided as an array with one object-type element (instead of object itself)
     if (Array.isArray(shiftSchedule) === true) shiftSchedule = shiftSchedule[0];
 

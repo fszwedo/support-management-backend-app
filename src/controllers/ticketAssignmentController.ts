@@ -33,7 +33,6 @@ const assignNewTickets = async (logger) => {
 
     //check which agents are available at the current time
     const isAvailableAgent = await selectAgentToAssign(agents, lastAssignedAgent.getLastAgent, todayShifts,null);
-  //  return;
     //if there are no agents - stop execution
     if (!isAvailableAgent[0]) {
         //console.log(`no available agents!`);

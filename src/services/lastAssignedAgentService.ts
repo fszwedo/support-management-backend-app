@@ -13,11 +13,14 @@ export default class lastAssignedAgentService {
         const previousAssignedAgent = await this.lastAssignedAgentRepository.getLast(ticketLevel);
         if(ticketLevel === null) {
             if (previousAssignedAgent) return this.lastAssignedAgentRepository.updateById(previousAssignedAgent._id, {
-                agentId: lastAssignedAgentId
+                agentId: lastAssignedAgentId,
+                level: ticketLevel
             })
 
             return this.lastAssignedAgentRepository.create({
-                agentId: lastAssignedAgentId                
+                agentId: lastAssignedAgentId,
+                level: ticketLevel  
+
             })
         }
         else {

@@ -59,8 +59,8 @@ const assignNewTickets = async (logger) => {
             "subject": newTickets[i].subject
         }
         newTicketPayload.tickets.push(ticket);
-        console.log(new Date().toLocaleString() + chalk.blue(' ticket id ' + newTicketPayload.tickets[i].id) + chalk.red(', level ' + newTicketPayload.tickets[i].level) + chalk.yellow(', was assigned to ' + agentToAssignName) + chalk.green(' subject: ' + newTicketPayload.tickets[i].subject))
-        
+        console.log(new Date().toLocaleString() + chalk.blue(' UTC ticket id ' + newTicketPayload.tickets[i].id) + chalk.red(', level ' + newTicketPayload.tickets[i].level) + chalk.yellow(', was assigned to ' + agentToAssignName) + chalk.green(' subject: ' + newTicketPayload.tickets[i].subject))
+
         logger.saveLog({
             type: 'info/ticket assignment',
             message: 'Ticket id ' + newTicketPayload.tickets[i].id + ', ticket level ' + newTicketPayload.tickets[i].level + ' was assigned to ' + agentToAssignName

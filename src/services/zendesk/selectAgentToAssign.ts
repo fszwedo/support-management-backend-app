@@ -25,7 +25,7 @@ const selectAgentToAssign = async (agents: Agent[], getLastAssignedAgentId: Func
             //extract the shift start and end hours to two-element array
             const agentShiftLimits = shiftSchedule.hours[agentPositionInArray].split('-');
 
-            //get CET hours and decrement to get UTC hours
+            //get CET hours and decrement to get UTC hours -> here daylight saving time handling should be added
             const agentStartTime = parseInt(agentShiftLimits[0]) - 1;
             const agentEndTime = parseInt(agentShiftLimits[1]) - 1;
 

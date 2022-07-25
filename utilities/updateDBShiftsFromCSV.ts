@@ -11,7 +11,8 @@ const updateShiftsInDb = async () => {
         .then(() => console.log('Connected to MongoDB...'))
         .catch(error => console.error('Could not connect to MongoDB!', error))
 
-    const shiftData = await readTextFile('./src/SHIFTROTA.csv')
+    //path is set rigidly to my documents folder - Phil
+    const shiftData = await readTextFile('../../../../Filip/Documents/SHIFTROTA.csv')
 
     const shiftRota = new shiftRotaService(new ShiftRotaRepository(shiftRotaModel));
 

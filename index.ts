@@ -7,6 +7,8 @@ import cron from 'cron'
 import assignNewTickets from './src/controllers/ticketAssignmentController';
 import shiftRota from './src/routes/shiftRota';
 
+//import filterTicketsByKeyword from 'src/services/zendesk/filterTicketsByKeyword';
+
 import logModel from './src/models/logModel';
 import LoggerRepository from './src/repositories/logRepository';
 import LoggerService from './src/services/loggerService';

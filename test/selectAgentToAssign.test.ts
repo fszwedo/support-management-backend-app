@@ -42,14 +42,14 @@ const testAgentList = [
       }
 ]
 
-jest
-  .useFakeTimers()
-  .setSystemTime(new Date('2021-01-21 13:00').getTime());
+//allow jest to use fake timers
+jest.useFakeTimers();
 
 describe('Test selectAgentToAssign service', () => {   
 
     //Konrad was already assigned - ticket assignment should start with Greg
     it('returns agent who is working at the current hour', async() => {
+        jest.setSystemTime(new Date('2021-01-21 13:00').getTime());
         expect(await selectAgentToAssign(testAgentList, mockLastAssignedId, testShiftRota)).toEqual([2, 'Greg']);
     });
 
@@ -65,9 +65,12 @@ describe('Test selectAgentToAssign service', () => {
     });
 
     it('stops assigning tickets to agents 30 minutes before the shift ends', async() => {
-        jest.setSystemTime(new Date('2021-01-21 16:30').getTime());
+        jest.setSystemTime(new Date('2021-01-21 15:30').getTime());
         expect(await selectAgentToAssign(testAgentList, mockLastAssignedId, testShiftRota)).toEqual([5, 'Kate']);
     });
 
-    
+    it('2nd shift agent is assigned with the tickets till the end of the shift', async() => {
+      jest.setSystemTime(new Date('2021-01-21 21:59').getTime());
+      expect(await selectAgentToAssign(testAgentList, mockLastAssignedId, testShiftRota)).toEqual([5, 'Kate']);
+  });
 });

@@ -71,6 +71,7 @@ describe('Test selectAgentToAssign service', () => {
 
     it('2nd shift agent is assigned with the tickets till the end of the shift', async() => {
       jest.setSystemTime(new Date('2021-01-21 21:59').getTime());
+      console.log(new Date());
       expect(await selectAgentToAssign(testAgentList, mockLastAssignedId, testShiftRota)).toEqual([5, 'Kate']);
   });
 });

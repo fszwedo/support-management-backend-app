@@ -17,8 +17,12 @@ export class Repository {
         return this.model.findOne(id);
     }
 
+    async find(query){
+        return this.model.findOne(query)
+    }
+
     async create(obj: object) {
-        this.model.create(obj);
+        return this.model.create(obj);
     }
 
     async updateById(id: mongoose.ObjectId, payload: object) {

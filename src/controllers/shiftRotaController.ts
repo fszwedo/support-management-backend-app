@@ -30,7 +30,7 @@ export default class ShiftRotaController {
         req: express.Request,
         res: express.Response,
     ) => {
-        const adjustedShiftRota = await this.service.saveShiftRotaEntry(req.body.shiftData)
+        const adjustedShiftRota = await this.service.saveShiftRotaEntry(req.body)
         res.status(200).json(adjustedShiftRota)
     }
 }

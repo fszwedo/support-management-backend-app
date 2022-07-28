@@ -53,7 +53,7 @@ describe('Test selectAgentToAssign service', () => {
         expect(await selectAgentToAssign(testAgentList, mockLastAssignedId, testShiftRota)).toEqual([2, 'Greg']);
     });
 
-    // //we assign the first ticket to Greg, then expect shehroze to be assigned
+    //we assign the first ticket to Greg, then expect shehroze to be assigned
     it('if two agents work at the same time - returns agent who was not assigned to the previous ticket', async() => {
         const arr = await selectAgentToAssign(testAgentList, mockLastAssignedId, testShiftRota);
         expect(await selectAgentToAssign(testAgentList, () => {return {agentId: arr[0]}}, testShiftRota)).toEqual([3, 'Shehroze']);
@@ -69,10 +69,8 @@ describe('Test selectAgentToAssign service', () => {
         expect(await selectAgentToAssign(testAgentList, mockLastAssignedId, testShiftRota)).toEqual([5, 'Kate']);
     });
 
-    //the below is to be enabled once the selectAgentToAssign funtion will be cleared out of all the dumb workrounds for CET/UTC/daylight saving
-
-  //   it('2nd shift agent is assigned with the tickets till the end of the shift', async() => {
-  //     jest.setSystemTime(new Date('2021-01-21 21:59').getTime());
-  //     expect(await selectAgentToAssign(testAgentList, mockLastAssignedId, testShiftRota)).toEqual([5, 'Kate']);
-  // });
+    it('2nd shift agent is assigned with the tickets till the end of the shift', async() => {
+      jest.setSystemTime(new Date('2021-01-21 21:59').getTime());
+      expect(await selectAgentToAssign(testAgentList, mockLastAssignedId, testShiftRota)).toEqual([5, 'Kate']);
+  });
 });

@@ -10,6 +10,9 @@ import makeZendeskRequest from "../services/zendesk/authenticationService";
 import lastAssignedAgentService from '../services/lastAssignedAgentService';
 import lastAssignedAgentModel from "../models/lastAssignedAgentModel";
 import LastAssignedAgentRepository from '../repositories/lastAssignedAgentRepository';
+import filterTicketsByKeyword from "../services/zendesk/filterTicketsByKeyword";
+
+const chalk = require('chalk');
 
 const assignNewTickets = async (logger) => {
     const shiftRota = new shiftRotaService(new ShiftRotaRepository(shiftRotaModel));
@@ -17,11 +20,10 @@ const assignNewTickets = async (logger) => {
     
     let agentToAssignId, agentToAssignName;
 
-    const newTickets = await getNewTickets();
-    
+    const newTickets = await filterTicketsByKeyword(getNewTickets);  
     //if there are no new tickets - stop execution
     if (newTickets.length === 0) {
-        //console.log(`nothing to assign!`);
+       // console.log(`nothing to assign!`);
         return;
     }
 
@@ -32,8 +34,7 @@ const assignNewTickets = async (logger) => {
     const agents = await getAgents(makeZendeskRequest);
 
     //check which agents are available at the current time
-    const isAvailableAgent = await selectAgentToAssign(agents, lastAssignedAgent.getLastAgent, todayShifts);
-    
+    const isAvailableAgent = await selectAgentToAssign(agents, lastAssignedAgent.getLastAgent, todayShifts,null);
     //if there are no agents - stop execution
     if (!isAvailableAgent[0]) {
         //console.log(`no available agents!`);
@@ -44,29 +45,30 @@ const assignNewTickets = async (logger) => {
     let newTicketPayload = {
         "tickets": []
     };
-
+   
     //iterate over the tickets and add them to the payload for batch update
     for (let i = 0; i < newTickets.length; i++) {
-        [agentToAssignId, agentToAssignName] = await selectAgentToAssign(agents, lastAssignedAgent.getLastAgent, todayShifts);
-        
+        [agentToAssignId, agentToAssignName] = await selectAgentToAssign(agents, lastAssignedAgent.getLastAgent, todayShifts, newTickets[i].level);
         //save info about last assigned agent in the db
-        await lastAssignedAgent.saveLastAgent(agentToAssignId);
+        await lastAssignedAgent.saveLastAgent(agentToAssignId, newTickets[i].level);
 
         let ticket = {
             "id": newTickets[i].id,
-            "assignee_id": agentToAssignId
+            "assignee_id": agentToAssignId,
+            "level": newTickets[i].level,
+            "subject": newTickets[i].subject
         }
         newTicketPayload.tickets.push(ticket);
-        console.log(new Date().toLocaleString() + ' UTC ticket id ' + newTicketPayload.tickets[i].id + ' was assigned to ' + agentToAssignName)
-        
+        console.log(new Date().toLocaleString() + chalk.blue(' UTC ticket id ' + newTicketPayload.tickets[i].id) + chalk.red(', level ' + newTicketPayload.tickets[i].level) + chalk.yellow(', was assigned to ' + agentToAssignName) + chalk.green(' subject: ' + newTicketPayload.tickets[i].subject))
+
         logger.saveLog({
             type: 'info/ticket assignment',
-            message: 'Ticket id ' + newTicketPayload.tickets[i].id + ' was assigned to ' + agentToAssignName
+            message: 'Ticket id ' + newTicketPayload.tickets[i].id + ', ticket level ' + newTicketPayload.tickets[i].level + ' was assigned to ' + agentToAssignName
         })
     }    
 
     //finally - assign the tickets :)
-    assignTicket(newTicketPayload);
+   assignTicket(newTicketPayload);
 
     return;
 }

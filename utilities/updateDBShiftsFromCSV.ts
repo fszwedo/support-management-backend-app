@@ -17,7 +17,7 @@ const updateShiftsInDb = async () => {
     const shiftRota = new shiftRotaService(new ShiftRotaRepository(shiftRotaModel));
 
     //@ts-ignore
-    shiftRota.saveShiftRotaEntriesFromCsv(shiftData)
+    shiftRota.saveShiftRotaEntriesFromCsv(shiftData, new Date().getTimezoneOffset())
 
     return;
 }

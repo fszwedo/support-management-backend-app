@@ -14,6 +14,6 @@ export default class TicketController {
         console.log(req.body)
 
         //const ticket = await this.service.createTicket();
-        res.status(200)//.json(ticket)
+        res.status(200).json().send();
     }
 }

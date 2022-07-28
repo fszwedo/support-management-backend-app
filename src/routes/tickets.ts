@@ -1,10 +1,12 @@
 import * as express from 'express';
 import ticketController from '../controllers/ticketController';
 
-const ticketRoutes =  (controller: ticketController) => {
-    return (router: express.Router) => {
-        router.route('/').post(controller.postTicket);
-    }
+const ticketRoutes =  (ticketController: ticketController) => {
+    const router = express.Router();
+
+    router.post('/', ticketController.postTicket);
+
+    return router
 }
 
 export default ticketRoutes;

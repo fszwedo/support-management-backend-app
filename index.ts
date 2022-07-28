@@ -48,7 +48,6 @@ app.use('/api/shiftRota', shiftRota(shiftRotaController));
 app.use('/api/shiftChangeRequest', shiftChangeRoute(shiftChangeController)); 
 app.use('/api/tickets', ticketRoutes(ticketController))
 
-
 const logger = new LoggerService(new LoggerRepository(logModel));
 
 const mongooseConnection = async () => {

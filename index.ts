@@ -7,8 +7,6 @@ import cron from 'cron'
 import assignNewTickets from './src/controllers/ticketAssignmentController';
 import shiftRota from './src/routes/shiftRota';
 
-//import filterTicketsByKeyword from 'src/services/zendesk/filterTicketsByKeyword';
-
 import logModel from './src/models/logModel';
 import LoggerRepository from './src/repositories/logRepository';
 import LoggerService from './src/services/loggerService';
@@ -24,6 +22,10 @@ import ShiftChangeService from './src/services/shiftChangeService';
 import ShiftChangeController from './src/controllers/shiftChangeController';
 import shiftChangeRoute from './src/routes/shiftChangeRequest';
 
+import TicketService from './src/services/zendesk/ticketService';
+import TicketController from './src/controllers/ticketController';
+import ticketRoutes from './src/routes/tickets';
+
 const shiftRotaRepository = new ShiftRotaRepository(shiftRotaModel);
 const shiftRotaService = new ShiftRotaService(shiftRotaRepository);
 const shiftRotaController = new ShiftRotaController(shiftRotaService);
@@ -32,13 +34,20 @@ const shiftChangeRepository = new ShiftChangeRepository(shiftChangeRequestModel)
 const shiftChangeService = new ShiftChangeService(shiftChangeRepository, shiftRotaRepository);
 const shiftChangeController = new ShiftChangeController(shiftChangeService);
 
+const ticketService = new TicketService();
+const ticketController = new TicketController(ticketService)
+
 console.log('starting for ' + process.env.URL)
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+//API paths
 app.use('/api/shiftRota', shiftRota(shiftRotaController));
 app.use('/api/shiftChangeRequest', shiftChangeRoute(shiftChangeController)); 
+app.use('/api/tickets', ticketRoutes(ticketController))
+
 
 const logger = new LoggerService(new LoggerRepository(logModel));
 

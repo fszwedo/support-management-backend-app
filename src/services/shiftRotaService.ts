@@ -52,7 +52,7 @@ export default class ShiftRotaService {
     saveShiftRotaEntriesFromCsv = async (shiftData: ShiftRota[], minutesOffsetFromUTC) => {
         //offset here should be passed as a result of getTimezoneOffset() function of the user
         const hoursOffsetFromUTC = minutesOffsetFromUTC / 60;
-        
+
         let successCount = shiftData.length;
         let formattedShiftData: ShiftRota;
         let agents: string[];
@@ -76,7 +76,7 @@ export default class ShiftRotaService {
                     agents: agents,
                     hours: UTCHours
                 }
-                //await this.saveShiftRotaEntry(formattedShiftData);                
+                await this.saveShiftRotaEntry(formattedShiftData);                
             } catch (error) {
                 console.log(error)                
                 successCount--;

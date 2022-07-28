@@ -34,7 +34,8 @@ const selectAgentToAssign = async (agents: Agent[], getLastAssignedAgentId: Func
             if (agentStartTime <= currentHour &&
                 (agentEndTime - 1 > currentHour ||
                     (agentEndTime - 1 === currentHour && currentMinute < 30) ||
-                    (agentEndTime === 22 && currentHour === 21)))
+                    //2nd shift agents should be assigned with the tickets till the end of the shift
+                    (agentEndTime > 16)))
                     /*then*/ currentlyAvailableAgents.push(agents[agent]);
         }
     }

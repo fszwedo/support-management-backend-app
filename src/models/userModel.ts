@@ -34,7 +34,6 @@ const UserSchema = new mongoose.Schema({
             },
             message: 'Email format is incorrect!'
         },
-
     },
     password: {
         type: String,
@@ -54,8 +53,8 @@ const UserSchema = new mongoose.Schema({
     }
 })
 
-UserSchema.methods.comparePassword = function(password) {
+UserSchema.methods.comparePassword = function (password) {
     return bcrypt.compareSync(password, this.password);
-  };
+};
 
 export default mongoose.model<User & mongoose.Document>('User', UserSchema);

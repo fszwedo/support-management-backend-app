@@ -1,3 +1,4 @@
+import { hoursToMilliseconds } from "date-fns";
 import { ShiftRota } from "../../models/shiftRotaModel";
 import { Agent } from './getAgentsService';
 
@@ -11,8 +12,8 @@ const selectAgentToAssign = async (agents: Agent[], getLastAssignedAgentId: Func
 
     //get hour and minute in UTC
     const currentDate = new Date();
-    const currentHour = currentDate.getUTCHours();
-    const currentMinute = currentDate.getUTCMinutes();
+    const currentHour = currentDate.getHours();
+    const currentMinute = currentDate.getMinutes();
 
     let currentlyAvailableAgents = [];
     //first select the agents available at the current hour

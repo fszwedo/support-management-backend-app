@@ -29,7 +29,7 @@ const filterTicketsByKeyword = async (getTickets:any) => {
            newTicket.level = 'L1';      
         }
         else if (checker(newTicket.subject, keywords2) || checker(newTicket.description, keywords2)) {
-           newTicket.level = 'L2'; 
+           newTicket.level = 'other'; 
         }
         else {
            newTicket.level = 'other'; 

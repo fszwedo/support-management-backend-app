@@ -6,5 +6,20 @@
     level:'L1' | 'L2' | 'other' | 'any'
   }; 
 
+  export interface newTicket {
+      subject: string,
+      comment: {
+        html_body: string
+      },
+      custom_fields?:{        
+          id: number,
+          value: string | null      
+      }[]
+      type?: string | null
+      requester:{
+        email: string
+      }
+  }
+
   export default ticket;
 

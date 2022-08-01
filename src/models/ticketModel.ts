@@ -17,8 +17,13 @@
       }[]
       type?: string | null
       requester:{
-        email: string
+        email: string,
+        name?: string
       }
+      email_ccs?: {
+        email: string,
+        name?: string
+      }[]
   }
 
   export default ticket;

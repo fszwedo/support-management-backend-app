@@ -11,7 +11,7 @@ export default class TicketController {
         req: express.Request,
         res: express.Response,
     ) => {
-        const ticket = await this.service.createTicket(req.body);
+        const ticket = await this.service.createAccessRequest(req.body);
         res.status(200).json(ticket).send();
     }
 }

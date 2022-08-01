@@ -1,5 +1,4 @@
 import makeZendeskRequest from "./authenticationService";
-import getNewTickets from "./getNewTicketsService";
 import { newTicket } from "../../models/ticketModel";
 
 export default class TicketService {
@@ -9,8 +8,14 @@ export default class TicketService {
         const newTicket = {
                 ticket            
         }
-        console.log(ticket)
         return await makeZendeskRequest(`/api/v2/tickets`, 'POST', newTicket);
+    }
+
+    updateTicket = async (ticket, id) => {
+        const newTicket = {
+                ticket            
+        }
+        return await makeZendeskRequest(`/api/v2/tickets/${id}`, 'PUT', newTicket);
     }
 
     generateTicketBody = (ticketData) => {
@@ -43,8 +48,30 @@ export default class TicketService {
         return await this.createNewTicket(ticket);
     }
 
-    createAccessRequest = async () => {
+    createAccessRequest = async (ticketData) => {
+        let ticket: newTicket = {
+            subject: ticketData.questionsFlow[0].answers[0],
+            comment: {
+                html_body: this.generateTicketBody(ticketData)
+            },
+            requester:{
+                email: 'test@pies.kot',
+                name: 'test@pies.kot'
+            }
+        };
+        const newTicket = await this.createNewTicket(ticket);
 
+        let ticketComment = {
+            comment:{
+                "body": "Hello, can you please approve the request?",
+                "public": true
+            },
+            email_ccs: [
+                {"user_email": "f.szwedo@zoovu.com", "user_name": "f.szwedo@zoovu.com", "action": "put"}
+            ]
+        }
+       console.log(await makeZendeskRequest(`/api/v2/ticket_fields`, 'GET', ticketData))
+       return await this.updateTicket(ticketComment, newTicket.ticket.id)
     }
 
     createBugRequest = async () => {

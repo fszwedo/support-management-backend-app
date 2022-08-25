@@ -8,7 +8,8 @@
     "start": "ts-node index.ts",
     "nodemon": "nodemon index.ts",
     "createTestZendeskTickets": "ts-node ./utilities/createTestTickets.ts",
-    "updateDbShifts": "ts-node ./utilities/updateDBShiftsFromCSV.ts"
+    "updateDbShifts": "ts-node ./utilities/updateDBShiftsFromCSV.ts",
+    "getZendeskTicketFields": "ts-node ./utilities/getZendeskTicketFields"
   },
   "repository": {
     "type": "git",

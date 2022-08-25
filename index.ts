@@ -67,7 +67,7 @@ logger.saveLog({
     })
 
 const job = new cron.CronJob('1/10 * 6-22 * * *',  async function () {
-    assignNewTickets(logger);
+    //assignNewTickets(logger);
  
 });
 job.start();

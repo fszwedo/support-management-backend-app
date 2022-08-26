@@ -9,7 +9,6 @@ const ticketsArray = [
       url: 'https://grzegorzabchelp.zendesk.com/api/v2/tickets/4.json',
       id: 4,
       external_id: null,
-      via: { channel: 'web', source: [Object] },
       created_at: '2022-05-26T07:58:12Z',
       updated_at: '2022-05-26T07:58:12Z',
       type: null,
@@ -46,7 +45,6 @@ const ticketsArray = [
       url: 'https://grzegorzabchelp.zendesk.com/api/v2/tickets/3.json',
       id: 3,
       external_id: null,
-      via: { channel: 'web', source: [Object] },
       created_at: '2022-05-26T07:56:27Z',
       updated_at: '2022-05-26T07:56:27Z',
       type: null,
@@ -83,7 +81,6 @@ const ticketsArray = [
       url: 'https://grzegorzabchelp.zendesk.com/api/v2/tickets/2.json',
       id: 2,
       external_id: null,
-      via: { channel: 'web', source: [Object] },
       created_at: '2022-05-26T07:55:13Z',
       updated_at: '2022-05-26T07:55:13Z',
       type: null,
@@ -120,7 +117,6 @@ const ticketsArray = [
       url: 'https://grzegorzabchelp.zendesk.com/api/v2/tickets/1.json',
       id: 1,
       external_id: null,
-      via: { channel: 'sample_ticket', source: [Object] },
       created_at: '2022-05-26T07:51:16Z',
       updated_at: '2022-05-26T07:51:16Z',
       type: 'incident',
@@ -161,23 +157,90 @@ const ticketsArray = [
     }
   ]
 
-const ticketsArrayWithoutNew = [{
-    "status": "open",
-},
+  const ticketsArrayoneL1 = [
+    {
+      url: 'https://grzegorzabchelp.zendesk.com/api/v2/tickets/4.json',
+      id: 4,
+      external_id: null,
+      created_at: '2022-05-26T07:58:12Z',
+      updated_at: '2022-05-26T07:58:12Z',
+      type: null,
+      subject: 'access',
+      raw_subject: 'access',
+      description: 'access',
+      priority: null,
+      status: 'open',
+      recipient: null,
+      requester_id: 393092207478,
+      submitter_id: 393092207478,
+      assignee_id: 393092207478,
+      organization_id: 5295847522845,
+      group_id: 5295868098205,
+      collaborator_ids: [],
+      follower_ids: [],
+      email_cc_ids: [],
+      forum_topic_id: null,
+      problem_id: null,
+      has_incidents: false,
+      is_public: true,
+      due_at: null,
+      tags: [],
+      custom_fields: [],
+      satisfaction_rating: null,
+      sharing_agreement_ids: [],
+      followup_ids: [],
+      ticket_form_id: 5295891567005,
+      brand_id: 5295847519133,
+      allow_channelback: false,
+      allow_attachments: true
+    }]
+
+    const expectedArrayoneL1 = [
 {
-    "status": "solved",
-},
-{
-    "status": "closed",
-},
-]
+      url: 'https://grzegorzabchelp.zendesk.com/api/v2/tickets/4.json',
+      id: 4,
+      external_id: null,
+      created_at: '2022-05-26T07:58:12Z',
+      updated_at: '2022-05-26T07:58:12Z',
+      type: null,
+      subject: 'access',
+      raw_subject: 'access',
+      description: 'access',
+      priority: null,
+      status: 'open',
+      recipient: null,
+      requester_id: 393092207478,
+      submitter_id: 393092207478,
+      assignee_id: 393092207478,
+      organization_id: 5295847522845,
+      group_id: 5295868098205,
+      collaborator_ids: [],
+      follower_ids: [],
+      email_cc_ids: [],
+      forum_topic_id: null,
+      problem_id: null,
+      has_incidents: false,
+      is_public: true,
+      due_at: null,
+      tags: [],
+      custom_fields: [],
+      satisfaction_rating: null,
+      sharing_agreement_ids: [],
+      followup_ids: [],
+      ticket_form_id: 5295891567005,
+      brand_id: 5295847519133,
+      allow_channelback: false,
+      allow_attachments: true,
+      level: 'L1'
+
+}
+    ]
 
 const expectedArray = [
   {
     url: 'https://grzegorzabchelp.zendesk.com/api/v2/tickets/4.json',
     id: 4,
     external_id: null,
-    via: { channel: 'web', source: [Array] },
     created_at: '2022-05-26T07:58:12Z',
     updated_at: '2022-05-26T07:58:12Z',
     type: null,
@@ -215,7 +278,6 @@ const expectedArray = [
     url: 'https://grzegorzabchelp.zendesk.com/api/v2/tickets/3.json',
     id: 3,
     external_id: null,
-    via: { channel: 'web', source: [Array] },
     created_at: '2022-05-26T07:56:27Z',
     updated_at: '2022-05-26T07:56:27Z',
     type: null,
@@ -253,7 +315,6 @@ const expectedArray = [
     url: 'https://grzegorzabchelp.zendesk.com/api/v2/tickets/2.json',
     id: 2,
     external_id: null,
-    via: { channel: 'web', source: [Array] },
     created_at: '2022-05-26T07:55:13Z',
     updated_at: '2022-05-26T07:55:13Z',
     type: null,
@@ -291,7 +352,6 @@ const expectedArray = [
     url: 'https://grzegorzabchelp.zendesk.com/api/v2/tickets/1.json',
     id: 1,
     external_id: null,
-    via: { channel: 'sample_ticket', source: [Array] },
     created_at: '2022-05-26T07:51:16Z',
     updated_at: '2022-05-26T07:51:16Z',
     type: 'incident',
@@ -343,9 +403,13 @@ describe('Test filterTicketsByKeyword service', () => {
        expect(await filterTicketsByKeyword2(ticketsArray)).toEqual(expectedArray);
     });
 
-  // it('if there are no new tickets - nothing is returned', async () => {
+   it('if there are no new tickets - nothing is returned', async () => {
        // expect(await filterTicketsByKeyword2(() => { return { tickets: [] } })).toEqual([]);
-    //  expect(await filterTicketsByKeyword2([])).toEqual([]);
+      expect(await filterTicketsByKeyword2([])).toEqual([]);
     });
     
-    
+    it('one L1 ticket', async () => {
+      // expect(await filterTicketsByKeyword2(() => { return { tickets: [] } })).toEqual([]);
+     expect(await filterTicketsByKeyword2(ticketsArrayoneL1)).toEqual(expectedArrayoneL1);
+   });
+  });

@@ -79,10 +79,6 @@ export default class TicketService {
                     value: 'l1'
                 },
                 {
-                    "id": TICKET_CUSTOM_FIELDS.TYPE,
-                    value: 'task'
-                },
-                {
                     "id": TICKET_CUSTOM_FIELDS.SOURCE,
                     value: 'internal'
                 },
@@ -90,7 +86,8 @@ export default class TicketService {
                     "id": TICKET_CUSTOM_FIELDS.CATEGORY,
                     value: ['account_accesses']
                 }            
-            ]
+            ],
+            type: 'task'
         }
        return await this.updateTicket(ticketComment, ticket.id)
     }
@@ -120,10 +117,6 @@ export default class TicketService {
                     value: 'l1'
                 },
                 {
-                    "id": TICKET_CUSTOM_FIELDS.TYPE,
-                    value: 'task'
-                },
-                {
                     "id": TICKET_CUSTOM_FIELDS.SOURCE,
                     value: 'internal'
                 },
@@ -131,7 +124,8 @@ export default class TicketService {
                     "id": TICKET_CUSTOM_FIELDS.CATEGORY,
                     value: ['admin_tool_access']
                 }            
-            ]
+            ],
+            type: 'task'
         };
 
         return await this.createNewTicket(ticket);         

@@ -56,6 +56,7 @@ export default class TicketService {
         const accountLink = ticketData.submittedFormData.find(el => el.questionText === "Account link").answers[0];
         const requesterEmail = ticketData.submittedFormData.find(el => el.questionText === "Please provide YOUR email").answers[0];
         const approverEmail = ticketData.submittedFormData.find(el => el.questionText.includes('line manager')).answers[0];
+        const platform = ticketData.questionsFlow.find(el => el.questionText.includes('which environment')).answers[0];
 
         const ticket: newTicket = await this.createTicket(ticketData);
 
@@ -85,7 +86,11 @@ export default class TicketService {
                 {
                     "id": TICKET_CUSTOM_FIELDS.CATEGORY,
                     value: ['account_accesses']
-                }            
+                },
+                {
+                    "id": TICKET_CUSTOM_FIELDS.PLATFORM,
+                    value: [platform.toLowerCase()]
+                }             
             ],
             type: 'task'
         }
@@ -95,7 +100,8 @@ export default class TicketService {
     createAdminAccessRequest = async (ticketData: leadgenFormContent) => {
         const requesterEmail = ticketData.submittedFormData.find(el => el.questionText === "Please provide YOUR email").answers[0];     
         const managerEmail = ticketData.submittedFormData.find(el => el.questionText.includes('line manager')).answers[0];
-       
+        const platform = ticketData.questionsFlow.find(el => el.questionText.includes('which environment')).answers[0];
+
         let requestEmailBody = this.generateTicketBody(ticketData);
         requestEmailBody += `<br/><br/>As required by the access security policy the manager is CCed in this ticket.`
 
@@ -123,7 +129,11 @@ export default class TicketService {
                 {
                     "id": TICKET_CUSTOM_FIELDS.CATEGORY,
                     value: ['admin_tool_access']
-                }            
+                },
+                {
+                    "id": TICKET_CUSTOM_FIELDS.PLATFORM,
+                    value: [platform.toLowerCase()]
+                }           
             ],
             type: 'task'
         };
@@ -131,7 +141,85 @@ export default class TicketService {
         return await this.createNewTicket(ticket);         
     } 
 
-    createBugRequest = async () => {
+    createAccountCreationRequest = async (ticketData: leadgenFormContent) => {
+        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText === "Please provide YOUR email").answers[0];     
+        const platform = ticketData.questionsFlow.find(el => el.questionText.includes('Where')).answers[0];
+
+        const ticketBody = this.generateTicketBody(ticketData);
+        
+        const ticket: newTicket = {
+            subject: ticketData.questionsFlow[0].answers[0],
+            comment: {
+                html_body: ticketBody
+            },
+            requester:{
+                email: requesterEmail,
+                name: requesterEmail
+            },
+            custom_fields: [
+                {
+                    "id": TICKET_CUSTOM_FIELDS.LEVEL,
+                    value: 'l1'
+                },
+                {
+                    "id": TICKET_CUSTOM_FIELDS.SOURCE,
+                    value: 'internal'
+                },
+                {
+                    "id": TICKET_CUSTOM_FIELDS.CATEGORY,
+                    value: ['account_-_creation']
+                },
+                {
+                    "id": TICKET_CUSTOM_FIELDS.PLATFORM,
+                    value: [platform.toLowerCase()]
+                }           
+            ],
+            type: 'task'
+        };
+
+        return await this.createNewTicket(ticket); 
+    }
+
+    createCustomerAccessRequest = async (ticketData: leadgenFormContent) => {
+        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText === "Please provide YOUR email").answers[0];     
+        const platform = ticketData.questionsFlow.find(el => el.questionText.includes('which environment')).answers[0];
+
+        const ticketBody = this.generateTicketBody(ticketData);
+        
+        const ticket: newTicket = {
+            subject: ticketData.questionsFlow[0].answers[0],
+            comment: {
+                html_body: ticketBody
+            },
+            requester:{
+                email: requesterEmail,
+                name: requesterEmail
+            },
+            custom_fields: [
+                {
+                    "id": TICKET_CUSTOM_FIELDS.LEVEL,
+                    value: 'l1'
+                },
+                {
+                    "id": TICKET_CUSTOM_FIELDS.SOURCE,
+                    value: 'internal'
+                },
+                {
+                    "id": TICKET_CUSTOM_FIELDS.CATEGORY,
+                    value: ['customer_onboarding__account_creation_', 'account_accesses']
+                },
+                {
+                    "id": TICKET_CUSTOM_FIELDS.PLATFORM,
+                    value: [platform.toLowerCase()]
+                }           
+            ],
+            type: 'task'
+        };
+
+        return await this.createNewTicket(ticket); 
+    }
+
+    createBugRequest = async (ticketData: leadgenFormContent) => {
 
     }
 }

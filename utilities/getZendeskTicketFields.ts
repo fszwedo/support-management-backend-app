@@ -8,9 +8,9 @@ const getZendeskTicketFields = async () => {
 }
 
 const getZendeskTicketField = async () => {
-    const field = await makeZendeskRequest('/api/v2/ticket_fields/360012337374', 'GET')
+    const field = await makeZendeskRequest('/api/v2/ticket_fields/360016765134', 'GET')
     console.log(field)    
-    console.log(field.ticket_field.system_field_options)
+    console.log(field.ticket_field.custom_field_options)
 }
 
 //getZendeskTicketFields();

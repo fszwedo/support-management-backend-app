@@ -225,7 +225,7 @@ export default class TicketService {
         
         const ticketBody = this.generateTicketBody(ticketData);
 
-        //below logic to define which category should be assigned
+        //logic below to define which category should be assigned
         const category = ticketData.submittedFormData.find(el => el.questionText.includes('category')).answers[0].toLowerCase();
         let categoryCustomFieldValue = '';
 
@@ -262,6 +262,87 @@ export default class TicketService {
                 }           
             ],
             type: 'problem'
+        };
+
+        return await this.createNewTicket(ticket); 
+    }
+
+    createFTPRequest = async (ticketData: leadgenFormContent) => {
+        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText === "Please provide YOUR email").answers[0];     
+        
+        const ticketBody = this.generateTicketBody(ticketData);
+
+        let requestType = ticketData.questionsFlow.find(el => el.questionText.includes('do you need')).answers[0];
+        let ticketType = 'task'
+        if (requestType.includes('question')) ticketType = 'question'
+
+        const ticket: newTicket = {
+            subject: ticketData.questionsFlow[0].answers[0],
+            comment: {
+                html_body: ticketBody
+            },
+            requester:{
+                email: requesterEmail,
+                name: requesterEmail
+            },
+            custom_fields: [
+                {
+                    "id": TICKET_CUSTOM_FIELDS.LEVEL,
+                    value: 'l1'
+                },
+                {
+                    "id": TICKET_CUSTOM_FIELDS.SOURCE,
+                    value: 'internal'
+                },
+                {
+                    "id": TICKET_CUSTOM_FIELDS.CATEGORY,
+                    value: ['data_ftp']
+                },
+                {
+                    "id": TICKET_CUSTOM_FIELDS.PLATFORM,
+                    value: ['not_platform_issue']
+                }           
+            ],
+            type: ticketType
+        };
+
+        return await this.createNewTicket(ticket); 
+    }
+
+    createReportingRequest = async (ticketData: leadgenFormContent) => {
+        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText === "Please provide YOUR email").answers[0];     
+        const platform = ticketData.questionsFlow.find(el => el.questionText.includes('which environment')).answers[0];
+        
+        const ticketBody = this.generateTicketBody(ticketData);
+
+        const ticket: newTicket = {
+            subject: ticketData.questionsFlow[0].answers[0],
+            comment: {
+                html_body: ticketBody
+            },
+            requester:{
+                email: requesterEmail,
+                name: requesterEmail
+            },
+            custom_fields: [
+                {
+                    "id": TICKET_CUSTOM_FIELDS.LEVEL,
+                    value: 'l1'
+                },
+                {
+                    "id": TICKET_CUSTOM_FIELDS.SOURCE,
+                    value: 'internal'
+                },
+                {
+                    "id": TICKET_CUSTOM_FIELDS.CATEGORY,
+                    value: ['data_ftp']
+                },
+                {
+                    "id": TICKET_CUSTOM_FIELDS.PLATFORM,
+                    value: [platform.toLowerCase()]
+                }           
+            ],
+            //type: ticketType
         };
 
         return await this.createNewTicket(ticket); 

@@ -18,6 +18,7 @@ export default class TicketController {
         if (ticketCategory === 'Account access') ticket = await this.service.createAccountAccessRequest(req.body);
         if (ticketCategory === 'Admintool access') ticket = await this.service.createAdminAccessRequest(req.body);
         if (ticketCategory === 'Account creation') ticket = await this.service.createAccountCreationRequest(req.body);
+        if (ticketCategory === 'General platform issue') ticket = await this.service.createProblemReport(req.body);
 
         res.status(200).json(ticket).send();
     }

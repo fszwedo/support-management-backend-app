@@ -219,7 +219,51 @@ export default class TicketService {
         return await this.createNewTicket(ticket); 
     }
 
-    createBugRequest = async (ticketData: leadgenFormContent) => {
+    createProblemReport = async (ticketData: leadgenFormContent) => {
+        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText === "Please provide YOUR email").answers[0];     
+        const platform = ticketData.questionsFlow.find(el => el.questionText.includes('which environment')).answers[0];
+        
+        const ticketBody = this.generateTicketBody(ticketData);
 
+        //below logic to define which category should be assigned
+        const category = ticketData.submittedFormData.find(el => el.questionText.includes('category')).answers[0].toLowerCase();
+        let categoryCustomFieldValue = '';
+
+        if (category.includes('configurator')) categoryCustomFieldValue = 'configurators';
+        else if (category.includes('experience designer')) categoryCustomFieldValue = 'experience_designer';
+        else if (category.includes('semantic studio')) categoryCustomFieldValue = 'semantic_studio';
+        else if (category.includes('custom theme')) categoryCustomFieldValue = 'frontend_custom_themes';
+        else if (category.includes('feed')) categoryCustomFieldValue = 'platform_automatic_data_feed_';
+        else if (category.includes('success tracking')) categoryCustomFieldValue = 'platform_success_tracking_';
+        else if (category.includes('css')) categoryCustomFieldValue = 'frontend_css';
+        else if (category.includes('login problems')) categoryCustomFieldValue = 'account_access';
+
+        const ticket: newTicket = {
+            subject: ticketData.questionsFlow[0].answers[0],
+            comment: {
+                html_body: ticketBody
+            },
+            requester:{
+                email: requesterEmail,
+                name: requesterEmail
+            },
+            custom_fields: [
+                {
+                    "id": TICKET_CUSTOM_FIELDS.SOURCE,
+                    value: 'internal'
+                },
+                {
+                    "id": TICKET_CUSTOM_FIELDS.CATEGORY,
+                    value: [categoryCustomFieldValue]
+                },
+                {
+                    "id": TICKET_CUSTOM_FIELDS.PLATFORM,
+                    value: [platform.toLowerCase()]
+                }           
+            ],
+            type: 'problem'
+        };
+
+        return await this.createNewTicket(ticket); 
     }
 }

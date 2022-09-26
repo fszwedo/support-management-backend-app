@@ -15,7 +15,7 @@ describe('Test ticket service', () => {
         expect(mockedZendeskRequest.mock.lastCall).toEqual([ 
             '/api/v2/tickets', 
             'POST', 
-            { ticket: {testData: '123'} } 
+            { ticket: {testData: '123', tags: ['leadgen']} } 
         ]);
     });
 
@@ -26,7 +26,7 @@ describe('Test ticket service', () => {
         expect(mockedZendeskRequest.mock.lastCall).toEqual([ 
             `/api/v2/tickets/${ticketId}`, 
             'PUT', 
-            { ticket: {testData: '123'} } 
+            { ticket: {testData: '123'} }
         ]);
     });
 
@@ -52,14 +52,14 @@ describe('Test ticket service', () => {
         expect(ticketBody).toEqual(expectedTicketBody);
     });
 
-    it('creates ticket on Zendesk from leadgen form', async () => {
-        const ticketId = 123;
-        await ticketService.updateTicket({testData: '123'}, ticketId);
-        expect(mockedZendeskRequest).toHaveBeenCalled();
-        expect(mockedZendeskRequest.mock.lastCall).toEqual([ 
-            `/api/v2/tickets/${ticketId}`, 
-            'PUT', 
-            { ticket: {testData: '123'} } 
-        ]);
-    });
+    // it('creates ticket on Zendesk from leadgen form', async () => {
+    //     const ticketId = 123;
+    //     await ticketService.updateTicket({testData: '123'}, ticketId);
+    //     expect(mockedZendeskRequest).toHaveBeenCalled();
+    //     expect(mockedZendeskRequest.mock.lastCall).toEqual([ 
+    //         `/api/v2/tickets/${ticketId}`, 
+    //         'PUT', 
+    //         { ticket: {testData: '123', } 
+    //     ]);
+    // });
 });

@@ -7,6 +7,8 @@ export default class TicketService {
     constructor(){}
 
     createNewTicket = async (ticket) => {
+        //add tag to distinguish leadgen-created tickets
+        ticket.tags = ['leadgen'];
         const newTicket = {
                 ticket            
         }

@@ -13,11 +13,11 @@ export default class TicketService {
         return await makeZendeskRequest(`/api/v2/tickets`, 'POST', newTicket);
     }
 
-    updateTicket = async (ticket, id) => {
-        const newTicket = {
+    updateTicket = async (ticket, id: number) => {
+        const updatedTicket = {
                 ticket            
         }
-        return await makeZendeskRequest(`/api/v2/tickets/${id}`, 'PUT', newTicket);
+        return await makeZendeskRequest(`/api/v2/tickets/${id}`, 'PUT', updatedTicket);
     }
 
     generateTicketBody = (ticketData: leadgenFormContent) => {
@@ -36,7 +36,7 @@ export default class TicketService {
         return body
     }
 
-    createTicket = async (ticketData: leadgenFormContent, tags?) => {  
+    createTicket = async (ticketData: leadgenFormContent) => {  
         const requesterEmail = ticketData.submittedFormData.find(el => el.questionText === "Please provide YOUR email").answers[0];     
        
         let ticket: newTicket = {

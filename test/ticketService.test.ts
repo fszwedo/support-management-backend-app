@@ -6,6 +6,20 @@ import { leadgenFormContent } from '.../../models/leadgenModel';
 jest.mock('../src/services/zendesk/authenticationService');
 const mockedZendeskRequest = mocked(makeZendeskRequest, true)
 
+const testLeadGenContent: leadgenFormContent = {
+    advisorName: '123',
+    submittedFormData: [{
+        questionId: 123,
+        questionText: 'testQUestionFromLeadgenForm',
+        answers: ['testAnswer']
+    }],
+    questionsFlow:[{
+        questionId: 321,
+        questionText: 'testQuestionFromQuestionnaire',
+        answers: ['testAnswer']
+    }]
+}
+
 describe('Test ticket service', () => {
     const ticketService = new TicketService;
 
@@ -30,36 +44,20 @@ describe('Test ticket service', () => {
         ]);
     });
 
-    it('generates ticket body from leadgen form content', async () => {
-        const leadGenContent: leadgenFormContent = {
-            advisorName: '123',
-            submittedFormData: [{
-                questionId: 123,
-                questionText: 'testQUestionFromLeadgenForm',
-                answers: ['testAnswer']
-            }],
-            questionsFlow:[{
-                questionId: 321,
-                questionText: 'testQuestionFromQuestionnaire',
-                answers: ['testAnswer']
-            }]
-        }
-
+    it('generates ticket body from leadgen form content', async () => {     
         //snapshot of expected ticket body - has to be regenerated if ticket body changes will be introduced
+        //it has been created using testLeadGenContent object available above
+        //to regenerate the snapshot uncomment the line below, it will be in the console
+        //console.log(ticketService.generateTicketBody(testLeadGenContent))
         const expectedTicketBody = '<h3>Ticket submitted via Support Assistant</h3><br/><h4>Flow answers</h4><br/>&emsp;<strong>testQuestionFromQuestionnaire</strong>: testAnswer<br/><br/><h4>Leadgen form content</h4><br/>&emsp;<strong>testQUestionFromLeadgenForm</strong>: testAnswer<br/>'
 
-        const ticketBody = ticketService.generateTicketBody(leadGenContent);
+        const ticketBody = ticketService.generateTicketBody(testLeadGenContent);
         expect(ticketBody).toEqual(expectedTicketBody);
     });
 
-    // it('creates ticket on Zendesk from leadgen form', async () => {
-    //     const ticketId = 123;
-    //     await ticketService.updateTicket({testData: '123'}, ticketId);
-    //     expect(mockedZendeskRequest).toHaveBeenCalled();
-    //     expect(mockedZendeskRequest.mock.lastCall).toEqual([ 
-    //         `/api/v2/tickets/${ticketId}`, 
-    //         'PUT', 
-    //         { ticket: {testData: '123', } 
-    //     ]);
-    // });
+    it('creates ticket on Zendesk from leadgen form', async () => {
+        await ticketService.createTicket(testLeadGenContent);
+        expect(mockedZendeskRequest).toHaveBeenCalled();
+        console.log(mockedZendeskRequest.mock.lastCall);
+    });
 });

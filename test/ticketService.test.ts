@@ -10,7 +10,7 @@ const testLeadGenContent: leadgenFormContent = {
     advisorName: '123',
     submittedFormData: [{
         questionId: 123,
-        questionText: 'testQUestionFromLeadgenForm',
+        questionText: 'Please provide YOUR email',
         answers: ['testAnswer']
     }],
     questionsFlow:[{
@@ -46,10 +46,9 @@ describe('Test ticket service', () => {
 
     it('generates ticket body from leadgen form content', async () => {     
         //snapshot of expected ticket body - has to be regenerated if ticket body changes will be introduced
-        //it has been created using testLeadGenContent object available above
-        //to regenerate the snapshot uncomment the line below, it will be in the console
-        //console.log(ticketService.generateTicketBody(testLeadGenContent))
-        const expectedTicketBody = '<h3>Ticket submitted via Support Assistant</h3><br/><h4>Flow answers</h4><br/>&emsp;<strong>testQuestionFromQuestionnaire</strong>: testAnswer<br/><br/><h4>Leadgen form content</h4><br/>&emsp;<strong>testQUestionFromLeadgenForm</strong>: testAnswer<br/>'
+        //if this test fails you can simply replace the below string with the 'received' value returned by jest 
+        //of course you should first validate if the error is thrown because of the planned changes, not a bug :)
+        const expectedTicketBody = '<h3>Ticket submitted via Support Assistant</h3><br/><h4>Flow answers</h4><br/>&emsp;<strong>testQuestionFromQuestionnaire</strong>: testAnswer<br/><br/><h4>Leadgen form content</h4><br/>&emsp;<strong>Please provide YOUR email</strong>: testAnswer<br/>'
 
         const ticketBody = ticketService.generateTicketBody(testLeadGenContent);
         expect(ticketBody).toEqual(expectedTicketBody);
@@ -58,6 +57,6 @@ describe('Test ticket service', () => {
     it('creates ticket on Zendesk from leadgen form', async () => {
         await ticketService.createTicket(testLeadGenContent);
         expect(mockedZendeskRequest).toHaveBeenCalled();
-        console.log(mockedZendeskRequest.mock.lastCall);
+        console.log(mockedZendeskRequest.mock.lastCall)
     });
 });

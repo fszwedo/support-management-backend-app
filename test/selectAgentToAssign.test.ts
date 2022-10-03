@@ -4,7 +4,7 @@ const testShiftRota =
     {
       date: '22-01-21',
       agents: [ 'Shehroze', 'Phil', 'Kate', 'Hasan', 'Greg', 'Konrad' ],
-      hours: [ '8-16', '', '14-22', '8-14', '8-16', '8-16' ],
+      hours: [ '8-16', '', '14-22', '8-14', '8-10;11-16', '8-16' ],
     }
   
 const mockLastAssignedId = () => {return {agentId: '1'}};
@@ -67,7 +67,5 @@ describe('Test selectAgentToAssign service', () => {
     it('stops assigning tickets to agents 30 minutes before the shift ends', async() => {
         jest.setSystemTime(new Date('2021-01-21 16:30').getTime());
         expect(await selectAgentToAssign(testAgentList, mockLastAssignedId, testShiftRota)).toEqual([5, 'Kate']);
-    });
-
-    
+    });    
 });

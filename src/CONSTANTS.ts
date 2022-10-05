@@ -2,7 +2,7 @@ export type TicketLevels = 'L1' | 'L2' | 'other' | 'any';
 export const L1: string[] = ['access', 'ftp', 'sds', 'pds', 'password', 'login', 'log in', 'scalyr', 'logging', 'vpn', 'boarding', 'invoice', 'assign', 'unsubscribe'];
 export const L2: string[] = ['success', 'sql', 'css', 'js', 'configurator', 'tracking', 'bundle'];
 
-
+//here we have the ids of fields from zendesk for zoovu.zendesk.com account
 export enum TICKET_CUSTOM_FIELDS {
     LEVEL = 360016765154,
     CATEGORY = 360013680280,

@@ -16,13 +16,21 @@ export default class ShiftRotaRepository extends Repository {
         })
     }
 
-    //day should be in standard js date format!
     async getShiftsForCurrentMonthOnwards(day: String) { 
         const date = day.slice(0, -2) + '01';
         
         return this.model.find({
             date: date
         })
+    }
+
+    //day should be in standard js date format!
+    async getShiftsForDateScope(dayFrom: String, dayTo: String) { 
+        if(dayFrom > dayTo) throw 'Day From larger than day To';
+        return this.model.find({
+           date: {  $gte: dayFrom, $lte: dayTo }}
+
+        )
     }
 
     async updateByDate(shiftData) {      

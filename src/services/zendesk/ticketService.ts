@@ -321,6 +321,11 @@ export default class TicketService {
             type: ticketType
         };
 
+        // if(requestType.includes('access')){
+        //     ticket.email_ccs = 
+        // }
+
+
         return await this.createNewTicket(ticket);
     }
 

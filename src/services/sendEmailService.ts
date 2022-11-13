@@ -1,13 +1,10 @@
 const sendGridMail = require('@sendgrid/mail');
 
-import sendEmail11 from "src/controllers/sendEmailController";
+ var sendEmail = async (shifts,emailToAgent) => {
 
- var sendEmail1 = async (shifts,emailToAgent) => {
-
-sendGridMail.setApiKey('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');
+sendGridMail.setApiKey(process.env.SENDGRIDAPIKEY);
 
 function getMessage() {
-  const body = 'Your next week ticket assignment hours';
 
   let html = '<!DOCTYPE html><html><head><style>table, th, td { border: 1px solid black;border-collapse: collapse;}.button { border: none; color: white;padding: 15px 32px;text-align: center;text-decoration: none; display: inline-block;font-size: 16px;margin: 4px 2px; }.button1 {background-color: #4CAF50;} /* Green */.button2 {background-color: #008CBA;} /* Blue */</style></head><body>  '+
   '<strong>Dear '+ shifts[0].name+  ' </strong><br /><br />'+
@@ -24,11 +21,10 @@ html+='</table><br /> <br /><a href=\'https://tiger-admin.zoovu.com\'><button cl
   
   return {
     to: emailToAgent,
-    from: 'g.bochniak@zoovu.com',
+    from: 'help@zoovu.com',
     subject: 'Your next week ticket assignment hours',
     text: 'Your next week ticket assignment hours',
     html: html
-
   };
 }
 
@@ -52,4 +48,4 @@ async function sendEmail() {
   
 }
 
-export default sendEmail1;
+export default sendEmail;

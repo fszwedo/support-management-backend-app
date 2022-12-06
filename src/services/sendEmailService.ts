@@ -50,6 +50,6 @@ async function sendEmail() {
   await sendEmail();
 })();
   
-}
+} 
 
 export default sendEmail1;

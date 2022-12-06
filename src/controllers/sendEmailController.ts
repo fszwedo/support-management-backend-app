@@ -1,82 +1,78 @@
-import shiftRotaService from "../services/shiftRotaService";
-import ShiftRotaRepository from "../repositories/shiftRotaRepository";
-import shiftRotaModel from '../models/shiftRotaModel'
 import sendEmail1 from "../services/sendEmailService";
 
 
-const sendEmailtoAgent= async () => { //email112 powinien przyjmowac jako atrybut shift rota z linijki 12
+const sendEmailstoAgents = async (shiftRota) => {
 
-const shiftRota = new shiftRotaService(new ShiftRotaRepository(shiftRotaModel));
-const todayShifts = await shiftRota.getNextWeekShifts();
-type agent = {
+    const todayShifts = await shiftRota.getNextWeekShifts();
+    type agentShiftData = {
+        name: string,
+        date: string,
+        hours: string
+    };
+    let agents: string[] = [];   // unique list of agents
+    let shifts: agentShiftData[] = [];
 
-    name: string,
-    date: string,
-    hours: string
-    
-};
-let agents:string[] = [];   // unique list of agents
-let shifts:agent[] = [];
+    todayShifts.forEach(day => {
+        let date1: string = day.date;
+        let agentsListofDay = day.agents;
+        let hoursListofAgents = day.hours;
+        
+        for (let j = 0; j < agentsListofDay.length; j++) {
+            let agentName: string = agentsListofDay[j];
+            let agentHours: string = hoursListofAgents[j];
+            if (!agents.find(elem1 => elem1 == agentName)) {
+                agents.push(agentName);
+            }
 
-todayShifts.forEach(day1=>{
-    let date1:string= day1.date;
-    let agents1 = day1.agents;
-    let hours1 = day1.hours;
-
-    for(let j =0; j<agents1.length;j++){
-        let name:string = agents1[j];
-        let hours2:string = hours1[j];
-
-        if(!agents.find(elem1 => elem1 == name)){
-            agents.push(name);
+            if (agentHours.length < 3) {
+                agentHours = 'day off';
+            }
+            let shiftData: agentShiftData = { name: agentName, date: date1, hours: agentHours };
+            shifts.push(shiftData);
         }
-
-        if (hours2.length < 3) { 
-            hours2 = 'day off';
-        }
-            let shift:agent = { name: name, date: date1, hours: hours2};
-            shifts.push(shift);       
     }
+    )
+
+    agents.forEach(agent1 => {
+        let shifts1: agentShiftData[] = shifts.filter(elem1 => elem1.name == agent1)
+        console.log(shifts1[0].name);
+        let emailToAgent = '';
+        switch (shifts1[0].name) {
+            case 'Anna':
+                emailToAgent = 'a.karpalova@zoovu.com'
+                break;
+            case 'Phil':
+                emailToAgent = 'f.szwedo@zoovu.com'
+                break;
+            case 'Greg':
+                emailToAgent = 'g.bochniak@zoovu.com'
+                break;
+            case 'Shehroze':
+                emailToAgent = 's.khan@zoovu.com'
+                break;
+            case 'Hasan':
+                emailToAgent = 'h.bhati@zoovu.com'
+                break;
+            case 'Konrad':
+                emailToAgent = 'k.molda@zoovu.com'
+                break;
+            case 'Kate':
+                emailToAgent = 'k.lukianova@zoovu.com'
+                break;
+            case 'Adam':
+                emailToAgent = 'a.kielinski@zoovu.com'
+                break;
+            default:
+                emailToAgent = 'g.bochniak@zoovu.com'
+                break;
+        }
+
+        sendEmail1(shifts1, emailToAgent);
+    })
+
 }
-)
 
-agents.forEach(agent1 => {
-    let shifts1:agent[] = shifts.filter(elem1 => elem1.name == agent1)
-    console.log(shifts1[0].name);
-    let emailToAgent = '';
-    switch (shifts1[0].name) {
-        case 'Anna':
-        emailToAgent = 'a.karpalova@zoovu.com'
-        break;
-        case 'Phil':
-        emailToAgent = 'f.szwedo@zoovu.com'
-        break;
-        case 'Greg':
-        emailToAgent = 'g.bochniak@zoovu.com'
-        break;
-        case 'Shehroze':
-        emailToAgent = 's.khan@zoovu.com'
-        break;
-        case 'Hasan':
-        emailToAgent = 'h.bhati@zoovu.com'
-        break;
-        case 'Konrad':
-        emailToAgent = 'k.molda@zoovu.com'
-        break;
-        case 'Kate':
-        emailToAgent = 'k.lukianova@zoovu.com'
-        break;
-        default:
-        emailToAgent = 'g.bochniak@zoovu.com'
-        break;
-      }
-   
-    sendEmail1(shifts1,emailToAgent);
-})
-
-}
-
-export default sendEmailtoAgent;
+export default sendEmailstoAgents;
 
 
 

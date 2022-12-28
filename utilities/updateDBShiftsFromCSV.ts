@@ -17,11 +17,12 @@ const updateShiftsInDb = async () => {
     const shiftRota = new shiftRotaService(new ShiftRotaRepository(shiftRotaModel));
 
     //@ts-ignore
-    shiftRota.saveShiftRotaEntriesFromCsv(shiftData)
-
-    return;
+    await shiftRota.saveShiftRotaEntriesFromCsv(shiftData)   
 }
 
-updateShiftsInDb();
+const doBatchUpdate = async() => {
+    await updateShiftsInDb();
+    process.exit();
+}
 
-
+doBatchUpdate();

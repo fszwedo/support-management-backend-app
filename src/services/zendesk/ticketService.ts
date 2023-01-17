@@ -31,8 +31,18 @@ export default class TicketService {
         })
         body += '<br/><h4>Leadgen form content</h4><br/>';
         ticketData.submittedFormData.forEach(el => {
-            //exclude the Confluence redirection
-            if (!el.questionText.includes('Confluence')) body += `&emsp;<strong>${el.questionText}</strong>: ${el.answers[0]}<br/>`
+            let answer = el.answers[0];
+            //exclude the Confluence redirection  (e.g. for fingerprint tutorial on bug path)          
+            //el.answers checks are to prevent undefined and nulls from causing exceptions
+            if (!el.questionText.includes('Confluence') && el.answers.length > 0 && el.answers[0] != null) {
+                //replace \n with <br> for newline handling
+                if (el.answers[0].includes('\n')) {
+                    el.answers[0] = '<br/>&emsp;&emsp;' + el.answers[0];
+                    answer = el.answers[0].replace(/\n/g, '<br/>&emsp;&emsp;');
+                }
+
+                body += `&emsp;<strong>${el.questionText}</strong>: <span>${answer}</span><br/>`
+            }
         })
 
         return body
@@ -61,7 +71,7 @@ export default class TicketService {
                     "public": false
                 }
             }
-            await this.updateTicket(ticketComment, createdTicket.ticket.id)            
+            await this.updateTicket(ticketComment, createdTicket.ticket.id)
         }
         return createdTicket
     }
@@ -69,6 +79,7 @@ export default class TicketService {
     createAccountAccessRequest = async (ticketData: leadgenFormContent) => {
         const accountLink = ticketData.submittedFormData.find(el => el.questionText === "Account link").answers[0];
         const requesterEmail = ticketData.submittedFormData.find(el => el.questionText === "Please provide YOUR email").answers[0];
+        const userToBeAssigned = ticketData.submittedFormData.find(el => el.questionText.includes("should get access")).answers[0];
         const approverEmail = ticketData.submittedFormData.find(el => el.questionText.includes('line manager')).answers[0];
         const platform = ticketData.questionsFlow.find(el => el.questionText.includes('which environment')).answers[0];
 
@@ -76,10 +87,11 @@ export default class TicketService {
         const newTicket: any = await this.createTicket(ticketData);
 
         let accessApprovalEmailBody = `Hello ${approverEmail}! <br/>`;
-        accessApprovalEmailBody += `User ${requesterEmail} reported that you are his/hers line manager. If that is correct can you please approve this account access request?<br/><br/>`;
+        accessApprovalEmailBody += `User ${requesterEmail} reported that you are his/hers line manager. <strong>If that is correct can you please approve this account access request?</strong><br/><br/>`;
         accessApprovalEmailBody += `Requesting user: ${requesterEmail}<br/>`;
-        accessApprovalEmailBody += `Target account: ${accountLink}<br/><br/>`;
-        accessApprovalEmailBody += `The approval is required by the Zoovu access security policies. If you want to know more please visit <a href="https://confluence.smartassistant.com/display/ZS/Zoovu+Platform+account+access">this page</a>`;
+        accessApprovalEmailBody += `Request: assign ${userToBeAssigned} to account ${accountLink}<br/><br/>`;
+        accessApprovalEmailBody += `The approval is required by the Zoovu access security policies. If you want to know more please visit <a href="https://confluence.smartassistant.com/display/ZS/Zoovu+Platform+account+access">this page</a><br/>`;
+        accessApprovalEmailBody += `In case you have any questions - please respond to this email.`;
 
         let ticketComment = {
             comment: {
@@ -347,7 +359,7 @@ export default class TicketService {
         };
 
         //depending on the path - different ticket is created
-        if (type.includes('problem')){
+        if (type.includes('problem')) {
             ticket.type = 'problem';
             ticket.custom_fields = [
                 {
@@ -362,7 +374,7 @@ export default class TicketService {
                     "id": TICKET_CUSTOM_FIELDS.PLATFORM,
                     value: [platform.toLowerCase()]
                 }
-            ]            
+            ]
         }
         else {
             ticket.type = 'task';
@@ -380,7 +392,7 @@ export default class TicketService {
                     value: [platform.toLowerCase()]
                 }
             ]
-        }       
+        }
 
         return await this.createNewTicket(ticket);
     }

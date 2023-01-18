@@ -14,8 +14,6 @@ const updateShiftsInDb = async () => {
     //path is set rigidly to my documents folder - Phil
     const shiftData = await readTextFile("../SHIFTROTA.csv")
 
-    console.log(shiftData,"*****************")
-
     let offset: number = new Date().getTimezoneOffset();
 
     const shiftRota = new shiftRotaService(new ShiftRotaRepository(shiftRotaModel));

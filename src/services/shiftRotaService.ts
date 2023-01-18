@@ -50,9 +50,7 @@ export default class ShiftRotaService {
     }
 
     saveShiftRotaEntriesFromCsv = async (shiftData: ShiftRota[],offset:number) => {
-        console.log(shiftData)
         shiftData = passHoursToUTCTimeConversion(shiftData,offset)
-        console.log(shiftData)
         let successCount = shiftData.length;
         let formattedShiftData: ShiftRota;
         let agents: string[];

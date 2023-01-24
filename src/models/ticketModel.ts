@@ -21,6 +21,7 @@
         email: string,
         name?: string
       }
+      tags? : string[]
       email_ccs?: {
         user_email: string,
         user_name: string

@@ -22,7 +22,7 @@ import ShiftChangeService from './src/services/shiftChangeService';
 import ShiftChangeController from './src/controllers/shiftChangeController';
 import shiftChangeRoute from './src/routes/shiftChangeRequest';
 
-import TicketService from './src/services/zendesk/ticketService';
+import TicketService from './src/services/zendesk/ticketCreationService';
 import TicketController from './src/controllers/ticketController';
 import ticketRoutes from './src/routes/tickets';
 
@@ -45,29 +45,28 @@ app.use(express.json());
 
 //API paths
 app.use('/api/shiftRota', shiftRota(shiftRotaController));
-app.use('/api/shiftChangeRequest', shiftChangeRoute(shiftChangeController)); 
+app.use('/api/shiftChangeRequest', shiftChangeRoute(shiftChangeController));
 app.use('/api/tickets', ticketRoutes(ticketController))
 
 const logger = new LoggerService(new LoggerRepository(logModel));
 
 const mongooseConnection = async () => {
     await mongoose.connect(`mongodb+srv://${process.env.MONGOLOGIN}:${process.env.MONGOPW}@cluster0.mgkhb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`)
-    .then(() => console.log('Connected to MongoDB...'))
-    .catch(error => console.error('Could not connect to MongoDB!', error))
+        .then(() => console.log('Connected to MongoDB...'))
+        .catch(error => console.error('Could not connect to MongoDB!', error))
 }
 mongooseConnection();
 
 app.listen(process.env.PORT, () => {
-     console.log(`listening on ${process.env.PORT}`)
+    console.log(`listening on ${process.env.PORT}`)
 })
 
 logger.saveLog({
-        type: 'info/restart',
-        message: 'App started at '+ new Date().toUTCString()
-    })
+    type: 'info/restart',
+    message: 'App started at ' + new Date().toUTCString()
+})
 
-const job = new cron.CronJob('1/10 * 6-22 * * *',  async function () {
-    //assignNewTickets(logger);
- 
+const job = new cron.CronJob('1/10 * 6-22 * * *', async function () {
+    assignNewTickets(logger);
 });
 job.start();

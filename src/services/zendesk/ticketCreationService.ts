@@ -6,22 +6,6 @@ import { TICKET_CUSTOM_FIELDS } from '../../CONSTANTS'
 export default class TicketService {
     constructor() { }
 
-    createNewTicket = async (ticket) => {
-        //add tag to distinguish leadgen-created tickets
-        ticket.tags = ['leadgen'];
-        const newTicket = {
-            ticket
-        }
-        return await makeZendeskRequest(`/api/v2/tickets`, 'POST', newTicket);
-    }
-
-    updateTicket = async (ticket, id: number) => {
-        const updatedTicket = {
-            ticket
-        }
-        return await makeZendeskRequest(`/api/v2/tickets/${id}`, 'PUT', updatedTicket);
-    }
-
     generateTicketBody = (ticketData: leadgenFormContent) => {
         let body = '<h3>Ticket submitted via Support Assistant</h3><br/>';
 
@@ -35,10 +19,14 @@ export default class TicketService {
             //exclude the Confluence redirection  (e.g. for fingerprint tutorial on bug path)          
             //el.answers checks are to prevent undefined and nulls from causing exceptions
             if (!el.questionText.includes('Confluence') && el.answers.length > 0 && el.answers[0] != null) {
+
+                //wrap links in <a> tag to make them clickable                
+                if (!el.questionText.includes('email')) answer = makeLinksClickable(answer);
+
                 //replace \n with <br> for newline handling
-                if (el.answers[0].includes('\n')) {
-                    el.answers[0] = '<br/>&emsp;&emsp;' + el.answers[0];
-                    answer = el.answers[0].replace(/\n/g, '<br/>&emsp;&emsp;');
+                if (answer.includes('\n')) {
+                    answer = '<br/>&emsp;&emsp;' + answer;
+                    answer = answer.replace(/\n/g, '<br/>&emsp;&emsp;');
                 }
 
                 body += `&emsp;<strong>${el.questionText}</strong>: <span>${answer}</span><br/>`
@@ -48,8 +36,18 @@ export default class TicketService {
         return body
     }
 
-    createTicket = async (ticketData: leadgenFormContent, isFallback?: boolean) => {
-        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText === "Please provide YOUR email").answers[0];
+    createGeneralTicket = async (ticketData: leadgenFormContent, isFallback?: boolean) => {
+        //below is a fallback logic for a case when there's no email question in the flow
+        let requesterEmail = '';
+        let requesterEmailExtractionFailed = false;
+        try {
+            requesterEmail = ticketData.submittedFormData.find(el => el.questionText.toLowerCase() === "please provide your email").answers[0];
+        }
+        catch (err) {
+            console.log('Fatal error! Requester email cannot be extracted!')
+            requesterEmail = 'f.szwedo@zoovu.com';
+            requesterEmailExtractionFailed = true;
+        }
 
         let ticket: newTicket = {
             subject: ticketData.questionsFlow[0].answers[0],
@@ -61,7 +59,7 @@ export default class TicketService {
                 name: requesterEmail
             }
         };
-        const createdTicket = await this.createNewTicket(ticket);
+        const createdTicket = await sendZendeskTicketCreationRequest(ticket);
 
         //here a logic that will add a comment if the ticket creation attempt is a fallback due to regular process failure
         if (isFallback === true) {
@@ -71,20 +69,31 @@ export default class TicketService {
                     "public": false
                 }
             }
-            await this.updateTicket(ticketComment, createdTicket.ticket.id)
+            await sendZendeskTicketUpdateRequest(ticketComment, createdTicket.ticket.id)
         }
+
+        //here's a logic that will add a comment if it was not possible to extract a requester email
+        if (requesterEmailExtractionFailed === true) {
+            let ticketComment = {
+                comment: {
+                    html_body: `WARNING - it was not possible to extract the email of the requester automatically. Phil was set as requester, please adjust it accordingly!`,
+                    "public": false
+                }
+            }
+            await sendZendeskTicketUpdateRequest(ticketComment, createdTicket.ticket.id)
+        }
+
         return createdTicket
     }
 
     createAccountAccessRequest = async (ticketData: leadgenFormContent) => {
         const accountLink = ticketData.submittedFormData.find(el => el.questionText === "Account link").answers[0];
-        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText === "Please provide YOUR email").answers[0];
+        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText.toLowerCase() === "please provide your email").answers[0];
         const userToBeAssigned = ticketData.submittedFormData.find(el => el.questionText.includes("should get access")).answers[0];
         const approverEmail = ticketData.submittedFormData.find(el => el.questionText.includes('line manager')).answers[0];
         const platform = ticketData.questionsFlow.find(el => el.questionText.includes('which environment')).answers[0];
 
-        //something is wrong with typescript below - idk what, that's why i typed any
-        const newTicket: any = await this.createTicket(ticketData);
+       const newTicket = await this.createGeneralTicket(ticketData);
 
         let accessApprovalEmailBody = `Hello ${approverEmail}! <br/>`;
         accessApprovalEmailBody += `User ${requesterEmail} reported that you are his/hers line manager. <strong>If that is correct can you please approve this account access request?</strong><br/><br/>`;
@@ -121,11 +130,11 @@ export default class TicketService {
             ],
             type: 'task'
         }
-        return await this.updateTicket(ticketComment, newTicket.ticket.id)
+        return await sendZendeskTicketUpdateRequest(ticketComment, newTicket.ticket.id)
     }
 
     createAdminAccessRequest = async (ticketData: leadgenFormContent) => {
-        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText === "Please provide YOUR email").answers[0];
+        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText.toLowerCase() === "please provide your email").answers[0];
         const managerEmail = ticketData.submittedFormData.find(el => el.questionText.includes('line manager')).answers[0];
         const platform = ticketData.questionsFlow.find(el => el.questionText.includes('which environment')).answers[0];
 
@@ -165,11 +174,11 @@ export default class TicketService {
             type: 'task'
         };
 
-        return await this.createNewTicket(ticket);
+        return await sendZendeskTicketCreationRequest(ticket);
     }
 
     createAccountCreationRequest = async (ticketData: leadgenFormContent) => {
-        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText === "Please provide YOUR email").answers[0];
+        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText.toLowerCase() === "please provide your email").answers[0];
         const platform = ticketData.questionsFlow.find(el => el.questionText.includes('Where')).answers[0];
 
         const ticketBody = this.generateTicketBody(ticketData);
@@ -204,11 +213,11 @@ export default class TicketService {
             type: 'task'
         };
 
-        return await this.createNewTicket(ticket);
+        return await sendZendeskTicketCreationRequest(ticket);
     }
 
     createCustomerAccessRequest = async (ticketData: leadgenFormContent) => {
-        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText === "Please provide YOUR email").answers[0];
+        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText.toLowerCase() === "please provide your email").answers[0];
         const platform = ticketData.questionsFlow.find(el => el.questionText.includes('which environment')).answers[0];
 
         const ticketBody = this.generateTicketBody(ticketData);
@@ -243,11 +252,11 @@ export default class TicketService {
             type: 'task'
         };
 
-        return await this.createNewTicket(ticket);
+        return await sendZendeskTicketCreationRequest(ticket);
     }
 
     createProblemReport = async (ticketData: leadgenFormContent) => {
-        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText === "Please provide YOUR email").answers[0];
+        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText.toLowerCase() === "please provide your email").answers[0];
         const platform = ticketData.questionsFlow.find(el => el.questionText.includes('which environment')).answers[0];
 
         const ticketBody = this.generateTicketBody(ticketData);
@@ -291,18 +300,16 @@ export default class TicketService {
             type: 'problem'
         };
 
-        return await this.createNewTicket(ticket);
+        return await sendZendeskTicketCreationRequest(ticket);
     }
 
     createFTPRequest = async (ticketData: leadgenFormContent) => {
-        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText === "Please provide YOUR email").answers[0];
+        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText.toLowerCase() === "please provide your email").answers[0];
 
         const ticketBody = this.generateTicketBody(ticketData);
 
-        let requestType = ticketData.questionsFlow.find(el => el.questionText.includes('do you need')).answers[0];
-        let ticketType = 'task'
-        if (requestType.includes('question')) ticketType = 'question'
-
+        const ticketType = ticketData.questionsFlow.find(el => el.questionText.includes('do you need')).answers[0].includes('question') ? 'question' : 'task';
+        
         const ticket: newTicket = {
             subject: ticketData.questionsFlow[0].answers[0],
             comment: {
@@ -333,18 +340,13 @@ export default class TicketService {
             type: ticketType
         };
 
-        // if(requestType.includes('access')){
-        //     ticket.email_ccs = 
-        // }
-
-
-        return await this.createNewTicket(ticket);
+        return await sendZendeskTicketCreationRequest(ticket);
     }
 
     createReportingRequest = async (ticketData: leadgenFormContent) => {
-        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText === "Please provide YOUR email").answers[0];
+        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText.toLowerCase() === "please provide your email").answers[0];
         const platform = ticketData.questionsFlow.find(el => el.questionText.includes('environment')).answers[0];
-        const type = ticketData.questionsFlow.find(el => el.questionText.includes('report')).answers[0];
+        const type = ticketData.questionsFlow.find(el => el.questionText.includes('What would you like to request')).answers[0];
         const ticketBody = this.generateTicketBody(ticketData);
 
         const ticket: newTicket = {
@@ -360,6 +362,7 @@ export default class TicketService {
 
         //depending on the path - different ticket is created
         if (type.includes('problem')) {
+            ticket.subject = 'Reporting issue'
             ticket.type = 'problem';
             ticket.custom_fields = [
                 {
@@ -377,6 +380,7 @@ export default class TicketService {
             ]
         }
         else {
+            ticket.subject = 'Reporting export request'
             ticket.type = 'task';
             ticket.custom_fields = [
                 {
@@ -394,6 +398,35 @@ export default class TicketService {
             ]
         }
 
-        return await this.createNewTicket(ticket);
+        return await sendZendeskTicketCreationRequest(ticket);
     }
 }
+
+//utility functions to send Zendesk ticket create and update requests, and to parse/modify ticket content to wrap links in <a> tags
+    export const sendZendeskTicketCreationRequest = async (ticket: newTicket) => {
+        //add tag to distinguish leadgen-created tickets
+        ticket.tags = ['leadgen'];
+        const newTicket = {
+            ticket
+        }
+        console.log(`Ticket ${ticket.subject} from ${ticket.requester.email} was created!`)
+        return await makeZendeskRequest(`/api/v2/tickets`, 'POST', newTicket);
+    }
+
+    export const sendZendeskTicketUpdateRequest = async (ticket, id: number) => {
+        const updatedTicket = {
+            ticket
+        }
+        return await makeZendeskRequest(`/api/v2/tickets/${id}`, 'PUT', updatedTicket);
+    }
+
+    export const makeLinksClickable = (text: string) => {
+        var urlRegex = /(https?:\/\/|www\.)?([-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))/g
+        return text.replace(urlRegex, function (url) {
+            let href = url;
+            if (!url.startsWith("http")) {
+                href = "http://" + url;
+            }
+            return "<a href='" + href + "'>" + url + "</a>";
+        });
+    }

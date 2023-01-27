@@ -9,5 +9,6 @@ export interface leadgenFormContent {
         questionId: number,
         questionText: string,
         answers: string[]
-    }[]
+    }[],
+    recommendations?: string[]
 }

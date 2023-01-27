@@ -12,7 +12,7 @@ import lastAssignedAgentModel from "../models/lastAssignedAgentModel";
 import LastAssignedAgentRepository from '../repositories/lastAssignedAgentRepository';
 import filterTicketsByKeyword from "../services/zendesk/filterTicketsByKeyword";
 
-const chalk = require('chalk');
+import chalk from 'chalk';
 
 const assignNewTickets = async (logger) => {
     const shiftRota = new shiftRotaService(new ShiftRotaRepository(shiftRotaModel));

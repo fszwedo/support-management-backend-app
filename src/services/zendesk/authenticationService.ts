@@ -20,9 +20,7 @@ const makeZendeskRequest = async (path: string, method: string, payload?: object
         if (error.response.status && error.response.status === 429) {
             console.log(`Time to restart ${error.response.headers['retry-after']/60} minutes`)
         }
-        return;
     }
-
     return;
 }
 

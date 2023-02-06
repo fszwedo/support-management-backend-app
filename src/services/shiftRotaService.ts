@@ -33,11 +33,11 @@ export default class ShiftRotaService {
            const checkIfThisShiftExists = await this.shiftRepository.getShiftsForSpecifiedDay(shiftRotaEntry.date)
                        
            if (checkIfThisShiftExists) {
-               console.log(`Updating entry for ${shiftRotaEntry.date}...`)
-               this.shiftRepository.updateByDate(shiftRotaEntry);
+               await this.shiftRepository.updateByDate(shiftRotaEntry);
+               console.log(`Updating entry for ${shiftRotaEntry.date}...`)               
            }
            else {
-               this.shiftRepository.create(shiftRotaEntry);
+               await this.shiftRepository.create(shiftRotaEntry);
                console.log(`Creating entry for ${shiftRotaEntry.date}...`)
             }
         }

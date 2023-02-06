@@ -45,12 +45,12 @@ export default class ShiftRotaService {
             console.log(ex.message)
             throw ex.message;
         }
-
+        
         return shiftRotaEntry;
     }
 
-    saveShiftRotaEntriesFromCsv = async (shiftData: ShiftRota[]) => {
-        
+    saveShiftRotaEntriesFromCsv = async (shiftData: ShiftRota[],offset:number) => {
+        shiftData = passHoursToUTCTimeConversion(shiftData,offset)
         let successCount = shiftData.length;
         let formattedShiftData: ShiftRota;
         let agents: string[];
@@ -78,3 +78,55 @@ export default class ShiftRotaService {
         return;
     }
 }
+
+//to convert shift data hours to UTC using UTCTimeConversion function
+let passHoursToUTCTimeConversion = (shiftData: ShiftRota[], offset: number) => {
+    for (let i = 0; i < shiftData.length; i++) {
+      for (const key in shiftData[i]) {
+        //for date and for empty times like "" as they are not needed to be converted
+        if (key === "date" || shiftData[i][key] === "") continue;
+  
+        let subTimes = shiftData[i][key].split(";");
+        let convertedSubTimes: string[] = [];
+  
+        subTimes.forEach((time:string) => {
+          let [startTimeLocal, endTimeLocal]: string[] = time.split("-");
+          let convertedTime = UTCTimeConversion(startTimeLocal, endTimeLocal, offset);
+          convertedSubTimes.push(convertedTime);
+        });
+
+        shiftData[i][key] = convertedSubTimes.join(";");
+      }
+    }
+    return shiftData;
+  };
+
+
+//UTC time conversion
+const UTCTimeConversion = (startTimeLocal: string, endTimeLocal: string,offset:number) => {
+    //function that takes time in minutes and returns time in hours and minutes format
+    function convertMinsToHrsMins(a: number) {
+      let hours = Math.trunc(a / 60);
+      let minutes = a % 60;
+      //If offset is full hours then result 8-16, if not 8:15-16:15
+      if (minutes > 0) return hours + ":" + minutes;
+      else return hours;
+    }
+  
+    //function to convert start and end times to UTC
+    const convertLocalTimeToUTC = (timeLocal: string) => {
+        let timeLocalMinutes: number;
+        if (timeLocal.length > 2)
+          timeLocalMinutes = Number(timeLocal.split(":")[0]) * 60 + Number(timeLocal.split(":")[1]);
+        else timeLocalMinutes = +timeLocal * 60;
+      
+        let timeLocalUTCMinutes = timeLocalMinutes + offset;
+        return convertMinsToHrsMins(timeLocalUTCMinutes);
+      }
+  
+      let startTimeUTC = convertLocalTimeToUTC(startTimeLocal);
+      let endTimeUTC = convertLocalTimeToUTC(endTimeLocal);
+  
+    return `${startTimeUTC}-${endTimeUTC}`;
+  };
+  

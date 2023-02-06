@@ -31,10 +31,8 @@ const selectAgentToAssign = async (agents: Agent[], getLastAssignedAgentId: Func
             for (let period of agentShiftPeriods) {
                 //extract the shift start and end hours to two-element array
                 const agentShiftLimits = period.split('-');
-
-                //get CET hours and decrement to get UTC hours -> here daylight saving time handling should be added
-                const agentStartTime = parseInt(agentShiftLimits[0]) - 1;
-                const agentEndTime = parseInt(agentShiftLimits[1]) - 1;
+                const agentStartTime = parseInt(agentShiftLimits[0]);
+                const agentEndTime = parseInt(agentShiftLimits[1]);
 
                 //check if the agent works at the moment with 30 minute offset (so agent working till 5pm will get the tickets assigned till 4:30pm) - if yes then push him to the array
                 //agents working till 10pm are getting the tickets assigned till the end of the shift

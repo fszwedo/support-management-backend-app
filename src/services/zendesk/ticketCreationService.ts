@@ -63,24 +63,14 @@ export default class TicketService {
 
         //here a logic that will add a comment if the ticket creation attempt is a fallback due to regular process failure
         if (isFallback === true) {
-            let ticketComment = {
-                comment: {
-                    html_body: `WARNING - there has been a problem during this ticket creation! Some automated actions might not have been taken. <br/> Please contact a person responsible for Support App development to review the problem.`,
-                    "public": false
-                }
-            }
-            await sendZendeskTicketUpdateRequest(ticketComment, createdTicket.ticket.id)
+            const comment = `WARNING - there has been a problem during this ticket creation! Some automated actions might not have been taken. <br/> Please contact a person responsible for Support App development to review the problem.`;
+            await addTicketComment(createdTicket.ticket.id, comment, false);
         }
 
         //here's a logic that will add a comment if it was not possible to extract a requester email
         if (requesterEmailExtractionFailed === true) {
-            let ticketComment = {
-                comment: {
-                    html_body: `WARNING - it was not possible to extract the email of the requester automatically. Phil was set as requester, please adjust it accordingly!`,
-                    "public": false
-                }
-            }
-            await sendZendeskTicketUpdateRequest(ticketComment, createdTicket.ticket.id)
+            const comment = `WARNING - it was not possible to extract the email of the requester automatically. Phil was set as requester, please adjust it accordingly!`;
+            await addTicketComment(createdTicket.ticket.id, comment, false)
         }
 
         return createdTicket
@@ -430,3 +420,14 @@ export default class TicketService {
             return "<a href='" + href + "'>" + url + "</a>";
         });
     }
+
+    const addTicketComment = async (ticketId: number, comment: string, isPublic: boolean) => {
+        const ticketComment = {
+          comment: {
+            html_body: comment,
+            "public": isPublic
+          }
+        };
+      
+        await sendZendeskTicketUpdateRequest(ticketComment, ticketId);
+      }

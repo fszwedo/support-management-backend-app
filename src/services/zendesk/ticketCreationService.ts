@@ -41,10 +41,11 @@ export default class TicketService {
         let requesterEmail = '';
         let requesterEmailExtractionFailed = false;
         try {
-            requesterEmail = ticketData.submittedFormData.find(el => el.questionText.toLowerCase() === "please provide your email").answers[0];
+            requesterEmail = findAnswer("please provide your email", ticketData.submittedFormData);
         }
         catch (err) {
             console.log('Fatal error! Requester email cannot be extracted!')
+            //as a fallback f.szwedo@zoovu.com is assigned as a requester - better that than nothing
             requesterEmail = 'f.szwedo@zoovu.com';
             requesterEmailExtractionFailed = true;
         }
@@ -77,11 +78,11 @@ export default class TicketService {
     }
 
     createAccountAccessRequest = async (ticketData: leadgenFormContent) => {
-        const accountLink = ticketData.submittedFormData.find(el => el.questionText === "Account link").answers[0];
-        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText.toLowerCase() === "please provide your email").answers[0];
-        const userToBeAssigned = ticketData.submittedFormData.find(el => el.questionText.includes("should get access")).answers[0];
-        const approverEmail = ticketData.submittedFormData.find(el => el.questionText.includes('line manager')).answers[0];
-        const platform = ticketData.questionsFlow.find(el => el.questionText.includes('which environment')).answers[0];
+        const accountLink = findAnswer("Account link", ticketData.submittedFormData);
+        const requesterEmail = findAnswer("please provide your email", ticketData.submittedFormData);
+        const userToBeAssigned = findAnswer("should get access", ticketData.submittedFormData);
+        const approverEmail = findAnswer("line manager", ticketData.submittedFormData);
+        const platform = findAnswer("which environment", ticketData.submittedFormData);
 
        const newTicket = await this.createGeneralTicket(ticketData);
 
@@ -124,9 +125,9 @@ export default class TicketService {
     }
 
     createAdminAccessRequest = async (ticketData: leadgenFormContent) => {
-        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText.toLowerCase() === "please provide your email").answers[0];
-        const managerEmail = ticketData.submittedFormData.find(el => el.questionText.includes('line manager')).answers[0];
-        const platform = ticketData.questionsFlow.find(el => el.questionText.includes('which environment')).answers[0];
+        const requesterEmail = findAnswer("please provide your email", ticketData.submittedFormData);
+        const managerEmail = findAnswer("line manager", ticketData.submittedFormData);
+        const platform = findAnswer("which environment", ticketData.submittedFormData);
 
         let requestEmailBody = this.generateTicketBody(ticketData);
         requestEmailBody += `<br/><br/>As required by the access security policy the manager is CCed in this ticket.`
@@ -168,8 +169,8 @@ export default class TicketService {
     }
 
     createAccountCreationRequest = async (ticketData: leadgenFormContent) => {
-        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText.toLowerCase() === "please provide your email").answers[0];
-        const platform = ticketData.questionsFlow.find(el => el.questionText.includes('Where')).answers[0];
+        const requesterEmail = findAnswer("please provide your email", ticketData.submittedFormData);
+        const platform = findAnswer("Where", ticketData.submittedFormData);
 
         const ticketBody = this.generateTicketBody(ticketData);
 
@@ -207,8 +208,8 @@ export default class TicketService {
     }
 
     createCustomerAccessRequest = async (ticketData: leadgenFormContent) => {
-        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText.toLowerCase() === "please provide your email").answers[0];
-        const platform = ticketData.questionsFlow.find(el => el.questionText.includes('which environment')).answers[0];
+        const requesterEmail = findAnswer("please provide your email", ticketData.submittedFormData);
+        const platform = findAnswer("which environment", ticketData.submittedFormData);
 
         const ticketBody = this.generateTicketBody(ticketData);
 
@@ -246,13 +247,13 @@ export default class TicketService {
     }
 
     createProblemReport = async (ticketData: leadgenFormContent) => {
-        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText.toLowerCase() === "please provide your email").answers[0];
-        const platform = ticketData.questionsFlow.find(el => el.questionText.includes('which environment')).answers[0];
+        const requesterEmail = findAnswer("please provide your email", ticketData.submittedFormData);
+        const platform = findAnswer("which environment", ticketData.submittedFormData);
 
         const ticketBody = this.generateTicketBody(ticketData);
 
         //logic below to define which category should be assigned
-        const category = ticketData.submittedFormData.find(el => el.questionText.includes('category')).answers[0].toLowerCase();
+        const category = findAnswer("category", ticketData.submittedFormData);
         let categoryCustomFieldValue = '';
 
         if (category.includes('configurator')) categoryCustomFieldValue = 'configurators';
@@ -294,11 +295,11 @@ export default class TicketService {
     }
 
     createFTPRequest = async (ticketData: leadgenFormContent) => {
-        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText.toLowerCase() === "please provide your email").answers[0];
+        const requesterEmail = findAnswer("please provide your email", ticketData.submittedFormData);
 
         const ticketBody = this.generateTicketBody(ticketData);
 
-        const ticketType = ticketData.questionsFlow.find(el => el.questionText.includes('do you need')).answers[0].includes('question') ? 'question' : 'task';
+        const ticketType = findAnswer("do you need", ticketData.submittedFormData).includes('question') ? 'question' : 'task';
         
         const ticket: newTicket = {
             subject: ticketData.questionsFlow[0].answers[0],
@@ -334,9 +335,9 @@ export default class TicketService {
     }
 
     createReportingRequest = async (ticketData: leadgenFormContent) => {
-        const requesterEmail = ticketData.submittedFormData.find(el => el.questionText.toLowerCase() === "please provide your email").answers[0];
-        const platform = ticketData.questionsFlow.find(el => el.questionText.includes('environment')).answers[0];
-        const type = ticketData.questionsFlow.find(el => el.questionText.includes('What would you like to request')).answers[0];
+        const requesterEmail = findAnswer("please provide your email", ticketData.submittedFormData);
+        const platform = findAnswer("environment", ticketData.submittedFormData);
+        const type = findAnswer("What would you like to request", ticketData.submittedFormData);
         const ticketBody = this.generateTicketBody(ticketData);
 
         const ticket: newTicket = {
@@ -421,6 +422,7 @@ export default class TicketService {
         });
     }
 
+    //helper function to send ticket comments
     const addTicketComment = async (ticketId: number, comment: string, isPublic: boolean) => {
         const ticketComment = {
           comment: {
@@ -431,3 +433,7 @@ export default class TicketService {
       
         await sendZendeskTicketUpdateRequest(ticketComment, ticketId);
       }
+
+    //helper function to search for answers for a provided question string element
+    const findAnswer = (questionText: string, submittedFormData: any[]) =>
+      submittedFormData.find(el => el.questionText.toLowerCase().includes(questionText)).answers[0];

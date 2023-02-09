@@ -24,10 +24,10 @@
       tags? : string[]
       email_ccs?: {
         user_email: string,
-        user_name: string
+        user_name: string,
         action: string
       }[]
-  }
+  };
 
   export default ticket;
 

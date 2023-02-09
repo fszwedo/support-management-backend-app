@@ -1,7 +1,7 @@
 import makeZendeskRequest from "./authenticationService";
 import { newTicket } from "../../models/ticketModel";
 import { leadgenFormContent } from '../../models/leadgenModel';
-import { TICKET_CUSTOM_FIELDS } from '../../CONSTANTS'
+import { TICKET_CUSTOM_FIELDS } from '../../CONSTANTS';
 
 export default class TicketService {
     constructor() { }

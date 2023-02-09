@@ -11,7 +11,7 @@ export default class TicketController {
         req: express.Request,
         res: express.Response,
     ) => {
-        const ticketCategory = req.body.questionsFlow[0].answers[0];
+        const ticketCategory: string = req.body.questionsFlow[0].answers[0];
         let ticket;
         //use appropriate service method for the selected path
         try {
@@ -36,15 +36,13 @@ export default class TicketController {
                     break;
                 default:
                     ticket = await this.service.createGeneralTicket(req.body);
-            }
+            };
         }
         catch (error) {
             console.log(error)
             //in case one of the functions above throws an error - generate a ticket anyway with a warning note
             await this.service.createGeneralTicket(req.body, true);
         }
-        
-
         res.status(200).json(ticket).send();
     }
 }

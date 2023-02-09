@@ -43,18 +43,16 @@ const shiftChangeRepository = new ShiftChangeRepository(shiftChangeRequestModel)
 const shiftChangeService = new ShiftChangeService(shiftChangeRepository, shiftRotaRepository);
 const shiftChangeController = new ShiftChangeController(shiftChangeService);
 
-
 const ticketService = new TicketService();
-const ticketController = new TicketController(ticketService)
+const ticketController = new TicketController(ticketService);
 const userRepository = new UserRepository(userModel);
-const userService = new UserService(userRepository)
+const userService = new UserService(userRepository);
 const userController = new UserController(userService);
 
 const authService = new AuthService(userRepository, process.env.JWTPRIVATEKEY);
 const authController = new AuthController(authService, userService);
 
-
-console.log('starting for ' + process.env.URL)
+console.log('starting for ' + process.env.URL);
 
 const app = express();
 app.use(cors({
@@ -65,28 +63,27 @@ app.use(express.json());
 //API paths
 app.use('/api/shiftRota', shiftRota(shiftRotaController));
 app.use('/api/shiftChangeRequest', shiftChangeRoute(shiftChangeController));
-app.use('/api/tickets', ticketRoutes(ticketController))
+app.use('/api/tickets', ticketRoutes(ticketController));
 app.use('/api', authRoute(authController));
 app.use('/api/users', usersRoute(userController));
-
 
 const logger = new LoggerService(new LoggerRepository(logModel));
 
 const mongooseConnection = async () => {
     await mongoose.connect(`mongodb+srv://${process.env.MONGOLOGIN}:${process.env.MONGOPW}@cluster0.mgkhb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`)
         .then(() => console.log('Connected to MongoDB...'))
-        .catch(error => console.error('Could not connect to MongoDB!', error))
+        .catch(error => console.error('Could not connect to MongoDB!', error));
 }
 mongooseConnection();
 
 app.listen(process.env.PORT, () => {
     console.log(`listening on ${process.env.PORT}`)
-})
+});
 
 logger.saveLog({
     type: 'info/restart',
     message: 'App started at ' + new Date().toUTCString()
-})
+});
 
 const job = new cron.CronJob('1/10 * 6-22 * * *', async function () {
     assignNewTickets(logger);

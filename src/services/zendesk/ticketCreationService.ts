@@ -11,7 +11,8 @@ export default class TicketService {
 
         body += '<h4>Flow answers</h4><br/>';
         ticketData.questionsFlow.forEach(el => {
-            body += `&emsp;<strong>${el.questionText}</strong>: ${el.answers[0]}<br/>`
+            const answer = el.answers.length === 1 ? el.answers[0] : el.answers;
+            body += `&emsp;<strong>${el.questionText}</strong>: ${answer}<br/>`
         })
         body += '<br/><h4>Leadgen form content</h4><br/>';
         ticketData.submittedFormData.forEach(el => {
@@ -435,12 +436,7 @@ export default class TicketService {
       }
 
     //helper function to search for answers for a provided question string element
-    const findAnswer = (questionText: string, submittedFormData: any[]) =>{
-        if(submittedFormData.find(el => el.questionText.toLowerCase().includes(questionText.toLowerCase())) === undefined){
-            console.log ('question text', questionText)
-            console.log ('form data ', questionText)
-        }
-
-        return submittedFormData.find(el => el.questionText.toLowerCase().includes(questionText.toLowerCase())).answers[0];
-    }
+    const findAnswer = (questionText: string, submittedFormData: any[]) =>
+        submittedFormData.find(el => el.questionText.toLowerCase().includes(questionText.toLowerCase())).answers[0];
+    
       

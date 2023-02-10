@@ -1,7 +1,7 @@
 import makeZendeskRequest from "./authenticationService";
 import { newTicket } from "../../models/ticketModel";
 import { leadgenFormContent } from '../../models/leadgenModel';
-import { TICKET_CUSTOM_FIELDS } from '../../CONSTANTS';
+import { TICKET_CUSTOM_FIELDS } from '../../CONSTANTS'
 
 export default class TicketService {
     constructor() { }
@@ -79,10 +79,10 @@ export default class TicketService {
 
     createAccountAccessRequest = async (ticketData: leadgenFormContent) => {
         const accountLink = findAnswer("Account link", ticketData.submittedFormData);
-        const requesterEmail = findAnswer("please provide your email", ticketData.submittedFormData);
+        const requesterEmail = findAnswer("Please provide YOUR email", ticketData.submittedFormData);
         const userToBeAssigned = findAnswer("should get access", ticketData.submittedFormData);
-        const approverEmail = findAnswer("line manager", ticketData.submittedFormData);
-        const platform = findAnswer("which environment", ticketData.submittedFormData);
+        const approverEmail = findAnswer("line manager", ticketData.submittedFormData); 
+        const platform = findAnswer("which environment", ticketData.questionsFlow); 
 
        const newTicket = await this.createGeneralTicket(ticketData);
 
@@ -125,9 +125,9 @@ export default class TicketService {
     }
 
     createAdminAccessRequest = async (ticketData: leadgenFormContent) => {
-        const requesterEmail = findAnswer("please provide your email", ticketData.submittedFormData);
+        const requesterEmail = findAnswer("Please provide YOUR email", ticketData.submittedFormData);
         const managerEmail = findAnswer("line manager", ticketData.submittedFormData);
-        const platform = findAnswer("which environment", ticketData.submittedFormData);
+        const platform = findAnswer("which environment", ticketData.questionsFlow);
 
         let requestEmailBody = this.generateTicketBody(ticketData);
         requestEmailBody += `<br/><br/>As required by the access security policy the manager is CCed in this ticket.`
@@ -169,8 +169,8 @@ export default class TicketService {
     }
 
     createAccountCreationRequest = async (ticketData: leadgenFormContent) => {
-        const requesterEmail = findAnswer("please provide your email", ticketData.submittedFormData);
-        const platform = findAnswer("Where", ticketData.submittedFormData);
+        const requesterEmail = findAnswer("Please provide YOUR email", ticketData.submittedFormData);
+        const platform = findAnswer("Where", ticketData.questionsFlow);
 
         const ticketBody = this.generateTicketBody(ticketData);
 
@@ -209,7 +209,7 @@ export default class TicketService {
 
     createCustomerAccessRequest = async (ticketData: leadgenFormContent) => {
         const requesterEmail = findAnswer("please provide your email", ticketData.submittedFormData);
-        const platform = findAnswer("which environment", ticketData.submittedFormData);
+        const platform = findAnswer("which environment", ticketData.questionsFlow);
 
         const ticketBody = this.generateTicketBody(ticketData);
 
@@ -248,12 +248,12 @@ export default class TicketService {
 
     createProblemReport = async (ticketData: leadgenFormContent) => {
         const requesterEmail = findAnswer("please provide your email", ticketData.submittedFormData);
-        const platform = findAnswer("which environment", ticketData.submittedFormData);
+        const platform = findAnswer("which environment", ticketData.questionsFlow);
 
         const ticketBody = this.generateTicketBody(ticketData);
 
         //logic below to define which category should be assigned
-        const category = findAnswer("category", ticketData.submittedFormData);
+        const category = findAnswer("category", ticketData.submittedFormData).toLowerCase();
         let categoryCustomFieldValue = '';
 
         if (category.includes('configurator')) categoryCustomFieldValue = 'configurators';
@@ -299,7 +299,7 @@ export default class TicketService {
 
         const ticketBody = this.generateTicketBody(ticketData);
 
-        const ticketType = findAnswer("do you need", ticketData.submittedFormData).includes('question') ? 'question' : 'task';
+        const ticketType = findAnswer("please provide your email", ticketData.submittedFormData).includes('question') ? 'question' : 'task';
         
         const ticket: newTicket = {
             subject: ticketData.questionsFlow[0].answers[0],
@@ -336,8 +336,8 @@ export default class TicketService {
 
     createReportingRequest = async (ticketData: leadgenFormContent) => {
         const requesterEmail = findAnswer("please provide your email", ticketData.submittedFormData);
-        const platform = findAnswer("environment", ticketData.submittedFormData);
-        const type = findAnswer("What would you like to request", ticketData.submittedFormData);
+        const platform = findAnswer("environment", ticketData.questionsFlow);
+        const type = findAnswer("What would you like to request", ticketData.questionsFlow);
         const ticketBody = this.generateTicketBody(ticketData);
 
         const ticket: newTicket = {
@@ -435,5 +435,12 @@ export default class TicketService {
       }
 
     //helper function to search for answers for a provided question string element
-    const findAnswer = (questionText: string, submittedFormData: any[]) =>
-      submittedFormData.find(el => el.questionText.toLowerCase().includes(questionText)).answers[0];
+    const findAnswer = (questionText: string, submittedFormData: any[]) =>{
+        if(submittedFormData.find(el => el.questionText.toLowerCase().includes(questionText.toLowerCase())) === undefined){
+            console.log ('question text', questionText)
+            console.log ('form data ', questionText)
+        }
+
+        return submittedFormData.find(el => el.questionText.toLowerCase().includes(questionText.toLowerCase())).answers[0];
+    }
+      

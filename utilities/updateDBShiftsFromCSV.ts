@@ -12,12 +12,14 @@ const updateShiftsInDb = async () => {
         .catch(error => console.error('Could not connect to MongoDB!', error))
 
     //path is set rigidly to my documents folder - Phil
-    const shiftData = await readTextFile('../../../../Filip/Documents/SHIFTROTA.csv')
+    const shiftData = await readTextFile("../SHIFTROTA.csv")
+
+    let offset: number = new Date().getTimezoneOffset();
 
     const shiftRota = new shiftRotaService(new ShiftRotaRepository(shiftRotaModel));
 
     //@ts-ignore
-    await shiftRota.saveShiftRotaEntriesFromCsv(shiftData)   
+    await shiftRota.saveShiftRotaEntriesFromCsv(shiftData,offset)   
 }
 
 const doBatchUpdate = async() => {

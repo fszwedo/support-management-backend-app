@@ -12,7 +12,7 @@ const updateShiftsInDb = async () => {
         .catch(error => console.error('Could not connect to MongoDB!', error))
 
     //path is set rigidly to my documents folder - Phil
-    const shiftData = await readTextFile("../SHIFTROTA.csv")
+    const shiftData = await readTextFile("../../../../Filip/Documents/SHIFTROTA.csv")
 
     let offset: number = new Date().getTimezoneOffset();
 

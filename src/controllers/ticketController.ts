@@ -19,7 +19,7 @@ export default class TicketController {
                 case 'Account access':
                     ticket = await this.service.createAccountAccessRequest(req.body);
                     break;
-                case 'Admintool access':
+                case 'Admin panel access':
                     ticket = await this.service.createAdminAccessRequest(req.body);
                     break;
                 case 'Account creation':

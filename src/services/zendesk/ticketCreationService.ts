@@ -16,12 +16,13 @@ export default class TicketService {
         })
         body += '<br/><h4>Leadgen form content</h4><br/>';
         ticketData.submittedFormData.forEach(el => {
-            let answer = el.answers[0];
             //exclude the Confluence redirection  (e.g. for fingerprint tutorial on bug path)          
             //el.answers checks are to prevent undefined and nulls from causing exceptions
             if (!el.questionText.includes('Confluence') && el.answers.length > 0 && el.answers[0] != null) {
+                //if there are two answers - concatenate them to string
+                let answer = el.answers.length === 1 ? el.answers[0] : '<br/>' + el.answers.join('<br/>');
 
-                //wrap links in <a> tag to make them clickable                
+                //wrap links in <a> tag to make them clickable, except for the emails (as that might be annoying)             
                 if (!el.questionText.includes('email')) answer = makeLinksClickable(answer);
 
                 //replace \n with <br> for newline handling
@@ -82,10 +83,10 @@ export default class TicketService {
         const accountLink = findAnswer("Account link", ticketData.submittedFormData);
         const requesterEmail = findAnswer("Please provide YOUR email", ticketData.submittedFormData);
         const userToBeAssigned = findAnswer("should get access", ticketData.submittedFormData);
-        const approverEmail = findAnswer("line manager", ticketData.submittedFormData); 
-        const platform = findAnswer("which environment", ticketData.questionsFlow); 
+        const approverEmail = findAnswer("line manager", ticketData.submittedFormData);
+        const platform = findAnswer("which environment", ticketData.questionsFlow);
 
-       const newTicket = await this.createGeneralTicket(ticketData);
+        const newTicket = await this.createGeneralTicket(ticketData);
 
         let accessApprovalEmailBody = `Hello ${approverEmail}! <br/>`;
         accessApprovalEmailBody += `User ${requesterEmail} reported that you are his/hers line manager. <strong>If that is correct can you please approve this account access request?</strong><br/><br/>`;
@@ -301,7 +302,7 @@ export default class TicketService {
         const ticketBody = this.generateTicketBody(ticketData);
 
         const ticketType = findAnswer("please provide your email", ticketData.submittedFormData).includes('question') ? 'question' : 'task';
-        
+
         const ticket: newTicket = {
             subject: ticketData.questionsFlow[0].answers[0],
             comment: {
@@ -395,48 +396,47 @@ export default class TicketService {
 }
 
 //utility functions to send Zendesk ticket create and update requests, and to parse/modify ticket content to wrap links in <a> tags
-    export const sendZendeskTicketCreationRequest = async (ticket: newTicket) => {
-        //add tag to distinguish leadgen-created tickets
-        ticket.tags = ['leadgen'];
-        const newTicket = {
-            ticket
+export const sendZendeskTicketCreationRequest = async (ticket: newTicket) => {
+    //add tag to distinguish leadgen-created tickets
+    ticket.tags = ['leadgen'];
+    const newTicket = {
+        ticket
+    }
+    console.log(`Ticket ${ticket.subject} from ${ticket.requester.email} was created!`)
+    return await makeZendeskRequest(`/api/v2/tickets`, 'POST', newTicket);
+}
+
+export const sendZendeskTicketUpdateRequest = async (ticket, id: number) => {
+    const updatedTicket = {
+        ticket
+    }
+    return await makeZendeskRequest(`/api/v2/tickets/${id}`, 'PUT', updatedTicket);
+}
+
+export const makeLinksClickable = (text: string) => {
+    var urlRegex = /(https?:\/\/|www\.)?([-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))/g
+    return text.replace(urlRegex, function (url) {
+        let href = url;
+        if (!url.startsWith("http")) {
+            href = "http://" + url;
         }
-        console.log(`Ticket ${ticket.subject} from ${ticket.requester.email} was created!`)
-        return await makeZendeskRequest(`/api/v2/tickets`, 'POST', newTicket);
-    }
+        return "<a href='" + href + "'>" + url + "</a>";
+    });
+}
 
-    export const sendZendeskTicketUpdateRequest = async (ticket, id: number) => {
-        const updatedTicket = {
-            ticket
-        }
-        return await makeZendeskRequest(`/api/v2/tickets/${id}`, 'PUT', updatedTicket);
-    }
-
-    export const makeLinksClickable = (text: string) => {
-        var urlRegex = /(https?:\/\/|www\.)?([-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))/g
-        return text.replace(urlRegex, function (url) {
-            let href = url;
-            if (!url.startsWith("http")) {
-                href = "http://" + url;
-            }
-            return "<a href='" + href + "'>" + url + "</a>";
-        });
-    }
-
-    //helper function to send ticket comments
-    const addTicketComment = async (ticketId: number, comment: string, isPublic: boolean) => {
-        const ticketComment = {
-          comment: {
+//helper function to send ticket comments
+const addTicketComment = async (ticketId: number, comment: string, isPublic: boolean) => {
+    const ticketComment = {
+        comment: {
             html_body: comment,
             "public": isPublic
-          }
-        };
-      
-        await sendZendeskTicketUpdateRequest(ticketComment, ticketId);
-      }
+        }
+    };
 
-    //helper function to search for answers for a provided question string element
-    const findAnswer = (questionText: string, submittedFormData: any[]) =>
-        submittedFormData.find(el => el.questionText.toLowerCase().includes(questionText.toLowerCase())).answers[0];
-    
-      
+    await sendZendeskTicketUpdateRequest(ticketComment, ticketId);
+}
+
+//helper function to search for answers for a provided question string element
+const findAnswer = (questionText: string, submittedFormData: any[]) =>
+    submittedFormData.find(el => el.questionText.toLowerCase().includes(questionText.toLowerCase())).answers[0];
+

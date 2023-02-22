@@ -1,3 +1,6 @@
+import shiftRotaService from "../services/shiftRotaService";
+import ShiftRotaRepository from "../repositories/shiftRotaRepository";
+import shiftRotaModel from '../models/shiftRotaModel'
 import sendEmail1 from "../services/sendEmailService";
 
 
@@ -9,7 +12,7 @@ const sendEmailstoAgents = async (shiftRota) => {
         date: string,
         hours: string
     };
-    let agents: string[] = [];   // unique list of agents
+    let agentsNames: string[] = [];   // unique list of agents
     let shifts: agentShiftData[] = [];
 
     todayShifts.forEach(day => {
@@ -20,8 +23,9 @@ const sendEmailstoAgents = async (shiftRota) => {
         for (let j = 0; j < agentsListofDay.length; j++) {
             let agentName: string = agentsListofDay[j];
             let agentHours: string = hoursListofAgents[j];
-            if (!agents.find(elem1 => elem1 == agentName)) {
-                agents.push(agentName);
+           // let shiftData: agentShiftData = { name: agentsListofDay[j], date: date1, hours: hoursListofAgents[j] };
+            if (!agentsNames.find(elem1 => elem1 == agentName)) {
+                agentsNames.push(agentName);
             }
 
             if (agentHours.length < 3) {
@@ -33,13 +37,13 @@ const sendEmailstoAgents = async (shiftRota) => {
     }
     )
 
-    agents.forEach(agent1 => {
+    agentsNames.forEach(agent1 => {
         let shifts1: agentShiftData[] = shifts.filter(elem1 => elem1.name == agent1)
         console.log(shifts1[0].name);
         let emailToAgent = '';
         switch (shifts1[0].name) {
-            case 'Anna':
-                emailToAgent = 'a.karpalova@zoovu.com'
+            case 'Radek':
+                emailToAgent = 'r.marszalek@zoovu.com'
                 break;
             case 'Phil':
                 emailToAgent = 'f.szwedo@zoovu.com'
@@ -50,14 +54,14 @@ const sendEmailstoAgents = async (shiftRota) => {
             case 'Shehroze':
                 emailToAgent = 's.khan@zoovu.com'
                 break;
-            case 'Hasan':
-                emailToAgent = 'h.bhati@zoovu.com'
+            case 'Karolina':
+                emailToAgent = 'k.koslacz@zoovu.com'
                 break;
             case 'Konrad':
                 emailToAgent = 'k.molda@zoovu.com'
                 break;
-            case 'Kate':
-                emailToAgent = 'k.lukianova@zoovu.com'
+            case 'Rajashree':
+                emailToAgent = 'r.chakraborty@zoovu.com'
                 break;
             case 'Adam':
                 emailToAgent = 'a.kielinski@zoovu.com'

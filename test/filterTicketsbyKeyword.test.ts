@@ -38,7 +38,7 @@ const ticketsArray = [
       subject: 'Sample ticket: Meet the ticket',
       description: 'Hi there,\n' +
         '\n' +
-        'I’m sending an email because I’m having a problem setting up your new product. Can you help me troubleshoot?\n' +
+        "I’m sending an email because I’m having a problem setting up your new product. Can you help me troubleshoot?\n" +
         '\n' +
         'Thanks,\n' +
         ' The Customer\n' +
@@ -105,32 +105,26 @@ const expectedArray = [
     subject: 'Sample ticket: Meet the ticket',
     description: 'Hi there,\n' +
       '\n' +
-      'I’m sending an email because I’m having a problem setting up your new product. Can you help me troubleshoot?\n' +
+      "I’m sending an email because I’m having a problem setting up your new product. Can you help me troubleshoot?\n" +
       '\n' +
       'Thanks,\n' +
       ' The Customer\n' +
       '\n',
-    requester_id: 5295854180381,
-    submitter_id: 393092207478,
-    assignee_id: 393092207478,
     level: 'other'
   }
 ]
 
-
-
-describe('Test filterTicketsByKeyword service', () => {
-   
+describe('Test filterTicketsByKeyword service', () => { 
    
     it('returns new tickets from the recent tickets', async () => {
-       expect(await filterTicketsByKeyword(ticketsArray)).toEqual(expectedArray);
+       expect(await filterTicketsByKeyword(() => ticketsArray)).toEqual(expectedArray);
     });
 
    it('if there are no new tickets - nothing is returned', async () => {
-      expect(await filterTicketsByKeyword([])).toEqual([]);
+      expect(await filterTicketsByKeyword(() => [])).toEqual([]);
     });
     
     it('one L1 ticket', async () => {
-     expect(await filterTicketsByKeyword(ticketsArrayoneL1)).toEqual(expectedArrayoneL1);
+     expect(await filterTicketsByKeyword(() => ticketsArrayoneL1)).toEqual(expectedArrayoneL1);
    });
   });

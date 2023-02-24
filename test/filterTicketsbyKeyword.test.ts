@@ -86,7 +86,7 @@ const expectedArray = [
     updated_at: '2022-05-26T07:56:27Z',
     subject: 'sql',
     description: 'sql1',
-    level: 'L2'
+    level: 'other'
   },
   {
     url: 'https://grzegorzabchelp.zendesk.com/api/v2/tickets/2.json',

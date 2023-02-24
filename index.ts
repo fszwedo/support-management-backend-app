@@ -23,6 +23,19 @@ import ShiftChangeController from './src/controllers/shiftChangeController';
 import shiftChangeRoute from './src/routes/shiftChangeRequest';
 import sendEmailstoAgents from './src/controllers/sendEmailController';
 
+import TicketService from './src/services/zendesk/ticketCreationService';
+import TicketController from './src/controllers/ticketController';
+import ticketRoutes from './src/routes/tickets';
+import userModel from './src/models/userModel';
+import UserRepository from './src/repositories/userRepository';
+import UserService from './src/services/userService';
+import UserController from './src/controllers/userController';
+import usersRoute from './src/routes/users';
+
+import AuthService from './src/services/authService';
+import AuthController from './src/controllers/authController';
+import authRoute from './src/routes/auth';
+
 const shiftRotaRepository = new ShiftRotaRepository(shiftRotaModel);
 const shiftRotaService = new ShiftRotaService(shiftRotaRepository);
 const shiftRotaController = new ShiftRotaController(shiftRotaService);
@@ -31,37 +44,52 @@ const shiftChangeRepository = new ShiftChangeRepository(shiftChangeRequestModel)
 const shiftChangeService = new ShiftChangeService(shiftChangeRepository, shiftRotaRepository);
 const shiftChangeController = new ShiftChangeController(shiftChangeService);
 
-console.log('starting for ' + process.env.URL)
+const ticketService = new TicketService();
+const ticketController = new TicketController(ticketService);
+const userRepository = new UserRepository(userModel);
+const userService = new UserService(userRepository);
+const userController = new UserController(userService);
+
+const authService = new AuthService(userRepository, process.env.JWTPRIVATEKEY);
+const authController = new AuthController(authService, userService);
+
+console.log('starting for ' + process.env.URL);
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    exposedHeaders: 'x-auth-token'
+}));
 app.use(express.json());
+
+//API paths
 app.use('/api/shiftRota', shiftRota(shiftRotaController));
-app.use('/api/shiftChangeRequest', shiftChangeRoute(shiftChangeController)); 
+app.use('/api/shiftChangeRequest', shiftChangeRoute(shiftChangeController));
+app.use('/api/tickets', ticketRoutes(ticketController));
+app.use('/api', authRoute(authController));
+app.use('/api/users', usersRoute(userController));
 
 const logger = new LoggerService(new LoggerRepository(logModel));
 
 const mongooseConnection = async () => {
     await mongoose.connect(`mongodb+srv://${process.env.MONGOLOGIN}:${process.env.MONGOPW}@cluster0.mgkhb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`)
-    .then(() => console.log('Connected to MongoDB...'))
-    .catch(error => console.error('Could not connect to MongoDB!', error))
+        .then(() => console.log('Connected to MongoDB...'))
+        .catch(error => console.error('Could not connect to MongoDB!', error));
 }
 mongooseConnection();
 
 app.listen(process.env.PORT, () => {
-     console.log(`listening on ${process.env.PORT}`)
-})
+    console.log(`listening on ${process.env.PORT}`)
+});
 
 logger.saveLog({
-        type: 'info/restart',
-        message: 'App started at '+ new Date().toUTCString()
-    })
+    type: 'info/restart',
+    message: 'App started at ' + new Date().toUTCString()
+});
 
 const job = new cron.CronJob('1/10 * 6-22 * * *',  async function () {
    assignNewTickets(logger); 
 });
 job.start();
-
 
 const emailJob = new cron.CronJob('0 12 * * 5',  async function () {
    sendEmailstoAgents(shiftRotaService); 

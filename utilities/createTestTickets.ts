@@ -51,5 +51,13 @@ ticket = {
 }
 ticketPayload.tickets.push(ticket)
 
+ticket = {
+    "comment": {
+        "body": `blalblablab`
+    },
+    "subject": `nic ciekawego`
+}
+ticketPayload.tickets.push(ticket)
+
 makeZendeskRequest('/api/v2/tickets/create_many', 'POST', ticketPayload)
 

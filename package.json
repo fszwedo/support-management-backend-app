@@ -7,7 +7,8 @@
     "test": "jest",
     "start": "ts-node index.ts",
     "createTestZendeskTickets": "ts-node ./utilities/createTestTickets.ts",
-    "updateDbShifts": "ts-node ./utilities/updateDBShiftsFromCSV.ts"
+    "updateDbShifts": "ts-node ./utilities/updateDBShiftsFromCSV.ts",
+    "sendEmails": "ts-node ./utilities/sendEmailsToAgents.ts"
   },
   "repository": {
     "type": "git",
@@ -20,6 +21,7 @@
   },
   "homepage": "https://github.com/fszwedo/helpscout-ticket-management#readme",
   "dependencies": {
+    "@sendgrid/mail": "^7.7.0",
     "axios": "^0.24.0",
     "body-parser": "^1.19.0",
     "callsites": "^4.0.0",

@@ -1,11 +1,6 @@
-import shiftRotaService from "../services/shiftRotaService";
-import ShiftRotaRepository from "../repositories/shiftRotaRepository";
-import shiftRotaModel from '../models/shiftRotaModel'
-import sendEmail1 from "../services/sendEmailService";
-
+import sendEmail from "../services/sendEmailService";
 
 const sendEmailstoAgents = async (shiftRota) => {
-
     const todayShifts = await shiftRota.getNextWeekShifts();
     type agentShiftData = {
         name: string,
@@ -19,11 +14,10 @@ const sendEmailstoAgents = async (shiftRota) => {
         let date1: string = day.date;
         let agentsListofDay = day.agents;
         let hoursListofAgents = day.hours;
-        
+
         for (let j = 0; j < agentsListofDay.length; j++) {
             let agentName: string = agentsListofDay[j];
             let agentHours: string = hoursListofAgents[j];
-           // let shiftData: agentShiftData = { name: agentsListofDay[j], date: date1, hours: hoursListofAgents[j] };
             if (!agentsNames.find(elem1 => elem1 == agentName)) {
                 agentsNames.push(agentName);
             }
@@ -39,11 +33,10 @@ const sendEmailstoAgents = async (shiftRota) => {
 
     agentsNames.forEach(agent1 => {
         let shifts1: agentShiftData[] = shifts.filter(elem1 => elem1.name == agent1)
-        console.log(shifts1[0].name);
         let emailToAgent = '';
         switch (shifts1[0].name) {
-            case 'Radek':
-                emailToAgent = 'r.marszalek@zoovu.com'
+            case 'Konrad':
+                emailToAgent = 'k.molda@zoovu.com'
                 break;
             case 'Phil':
                 emailToAgent = 'f.szwedo@zoovu.com'
@@ -57,8 +50,8 @@ const sendEmailstoAgents = async (shiftRota) => {
             case 'Karolina':
                 emailToAgent = 'k.koslacz@zoovu.com'
                 break;
-            case 'Konrad':
-                emailToAgent = 'k.molda@zoovu.com'
+            case 'Radoslaw':
+                emailToAgent = 'r.marszalek@zoovu.com'
                 break;
             case 'Rajashree':
                 emailToAgent = 'r.chakraborty@zoovu.com'
@@ -70,13 +63,8 @@ const sendEmailstoAgents = async (shiftRota) => {
                 emailToAgent = 'g.bochniak@zoovu.com'
                 break;
         }
-
-        sendEmail1(shifts1, emailToAgent);
+        sendEmail(shifts1, emailToAgent);
     })
-
 }
 
 export default sendEmailstoAgents;
-
-
-

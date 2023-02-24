@@ -5,10 +5,7 @@ require('dotenv').config()
 import cron from 'cron'
 
 import assignNewTickets from './src/controllers/ticketAssignmentController';
-//import sendEmail1 from './src/controllers/sendEmailController';
 import shiftRota from './src/routes/shiftRota';
-
-//import filterTicketsByKeyword from 'src/services/zendesk/filterTicketsByKeyword';
 
 import logModel from './src/models/logModel';
 import LoggerRepository from './src/repositories/logRepository';
@@ -26,11 +23,9 @@ import ShiftChangeController from './src/controllers/shiftChangeController';
 import shiftChangeRoute from './src/routes/shiftChangeRequest';
 import sendEmailstoAgents from './src/controllers/sendEmailController';
 
-const shiftRota2 = new ShiftRotaService(new ShiftRotaRepository(shiftRotaModel));
 const shiftRotaRepository = new ShiftRotaRepository(shiftRotaModel);
 const shiftRotaService = new ShiftRotaService(shiftRotaRepository);
 const shiftRotaController = new ShiftRotaController(shiftRotaService);
-
 
 const shiftChangeRepository = new ShiftChangeRepository(shiftChangeRequestModel);
 const shiftChangeService = new ShiftChangeService(shiftChangeRepository, shiftRotaRepository);
@@ -63,14 +58,12 @@ logger.saveLog({
     })
 
 const job = new cron.CronJob('1/10 * 6-22 * * *',  async function () {
-   assignNewTickets(logger);
- 
+   assignNewTickets(logger); 
 });
 job.start();
 
 
 const emailJob = new cron.CronJob('0 12 * * 5',  async function () {
-   sendEmailstoAgents(shiftRota2);
- 
+   sendEmailstoAgents(shiftRotaService); 
 });
 emailJob.start();

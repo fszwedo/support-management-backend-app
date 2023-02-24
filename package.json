@@ -9,6 +9,7 @@
     "nodemon": "nodemon index.ts",
     "createTestZendeskTickets": "ts-node ./utilities/createTestTickets.ts",
     "updateDbShifts": "ts-node ./utilities/updateDBShiftsFromCSV.ts",
+    "sendEmails": "ts-node ./utilities/sendEmailsToAgents.ts",
     "getZendeskTicketFields": "ts-node ./utilities/getZendeskTicketFields"
   },
   "repository": {
@@ -22,6 +23,7 @@
   },
   "homepage": "https://github.com/fszwedo/helpscout-ticket-management#readme",
   "dependencies": {
+    "@sendgrid/mail": "^7.7.0",
     "axios": "^0.24.0",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.1",

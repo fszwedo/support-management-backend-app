@@ -17,6 +17,26 @@ export default class ShiftRotaService {
         return this.shiftRepository.getShiftForToday();
     }
 
+    getNextWeekShifts =  async () => {
+
+        
+        const days =[1,7,6,5,4,3,2];
+        const day1 = new Date();
+        let date1 = null;
+        let date2 = null;
+        if(day1.getDate() == 1) {
+           date1 = day1;
+        }
+        else {
+           date1 = day1.setDate(day1.getDate()+days[day1.getDay()]);
+           date2 = day1.setDate(day1.getDate()+days[day1.getDay()]-3);
+        }
+        
+        let date3 = new Date(date1).toISOString().substring(2).split('T')[0];;
+        let date4 = new Date(date2).toISOString().substring(2).split('T')[0];;
+        return this.shiftRepository.getShiftsForDateScope(date3,date4);
+    }
+
     getShiftsForSpecifiedDay = async (day: string) => {
         return this.shiftRepository.getShiftsForSpecifiedDay(day);
     }

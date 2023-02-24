@@ -21,6 +21,7 @@ import ShiftChangeRepository from './src/repositories/shiftChangeRequestReposito
 import ShiftChangeService from './src/services/shiftChangeService';
 import ShiftChangeController from './src/controllers/shiftChangeController';
 import shiftChangeRoute from './src/routes/shiftChangeRequest';
+import sendEmailstoAgents from './src/controllers/sendEmailController';
 
 import TicketService from './src/services/zendesk/ticketCreationService';
 import TicketController from './src/controllers/ticketController';
@@ -85,7 +86,12 @@ logger.saveLog({
     message: 'App started at ' + new Date().toUTCString()
 });
 
-const job = new cron.CronJob('1/10 * 6-22 * * *', async function () {
-    assignNewTickets(logger);
+const job = new cron.CronJob('1/10 * 6-22 * * *',  async function () {
+   assignNewTickets(logger); 
 });
 job.start();
+
+const emailJob = new cron.CronJob('0 12 * * 5',  async function () {
+   sendEmailstoAgents(shiftRotaService); 
+});
+emailJob.start();

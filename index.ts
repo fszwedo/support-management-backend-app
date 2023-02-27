@@ -71,9 +71,10 @@ app.use('/api/users', usersRoute(userController));
 const logger = new LoggerService(new LoggerRepository(logModel));
 
 const mongooseConnection = async () => {
+    mongoose.set('strictQuery', true);
     await mongoose.connect(`mongodb+srv://${process.env.MONGOLOGIN}:${process.env.MONGOPW}@cluster0.mgkhb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`)
         .then(() => console.log('Connected to MongoDB...'))
-        .catch(error => console.error('Could not connect to MongoDB!', error));
+        .catch(error => console.error('Could not connect to MongoDB!', error));    
 }
 mongooseConnection();
 

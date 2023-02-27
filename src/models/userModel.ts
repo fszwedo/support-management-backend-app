@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 
 export enum UserType {
     User,
+    Agent,
     Admin
 }
 
@@ -12,7 +13,10 @@ export interface User {
     password: string;
     type: UserType;
     created: Date;
-    isActive: boolean
+    isActive: boolean;
+    isZendeskAgent: boolean;
+    expertiseAreas: string[];
+    additionalInfo: string;
 }
 
 const UserSchema = new mongoose.Schema({
@@ -50,6 +54,18 @@ const UserSchema = new mongoose.Schema({
     isActive: {
         type: Boolean,
         default: false
+    },
+    isZendeskAgent: {
+        type: Boolean,
+        default: false
+    },
+    expertiseAreas: {
+        type: [String],
+        default: []
+    },
+    additionalInfo: {
+        type: String,
+        default: ''
     }
 })
 

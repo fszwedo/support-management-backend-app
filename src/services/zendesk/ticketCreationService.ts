@@ -38,7 +38,7 @@ export default class TicketService {
         return body
     }
 
-    createGeneralTicket = async (ticketData: leadgenFormContent, isFallback?: boolean) => {
+    createGeneralTicket = async (ticketData: leadgenFormContent, isFallback?: boolean, customSubject?: string) => {
         //below is a fallback logic for a case when there's no email question in the flow
         let requesterEmail = '';
         let requesterEmailExtractionFailed = false;
@@ -53,7 +53,7 @@ export default class TicketService {
         }
 
         let ticket: newTicket = {
-            subject: ticketData.questionsFlow[0].answers[0],
+            subject: customSubject? customSubject : ticketData.questionsFlow[0].answers[0],
             comment: {
                 html_body: this.generateTicketBody(ticketData)
             },
@@ -86,7 +86,7 @@ export default class TicketService {
         const approverEmail = findAnswer("line manager", ticketData.submittedFormData);
         const platform = findAnswer("which environment", ticketData.questionsFlow);
 
-        const newTicket = await this.createGeneralTicket(ticketData);
+        const newTicket = await this.createGeneralTicket(ticketData, false, `Access request to ${accountLink}`);
 
         let accessApprovalEmailBody = `Hello ${approverEmail}! <br/>`;
         accessApprovalEmailBody += `User ${requesterEmail} reported that you are his/hers line manager. <strong>If that is correct can you please approve this account access request?</strong><br/><br/>`;
@@ -268,7 +268,7 @@ export default class TicketService {
         else if (category.includes('login problems')) categoryCustomFieldValue = 'account_access';
 
         const ticket: newTicket = {
-            subject: ticketData.questionsFlow[0].answers[0],
+            subject: `${category} problem report`,
             comment: {
                 html_body: ticketBody
             },
@@ -301,10 +301,20 @@ export default class TicketService {
 
         const ticketBody = this.generateTicketBody(ticketData);
 
-        const ticketType = findAnswer("please provide your email", ticketData.submittedFormData).includes('question') ? 'question' : 'task';
+        const ticketType = findAnswer("what do you need", ticketData.questionsFlow);
 
+        let subject = 'FTP request';
+        switch (ticketType) {
+            case 'Create new FTP account':
+                subject = 'Create new FTP account'
+            case 'Get access to FTP account':
+                subject = 'FTP access request'
+            case 'Ask question':
+                subject = 'FTP question'
+        }
+        
         const ticket: newTicket = {
-            subject: ticketData.questionsFlow[0].answers[0],
+            subject: subject,
             comment: {
                 html_body: ticketBody
             },
@@ -330,7 +340,7 @@ export default class TicketService {
                     value: ['not_platform_issue']
                 }
             ],
-            type: ticketType
+            type: ticketType.includes('question') ? 'question' : 'task'
         };
 
         return await sendZendeskTicketCreationRequest(ticket);

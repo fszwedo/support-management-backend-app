@@ -1,42 +1,44 @@
 import ticket from "../../models/ticketModel";
-import { L1 } from "../../../src/CONSTANTS";
-import { L2 } from "../../../src/CONSTANTS";
-import ticketsList from "../../models/ticketsList";
+import { categories, L1, L2 } from "../../../src/CONSTANTS";
 
-require('dotenv').config();
+function checker(text: string, keywords: string[]): number {
+   let totalCount = 0;
+   for (let i = 0; i < keywords.length; i++) {
+      const keyword = keywords[i];
+      const regex = new RegExp(keyword, "gi"); // create a regular expression for the keyword, using "gi" to match globally and case-insensitively
+      const matches = text.match(regex); // find all matches of the keyword in the string
+      const count = matches ? matches.length : 0; // count the number of matches, or set it to 0 if there are none
+      totalCount += count; // add the count for this keyword to the overall count
+   }
+   return totalCount;
+}
 
-function checker(subject:string,keywords:string[]) {
-    
-    for (let i:number = 0; i < keywords.length; i++) {
-      if (subject.toLowerCase().indexOf(keywords[i]) > -1) {
-        return true;
+const filterTicketsByKeyword = async (getTickets: any) => {
+
+   let newTickets: ticket[] = await getTickets();
+   let keywords1: string[] = L1;
+   let keywords2: string[] = L2;
+
+   newTickets.forEach(function (value) {
+      let ticket: ticket = value;
+      const ticketContent: string = ticket.subject + ticket.description;
+      let results = [];
+
+      //create an array of objects with category and count of category keyword occurences in the subject+description of the new ticket
+      for (const [key, value] of Object.entries(categories)) {
+         results.push({category: key, value: checker(ticketContent, value)})
       }
-    }
-    return false;
-  }
 
-const filterTicketsByKeyword = async (getTickets:any) => {
-  
-    let newTickets:ticket[] = await getTickets();
-    let keywords1:string[] = L1;
-    let keywords2:string[] = L2;
+      //sort the provided array
+      results.sort((a,b) => (a.value > b.value) ? 1 : ((b.value > a.value) ? -1 : 0));
 
-    newTickets.forEach(function (value) {
+      //return the most appropriate category
+      ticket.category = results[0].category
+   });
 
-            let newTicket:ticket = value;
-            
-        if (checker(newTicket.subject, keywords1) || checker(newTicket.description, keywords1)) { 
-           newTicket.level = 'L1';      
-        }
-        else if (checker(newTicket.subject, keywords2) || checker(newTicket.description, keywords2)) {
-           newTicket.level = 'other'; 
-        }
-        else {
-           newTicket.level = 'other'; 
-        }
-     });
-
-return newTickets;
+   return newTickets;
 }
 
 export default filterTicketsByKeyword;
+
+

@@ -20,7 +20,10 @@ var sendEmailToAgents = async (shifts, emailToAgent) => {
 
     return {
       to: emailToAgent,
-      from: process.env.SENDGRIDEMAIL,
+      from: {
+        email: process.env.SENDGRIDEMAIL,
+        name: 'Support App'
+      },
       subject: 'Your next week ticket assignment hours',
       text: 'Your next week ticket assignment hours',
       html: html

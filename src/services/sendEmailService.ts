@@ -20,7 +20,7 @@ var sendEmailToAgents = async (shifts, emailToAgent) => {
 
     return {
       to: emailToAgent,
-      from: 'help@zoovu.com',
+      from: process.env.SENDGRIDEMAIL,
       subject: 'Your next week ticket assignment hours',
       text: 'Your next week ticket assignment hours',
       html: html

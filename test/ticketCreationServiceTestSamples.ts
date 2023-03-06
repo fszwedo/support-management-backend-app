@@ -486,7 +486,7 @@ export const testBugReportContent: leadgenFormContent = {
                 "email": "requester@test.com",
                 "name": "requester@test.com",
             },
-            "subject": "Platform issue",
+            "subject": "experience designer problem report",
             "tags": [
                 "leadgen",
             ],
@@ -718,7 +718,7 @@ export const testFTPLeadgenContent: leadgenFormContent= {
                 "email": "requester@test.com",
                 "name": "requester@test.com",
             },
-            "subject": "FTP",
+            "subject": "Create new FTP account",
             "tags": [
                 "leadgen",
             ],

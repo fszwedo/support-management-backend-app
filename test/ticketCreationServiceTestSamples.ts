@@ -718,7 +718,7 @@ export const testFTPLeadgenContent: leadgenFormContent= {
                 "email": "requester@test.com",
                 "name": "requester@test.com",
             },
-            "subject": "FTP question",
+            "subject": "Create new FTP account",
             "tags": [
                 "leadgen",
             ],

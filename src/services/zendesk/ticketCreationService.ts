@@ -303,14 +303,19 @@ export default class TicketService {
 
         const ticketType = findAnswer("what do you need", ticketData.questionsFlow);
 
-        let subject = 'FTP request';
+        let subject;
         switch (ticketType) {
             case 'Create new FTP account':
-                subject = 'Create new FTP account'
+                subject = 'Create new FTP account';
+                break;
             case 'Get access to FTP account':
-                subject = 'FTP access request'
+                subject = 'FTP access request';
+                break;
             case 'Ask question':
-                subject = 'FTP question'
+                subject = 'FTP question';
+                break;
+            default:
+                subject = 'FTP request';
         }
         
         const ticket: newTicket = {

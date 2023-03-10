@@ -22,14 +22,11 @@ function countKeywords(str, keywords) {
   return totalCount;
 }
 
-const filterTicketsByKeyword = async (getTickets: any) => {
-  // for whatever reason I have to 
-  console.log( getTickets())
-  let newTickets: ticket[] = getTickets();
-  console.log(newTickets)
+const filterTicketsByKeyword = async (getTickets: Function): Promise<ticket[]> => {
+  await getTickets();
+  let newTickets:ticket[] = await getTickets();
 
-  newTickets.forEach(function (value) {
-    let ticket: ticket = value;
+  newTickets.forEach(ticket => {
     const ticketContent: string = ticket.subject + ticket.description;
     let results = [];
 
@@ -41,7 +38,7 @@ const filterTicketsByKeyword = async (getTickets: any) => {
     //sort the provided array
     results.sort((a, b) => (a.value > b.value) ? -1 : ((b.value > a.value) ? 1 : 0));
 
-    //console.log(results);
+    console.log(results);
     //return the most appropriate category
     if (results[0].value != 0) ticket.category = results[0].category;
     else ticket.category = undefined;

@@ -48,7 +48,7 @@ const assignNewTickets = async (logger) => {
    
     //iterate over the tickets and add them to the payload for batch update
     for (let i = 0; i < newTickets.length; i++) {
-        [agentToAssignId, agentToAssignName] = await selectAgentToAssign(agents, lastAssignedAgent.getLastAgent, todayShifts, newTickets[i].level);
+        [agentToAssignId, agentToAssignName] = await selectAgentToAssign(agents, lastAssignedAgent.getLastAgent, todayShifts, newTickets[i].category);
         //save info about last assigned agent in the db
         await lastAssignedAgent.saveLastAgent(agentToAssignId, newTickets[i].level);
 

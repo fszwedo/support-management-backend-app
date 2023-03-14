@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
+import { categoriesType } from 'src/CONSTANTS';
 
 export enum UserType {
     User,
@@ -15,7 +16,8 @@ export interface User {
     created: Date;
     isActive: boolean;
     isZendeskAgent: boolean;
-    expertiseAreas: string[];
+    zendeskId?: string;
+    expertiseAreas: categoriesType[];
     additionalInfo: string;
 }
 

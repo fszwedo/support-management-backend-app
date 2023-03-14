@@ -1,11 +1,11 @@
 import { ShiftRota } from "../../models/shiftRotaModel";
 import { Agent } from './getAgentsService';
-import { TicketLevels } from "src/CONSTANTS";
+import { TicketLevels, categories } from "src/CONSTANTS";
 //import filterTicketsByKeyword from "./filterTicketsByKeyword";
 // in this component we assume the times in shift schedule are in CET 
 // we then convert everything to UTC for clarity
 
-const selectAgentToAssign = async (agents: Agent[], getLastAssignedAgentId: Function, shiftSchedule: ShiftRota, ticketLevel: TicketLevels = null) => {
+const selectAgentToAssign = async (agents: Agent[], getLastAssignedAgentId: Function, shiftSchedule: ShiftRota, ticketCategory) => { // we should define the type of ticketCategory here...   : categories = null) => {
     //extract the data if the shift rota is provided as an array with one object-type element (instead of object itself)
     if (Array.isArray(shiftSchedule) === true) shiftSchedule = shiftSchedule[0];
 
@@ -46,9 +46,14 @@ const selectAgentToAssign = async (agents: Agent[], getLastAssignedAgentId: Func
         }
     }
 
-    //then select the agent that should get the ticket assigned
+    //then check if there are agents who can take the given category ticket
+    //if there are agents specialized in the given category - we should only assign this ticket to them
+    //if there are no agents specialized in the given category - we should assign the ticket to some other agent anyway
 
-    const lastAssignedAgentId = await getLastAssignedAgentId(ticketLevel);
+    //TO BE IMPLEMENTED HERE!
+
+    //then select the agent that should get the ticket assigned
+    const lastAssignedAgentId = await getLastAssignedAgentId(ticketCategory);
 
     for (let agent in currentlyAvailableAgents) {
         if (currentlyAvailableAgents[agent].id > lastAssignedAgentId.agentId) {

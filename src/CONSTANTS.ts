@@ -8,6 +8,8 @@ export const categories = {
     reporting: ['reporting', 'report', 'export', 'sql', 'database', 'insight', 'tracking']
 }
 
+export type categoriesType = keyof typeof categories;
+
 //here we have the ids of fields from zendesk for zoovu.zendesk.com account
 export enum TICKET_CUSTOM_FIELDS {
     LEVEL = 360016765154,

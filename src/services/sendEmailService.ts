@@ -98,7 +98,7 @@ var sendReporting = async (rowsCSV, email) => {
   await sendReportingEmail(attachment,email);
 }
 
+export default sendEmailToAgents;
 export {
-  sendEmailToAgents,
   sendReporting
 }

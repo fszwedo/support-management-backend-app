@@ -454,6 +454,15 @@ const addTicketComment = async (ticketId: number, comment: string, isPublic: boo
 }
 
 //helper function to search for answers for a provided question string element
-const findAnswer = (questionText: string, submittedFormData: any[]) =>
-    submittedFormData.find(el => el.questionText.toLowerCase().includes(questionText.toLowerCase())).answers[0];
+const findAnswer = (questionText: string, submittedFormData: any[]) => {
+    try {
+        return submittedFormData.find(el => el.questionText.toLowerCase().includes(questionText.toLowerCase())).answers[0];
+    }
+    catch (e) {
+        console.log(`ERROR: Couldn't find question with string '${questionText}'!`)
+        return undefined;
+    }
+
+}
+    
 

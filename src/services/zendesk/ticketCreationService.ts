@@ -80,18 +80,20 @@ export default class TicketService {
     }
 
     createAccountAccessRequest = async (ticketData: leadgenFormContent) => {
-        const accountLink = findAnswer("Account link", ticketData.submittedFormData);
+        const accountName = findAnswer("name", ticketData.submittedFormData);
+        const accountLink = findAnswer("link", ticketData.submittedFormData);
         const requesterEmail = findAnswer("Please provide YOUR email", ticketData.submittedFormData);
         const userToBeAssigned = findAnswer("should get access", ticketData.submittedFormData);
         const approverEmail = findAnswer("line manager", ticketData.submittedFormData);
-        const platform = findAnswer("which environment", ticketData.questionsFlow);
+        let platform = findAnswer("which environment", ticketData.questionsFlow);
+        if (platform === 'Semantic Studio') platform = 'semantic_studio';  //changing the value to be in line with platform Zendesk ticket field
 
-        const newTicket = await this.createGeneralTicket(ticketData, false, `Access request to ${accountLink}`);
+        const newTicket = await this.createGeneralTicket(ticketData, false, `Access request to ${accountName}`);
 
         let accessApprovalEmailBody = `Hello ${approverEmail}! <br/>`;
         accessApprovalEmailBody += `User ${requesterEmail} reported that you are his/hers line manager. <strong>If that is correct can you please approve this account access request?</strong><br/><br/>`;
         accessApprovalEmailBody += `Requesting user: ${requesterEmail}<br/>`;
-        accessApprovalEmailBody += `Request: assign ${userToBeAssigned} to account ${accountLink}<br/><br/>`;
+        accessApprovalEmailBody += `Request: assign ${userToBeAssigned} to account ${accountName} (${accountLink})<br/><br/>`;
         accessApprovalEmailBody += `The approval is required by the Zoovu access security policies. If you want to know more please visit <a href="https://confluence.smartassistant.com/display/ZS/Zoovu+Platform+account+access">this page</a><br/>`;
         accessApprovalEmailBody += `In case you have any questions - please respond to this email.`;
 

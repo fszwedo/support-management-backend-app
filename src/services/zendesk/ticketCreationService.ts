@@ -250,7 +250,8 @@ export default class TicketService {
 
     createProblemReport = async (ticketData: leadgenFormContent) => {
         const requesterEmail = findAnswer("please provide your email", ticketData.submittedFormData);
-        const platform = findAnswer("which environment", ticketData.questionsFlow);
+        let platform = findAnswer("which environment", ticketData.questionsFlow);
+        if (platform === 'Semantic Studio') platform = 'semantic_studio';  //changing the value to be in line with platform Zendesk ticket field
 
         const ticketBody = this.generateTicketBody(ticketData);
 

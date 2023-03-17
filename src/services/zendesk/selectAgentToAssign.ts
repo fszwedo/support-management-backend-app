@@ -1,11 +1,9 @@
 import { ShiftRota } from "../../models/shiftRotaModel";
 import { Agent } from './getAgentsService';
 import { TicketLevels, categories } from "src/CONSTANTS";
-//import filterTicketsByKeyword from "./filterTicketsByKeyword";
-// in this component we assume the times in shift schedule are in CET 
-// we then convert everything to UTC for clarity
+import UserRepository from "src/repositories/userRepository";
 
-const selectAgentToAssign = async (agents: Agent[], getLastAssignedAgentId: Function, shiftSchedule: ShiftRota, ticketCategory) => { // we should define the type of ticketCategory here...   : categories = null) => {
+const selectAgentToAssign = async (agents: Agent[], getLastAssignedAgentId: Function, shiftSchedule: ShiftRota, userRepository: UserRepository, ticketCategory) => { // we should define the type of ticketCategory here...   : categories = null) => {
     //extract the data if the shift rota is provided as an array with one object-type element (instead of object itself)
     if (Array.isArray(shiftSchedule) === true) shiftSchedule = shiftSchedule[0];
 
@@ -50,7 +48,8 @@ const selectAgentToAssign = async (agents: Agent[], getLastAssignedAgentId: Func
     //if there are agents specialized in the given category - we should only assign this ticket to them
     //if there are no agents specialized in the given category - we should assign the ticket to some other agent anyway
 
-    //TO BE IMPLEMENTED HERE!
+    const agentsSpecializedInCurrentCategory = currentlyAvailableAgents.filter(agent => agent.details.includes(ticketCategory))
+    console.log()
 
     //then select the agent that should get the ticket assigned
     const lastAssignedAgentId = await getLastAssignedAgentId(ticketCategory);

@@ -3,8 +3,8 @@ export const L1: string[] = ['access', 'ftp', 'sds', 'pds', 'password', 'login',
 export const L2: string[] = ['success', 'sql', 'css', 'js', 'configurator', 'tracking', 'bundle'];
 export const categories = {
     configurators: ['configurator', 'section', 'preceding', 'preflow', 'trigger'],
-    semantic: ['semantic', 'ontology', 'crawl', 'search', 'fact', 'concept'],
-    exd: ['experience', 'component', 'exd', 'theme'],
+    semantic: ['semantic', 'ontology', 'crawl', 'search', 'concept'],
+    exd: ['experience', 'component', 'exd', 'theme', 'align', 'center'],
     reporting: ['reporting', 'report', 'export', 'sql', 'database', 'insight', 'tracking']
 }
 

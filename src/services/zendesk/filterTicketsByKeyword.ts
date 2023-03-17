@@ -37,10 +37,9 @@ const filterTicketsByKeyword = async (getTickets: Function): Promise<ticket[]> =
 
     //sort the provided array
     results.sort((a, b) => (a.value > b.value) ? -1 : ((b.value > a.value) ? 1 : 0));
-
-    console.log(results);
+    
     //return the most appropriate category
-    if (results[0].value != 0) ticket.category = results[0].category;
+    if (results[0].value > 1) ticket.category = results[0].category;
     else ticket.category = undefined;
 
   });

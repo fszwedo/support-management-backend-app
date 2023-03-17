@@ -1,11 +1,31 @@
 import filterTicketsByKeyword from '../src/services/zendesk/filterTicketsByKeyword';
+import makeZendeskRequest from '../src/services/zendesk/authenticationService';
+
+require('dotenv').config()
+
+const getNewTickets = async () => {
+    return await makeZendeskRequest('/api/v2/tickets.json?page[size]=100&sort=-id', 'GET');
+}
+
+
 
 async function filter() {
     let results:any = await filterTicketsByKeyword(() => {return ticketsArray});
     //console.log(results);
 }
 
-filter();
+//filter();
+
+const filterZendeskTickets = async () => {
+   const tickets = (await getNewTickets()).tickets;
+   const categorizedTickets = await filterTicketsByKeyword(() => {return tickets});
+   for (let i = 0; i < categorizedTickets.length; i++){
+    console.log(categorizedTickets[i].id, ' ', categorizedTickets[i].subject, ' - - - ', categorizedTickets[i].category )
+  }
+}
+
+
+filterZendeskTickets();
 
 const ticketsArray = [
     {
@@ -50,3 +70,5 @@ const ticketsArray = [
         description: "Hi guys,  Could you please be so kind and check the Integration of Sales Tracking for Customer Bergzeit.  In the overview I see a very high spike in sales, which seems a bit odd to me – especially since starts have actually declined.     Customer: Bergzeit https://orca-admin.zoovu.com/accounts/3229  Assistant: Reporting of alle assistants"
       }
   ];
+
+

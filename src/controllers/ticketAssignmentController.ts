@@ -14,7 +14,7 @@ import filterTicketsByKeyword from "../services/zendesk/filterTicketsByKeyword";
 
 import chalk from 'chalk';
 
-const assignNewTickets = async (logger) => {
+const assignNewTickets = async (logger, userRepository) => {
     const shiftRota = new shiftRotaService(new ShiftRotaRepository(shiftRotaModel));
     const lastAssignedAgent = new lastAssignedAgentService(new LastAssignedAgentRepository(lastAssignedAgentModel));
     
@@ -32,9 +32,8 @@ const assignNewTickets = async (logger) => {
 
     //if there are new tickets - get agents from Zendesk
     const agents = await getAgents(makeZendeskRequest);
-
     //check which agents are available at the current time
-    const isAvailableAgent = await selectAgentToAssign(agents, lastAssignedAgent.getLastAgent, todayShifts,null);
+    const isAvailableAgent = await selectAgentToAssign(agents, lastAssignedAgent.getLastAgent, todayShifts, userRepository, null );
     //if there are no agents - stop execution
     if (!isAvailableAgent[0]) {
         //console.log(`no available agents!`);
@@ -48,7 +47,7 @@ const assignNewTickets = async (logger) => {
    
     //iterate over the tickets and add them to the payload for batch update
     for (let i = 0; i < newTickets.length; i++) {
-        [agentToAssignId, agentToAssignName] = await selectAgentToAssign(agents, lastAssignedAgent.getLastAgent, todayShifts, newTickets[i].category);
+        [agentToAssignId, agentToAssignName] = await selectAgentToAssign(agents, lastAssignedAgent.getLastAgent, todayShifts, userRepository, newTickets[i].category);
         //save info about last assigned agent in the db
         await lastAssignedAgent.saveLastAgent(agentToAssignId, newTickets[i].level);
 
@@ -59,7 +58,7 @@ const assignNewTickets = async (logger) => {
             "subject": newTickets[i].subject
         }
         newTicketPayload.tickets.push(ticket);
-        console.log(new Date().toLocaleString() + chalk.blue(' UTC ticket id ' + newTicketPayload.tickets[i].id) + chalk.red(', level ' + newTicketPayload.tickets[i].level) + chalk.yellow(', was assigned to ' + agentToAssignName) + chalk.green(' subject: ' + newTicketPayload.tickets[i].subject))
+       // console.log(new Date().toLocaleString() + chalk.blue(' UTC ticket id ' + newTicketPayload.tickets[i].id) + chalk.red(', level ' + newTicketPayload.tickets[i].level) + chalk.yellow(', was assigned to ' + agentToAssignName) + chalk.green(' subject: ' + newTicketPayload.tickets[i].subject))
 
         logger.saveLog({
             type: 'info/ticket assignment',
@@ -68,7 +67,7 @@ const assignNewTickets = async (logger) => {
     }    
 
     //finally - assign the tickets :)
-   assignTicket(newTicketPayload);
+   //assignTicket(newTicketPayload);
 
     return;
 }

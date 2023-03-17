@@ -30,11 +30,18 @@ export const testAccessLeadenContent: leadgenFormContent = {
             ]
         },
         {
-            "questionId": 1589621,
-            "questionText": "Account link",
-            "answers": [
-                "test.account"
-            ]
+          "questionId": 250260427,
+          "questionText": "Account/project name",
+          "answers": [
+            "test"
+          ]
+        },
+        {
+          "questionId": 1589621,
+          "questionText": "Account/project link",
+          "answers": [
+            "test.account"
+          ]
         },
         {
             "questionId": 1589622,
@@ -88,7 +95,7 @@ export const expectedAccessFollowUpContent = [
     {
         "ticket": {
             "comment": {
-                "html_body": "Hello testapprover@test.com! <br/>User test@test.com reported that you are his/hers line manager. <strong>If that is correct can you please approve this account access request?</strong><br/><br/>Requesting user: test@test.com<br/>Request: assign testuser@test.com to account test.account<br/><br/>The approval is required by the Zoovu access security policies. If you want to know more please visit <a href=\"https://confluence.smartassistant.com/display/ZS/Zoovu+Platform+account+access\">this page</a><br/>In case you have any questions - please respond to this email.",
+                "html_body": "Hello testapprover@test.com! <br/>User test@test.com reported that you are his/hers line manager. <strong>If that is correct can you please approve this account access request?</strong><br/><br/>Requesting user: test@test.com<br/>Request: assign testuser@test.com to account test (test.account)<br/><br/>The approval is required by the Zoovu access security policies. If you want to know more please visit <a href=\"https://confluence.smartassistant.com/display/ZS/Zoovu+Platform+account+access\">this page</a><br/>In case you have any questions - please respond to this email.",
                 "public": true,
             },
             "custom_fields": [

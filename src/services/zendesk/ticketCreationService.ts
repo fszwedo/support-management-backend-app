@@ -250,6 +250,7 @@ export default class TicketService {
 
     createProblemReport = async (ticketData: leadgenFormContent) => {
         const requesterEmail = findAnswer("please provide your email", ticketData.submittedFormData);
+        const subject = findAnswer("subject", ticketData.submittedFormData);
         const platform = findAnswer("which environment", ticketData.questionsFlow);
 
         const ticketBody = this.generateTicketBody(ticketData);
@@ -268,7 +269,7 @@ export default class TicketService {
         else if (category.includes('login problems')) categoryCustomFieldValue = 'account_access';
 
         const ticket: newTicket = {
-            subject: `${category} problem report`,
+            subject: subject ? subject : `${category} problem report`, //fallback for 'undefined' subject
             comment: {
                 html_body: ticketBody
             },

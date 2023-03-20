@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { mongo } from 'mongoose';
 import bcrypt from 'bcrypt';
 
 export enum UserType {
@@ -16,6 +16,7 @@ export interface User {
 }
 
 const UserSchema = new mongoose.Schema({
+    _id:mongoose.Types.ObjectId,
     name: {
         type: String,
         required: true,

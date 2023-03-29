@@ -20,8 +20,7 @@ export default class UserController {
         req: express.Request,
         res: express.Response,
     ) => {
-        console.log(req.params)
-        const user = await this.service.getUserById(req.params.id);
+        const user = await this.service.getUserById(req.query.id);
         res.status(200).json(user)
     }
 

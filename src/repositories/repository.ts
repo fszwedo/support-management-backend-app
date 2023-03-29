@@ -14,7 +14,7 @@ export class Repository {
     }
 
     async getById(id: mongoose.ObjectId) {
-        return this.model.findOne(id);
+        return this.model.findOne({_id:id});
     }
 
     async find(query){

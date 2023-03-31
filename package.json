@@ -6,6 +6,7 @@
   "scripts": {
     "test": "jest --maxWorkers=1",
     "start": "ts-node index.ts",
+    "noTicketAssignment": "ts-node index.ts --noTicketAssignment",
     "nodemon": "nodemon index.ts",
     "createTestZendeskTickets": "ts-node ./utilities/createTestTickets.ts",
     "updateDbShifts": "ts-node ./utilities/updateDBShiftsFromCSV.ts",

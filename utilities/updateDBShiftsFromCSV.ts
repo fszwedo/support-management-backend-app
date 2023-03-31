@@ -5,6 +5,8 @@ import mongoose from 'mongoose';
 import 'dotenv/config';
 import { readTextFile } from '../src/services/readWriteCsv';
 
+if(!process.env.MONGOLOGIN || process.env.MONGOPW){throw new Error("Either MONGOLOGIN, or MONGOPW environment variable is not present!")}
+
 const updateShiftsInDb = async () => {
 
     await mongoose.connect(`mongodb+srv://${process.env.MONGOLOGIN}:${process.env.MONGOPW}@cluster0.mgkhb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`)

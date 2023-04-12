@@ -10,7 +10,7 @@ import sendEmailstoAgents from '../src/controllers/sendEmailController';
 const shiftRotaRepository = new ShiftRotaRepository(shiftRotaModel);
 const shiftRotaService = new ShiftRotaService(shiftRotaRepository);
 
-if(!process.env.MONGOLOGIN || process.env.MONGOPW){throw new Error("Either MONGOLOGIN, or MONGOPW environment variable is not present!")}
+if(!process.env.MONGOLOGIN || process.env.MONGOPW)throw new Error("Either MONGOLOGIN, or MONGOPW environment variable is not present!")
 
 const mongooseConnection = async () => {
     await mongoose.connect(`mongodb+srv://${process.env.MONGOLOGIN}:${process.env.MONGOPW}@cluster0.mgkhb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`)

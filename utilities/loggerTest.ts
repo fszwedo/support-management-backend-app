@@ -4,7 +4,7 @@ import logModel from '../src/models/logModel';
 import loggerRepository from '../src/repositories/logRepository';
 import loggerService from '../src/services/loggerService';
 
-if(!process.env.MONGOLOGIN || process.env.MONGOPW){throw new Error("Either MONGOLOGIN, or MONGOPW environment variable is not present!")}
+if(!process.env.MONGOLOGIN || process.env.MONGOPW)throw new Error("Either MONGOLOGIN, or MONGOPW environment variable is not present!")
 
 const loggerTest = async () => {
     await mongoose.connect(`mongodb+srv://${process.env.MONGOLOGIN}:${process.env.MONGOPW}@cluster0.mgkhb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`)

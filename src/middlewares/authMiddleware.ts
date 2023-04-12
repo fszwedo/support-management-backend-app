@@ -2,7 +2,7 @@ import { UserType } from "../models/userModel";
 import * as express from 'express';
 const jwt = require('jsonwebtoken');
 
-if(!process.env.JWTPRIVATEKEY){console.log("JWTPRIVATEKEY is not present!")}
+if(!process.env.JWTPRIVATEKEY)console.log("JWTPRIVATEKEY is not present!")
 
 export const authorize = (roles: UserType[]) => (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const token: string = req.header('x-auth-token');

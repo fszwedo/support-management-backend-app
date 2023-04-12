@@ -1,6 +1,6 @@
 const sendGridMail = require('@sendgrid/mail');
 
-if(!process.env.SENDGRIDAPIKEY || !process.env.SENDGRIDEMAIL){console.log("Either SENDGRIDAPIKEY, or SENDGRIDEMAIL environment variable is not present!")}
+if(!process.env.SENDGRIDAPIKEY || !process.env.SENDGRIDEMAIL)console.log("Either SENDGRIDAPIKEY, or SENDGRIDEMAIL environment variable is not present!")
 
 var sendEmailToAgents = async (shifts, emailToAgent) => {
   //return if email for a given agent was not provided

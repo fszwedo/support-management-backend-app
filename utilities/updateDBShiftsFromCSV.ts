@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 import 'dotenv/config';
 import { readTextFile } from '../src/services/readWriteCsv';
 
-if(!process.env.MONGOLOGIN || process.env.MONGOPW){throw new Error("Either MONGOLOGIN, or MONGOPW environment variable is not present!")}
+if(!process.env.MONGOLOGIN || process.env.MONGOPW)throw new Error("Either MONGOLOGIN, or MONGOPW environment variable is not present!")
 
 const updateShiftsInDb = async () => {
 

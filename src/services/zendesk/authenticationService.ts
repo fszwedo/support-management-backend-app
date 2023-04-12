@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-if(!process.env.APITOKEN || !process.env.EMAIL || !process.env.URL){console.log("Either URL, or EMAIL, or APITOKEN environment variable is not present!")}
+if(!process.env.APITOKEN || !process.env.EMAIL || !process.env.URL)console.log("Either URL, or EMAIL, or APITOKEN environment variable is not present!")
 
 const makeZendeskRequest = async (path: string, method: string, payload?: object) => {
     const options = {

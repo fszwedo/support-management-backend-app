@@ -53,8 +53,8 @@ const userController = new UserController(userService);
 const authService = new AuthService(userRepository, process.env.JWTPRIVATEKEY);
 const authController = new AuthController(authService, userService);
 
-if(!process.env.JWTPRIVATEKEY || !process.env.PORT){console.log("Either JWTPRIVATEKEY or PORT environment variable is not present!")}
-if(!process.env.MONGOLOGIN || !process.env.MONGOPW){throw new Error("Either MONGOLOGIN or MONGOPW environment variable is not present!")}
+if(!process.env.JWTPRIVATEKEY || !process.env.PORT)console.log("Either JWTPRIVATEKEY or PORT environment variable is not present!")
+if(!process.env.MONGOLOGIN || !process.env.MONGOPW)throw new Error("Either MONGOLOGIN or MONGOPW environment variable is not present!")
 console.log('starting for ' + process.env.URL);
 
 const app = express();
@@ -94,8 +94,7 @@ const job = new cron.CronJob('1/10 * 6-22 * * *',  async function () {
 });
 
 //Running without ticket assignment
-const noTicketAssignment = process.argv.includes('--noTicketAssignment');
-if (noTicketAssignment === true){
+if(process.argv.includes('--noTicketAssignment')){
     console.log('Running without ticket Assignment')
 } else {job.start()}
 

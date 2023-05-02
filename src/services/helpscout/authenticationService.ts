@@ -6,6 +6,8 @@ export const enum METHODS {
     POST = "POST"
 }
 
+if(!process.env.HELPSCOUTURL || !process.env.HELPSCOUTAPPID || !process.env.HELPSCOUTAPPSECRET)console.log("Either HELPSCOUTAPPSECRET, or HELPSCOUTAPPID, or HELPSCOUTURL environment variable is not present!")
+
 const makeHelpscoutRequest = async (path: string, method: METHODS, payload?) => {
     let res, err;
     let retryCount = 2;

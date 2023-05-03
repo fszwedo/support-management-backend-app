@@ -5,6 +5,8 @@ require('dotenv').config()
 import cron from 'cron'
 
 import assignNewTickets from './src/controllers/ticketAssignmentController';
+import reassignTickets from './src/controllers/ticketReassignmentController'
+
 import shiftRota from './src/routes/shiftRota';
 
 import logModel from './src/models/logModel';
@@ -89,14 +91,15 @@ logger.saveLog({
     message: 'App started at ' + new Date().toUTCString()
 });
 
-const job = new cron.CronJob('1/10 * 6-22 * * *',  async function () {
+const ticketAssignmentJob = new cron.CronJob('1/10 * 6-22 * * *',  async function () {
    assignNewTickets(logger); 
+   reassignTickets(logger);
 });
 
 //Running without ticket assignment
 if(process.argv.includes('--noTicketAssignment')){
     console.log('Running without ticket Assignment')
-} else {job.start()}
+} else {ticketAssignmentJob.start()}
 
 const emailJob = new cron.CronJob('0 12 * * 5',  async function () {
    sendEmailstoAgents(shiftRotaService); 

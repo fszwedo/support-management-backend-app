@@ -1,9 +1,10 @@
  interface ticket { 
     id:number,
     type:string,
-    subject:string
+    subject:string,
     description:string,
-    level:'L1' | 'L2' | 'other' | 'any'
+    level:'L1' | 'L2' | 'other' | 'any',
+    group_id: number
   }; 
 
   export interface newTicket {

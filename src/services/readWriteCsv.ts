@@ -35,6 +35,30 @@ const writeTextFile = async(filePath, content) => {
 
 }
 
+const convertJsonRowsToCSV  = async (rows) => {
+  const converter = require('json-2-csv');
+  let result = null;
+  const csvOptions = {
+      delimiter : {
+          wrap  : '\'', // Double Quote (") character
+          field : ';', // Comma field delimiter
+          array : ',', // Semicolon array value delimiter
+          eol   : '\n' // Newline delimiter
+      },
+      prependHeader    : true,
+      sortHeader       : false,
+      trimHeaderValues : true,
+      trimFieldValues  : true   
+  };
+  await  converter.json2csvAsync(rows,csvOptions)
+         .then(csv=>{result=csv;})
+         .catch(err=>{
+          console.log('error converting to CSV');
+          throw(err);
+      })
+  return result;
+}
+
 export {
-  readTextFile, writeTextFile
+  readTextFile, writeTextFile, convertJsonRowsToCSV
 };

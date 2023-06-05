@@ -13,19 +13,21 @@ export default class TimeTrackingEventService {
         return this.timeTrackingEventRepository.getLast();         
     }
 
-    getAllTimeTrackingEvents = async () => { 
-        return;
+    getAllTimeTrackingEvents = async () => {         
+        return this.timeTrackingEventRepository.getAll();
     }
     
-    getTimeTrackingEvents =  async (startDate, endDate) => {
-        return;
+    getTimeTrackingEvents =  async (startDate: Date, endDate: Date) => {
+        return this.timeTrackingEventRepository.find({
+            created_at: {$gte: startDate, $lte: endDate}
+        });
     }
 
     saveTimeTrackingEvents = async (timeTrackingEvents: TimeTrackingEvent[]) => { 
-        timeTrackingEvents.forEach(ev => {
-            this.timeTrackingEventRepository.create(ev);
-        })
-        return ;
+        await Promise.all(timeTrackingEvents.map(async (event) => {
+            await this.timeTrackingEventRepository.create(event);
+          }));
+        return;
     }
 
 }

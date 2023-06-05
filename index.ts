@@ -36,6 +36,11 @@ import AuthService from './src/services/authService';
 import AuthController from './src/controllers/authController';
 import authRoute from './src/routes/auth';
 
+import timeTrackingEventModel from './src/models/timeTrackingEventModel';
+import TimeTrackingEventRepository from './src/repositories/timeTrackingEventRepository';
+import TimeTrackingService from './src/services/timeTrackingService';
+import TimeTrackingController from './src/controllers/timeTrackingController'
+
 const shiftRotaRepository = new ShiftRotaRepository(shiftRotaModel);
 const shiftRotaService = new ShiftRotaService(shiftRotaRepository);
 const shiftRotaController = new ShiftRotaController(shiftRotaService);
@@ -52,6 +57,10 @@ const userController = new UserController(userService);
 
 const authService = new AuthService(userRepository, process.env.JWTPRIVATEKEY);
 const authController = new AuthController(authService, userService);
+
+const timeTrackingEventRepository = new TimeTrackingEventRepository(timeTrackingEventModel);
+const timeTrackingEventService = new TimeTrackingService(timeTrackingEventRepository);
+const timeTrackingEventController = new TimeTrackingController(timeTrackingEventService);
 
 if(!process.env.JWTPRIVATEKEY || !process.env.PORT)console.log("Either JWTPRIVATEKEY or PORT environment variable is not present!")
 if(!process.env.MONGOLOGIN || !process.env.MONGOPW)throw new Error("Either MONGOLOGIN or MONGOPW environment variable is not present!")
@@ -97,6 +106,11 @@ const job = new cron.CronJob('1/10 * 6-22 * * *',  async function () {
 if(process.argv.includes('--noTicketAssignment')){
     console.log('Running without ticket Assignment')
 } else {job.start()}
+
+const timeTrackingSavingJob = new cron.CronJob('* * * * *',  async function () {
+    timeTrackingEventController.saveNewTimeTrackingEvents(); 
+ });
+timeTrackingSavingJob.start();
 
 const emailJob = new cron.CronJob('0 12 * * 5',  async function () {
    sendEmailstoAgents(shiftRotaService); 

@@ -39,7 +39,8 @@ import authRoute from './src/routes/auth';
 import timeTrackingEventModel from './src/models/timeTrackingEventModel';
 import TimeTrackingEventRepository from './src/repositories/timeTrackingEventRepository';
 import TimeTrackingService from './src/services/timeTrackingService';
-import TimeTrackingController from './src/controllers/timeTrackingController'
+import TimeTrackingController from './src/controllers/timeTrackingController';
+import timeTrackingRoutes from './src/routes/timeTracking';
 
 const shiftRotaRepository = new ShiftRotaRepository(shiftRotaModel);
 const shiftRotaService = new ShiftRotaService(shiftRotaRepository);
@@ -78,6 +79,7 @@ app.use('/api/shiftChangeRequest', shiftChangeRoute(shiftChangeController));
 app.use('/api/tickets', ticketRoutes(ticketController));
 app.use('/api', authRoute(authController));
 app.use('/api/users', usersRoute(userController));
+app.use('/api/timeTracking', timeTrackingRoutes(timeTrackingEventController));
 
 const logger = new LoggerService(new LoggerRepository(logModel));
 

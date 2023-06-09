@@ -5,6 +5,7 @@ import zendeskRequest from "../services/zendesk/authenticationService";
 import TimeTrackingEventService from '../services/timeTrackingService';
 import { TimeTrackingEvent } from '../models/timeTrackingEventModel';
 import { TICKET_CUSTOM_FIELDS } from '../CONSTANTS';
+import { convertToCSV } from '../services/readWriteCsv';
 
 export default class TimeTrackingController {
     private timeTrackingEventService;
@@ -66,12 +67,12 @@ export default class TimeTrackingController {
     ) => {
         let trackingEvents = [];
         try {
-            if (req.body.startDate && req.body.startDate) trackingEvents = await this.timeTrackingEventService.getTimeTrackingEvents(new Date(req.body.startDate), new Date(req.body.endDate));
-            else trackingEvents = await this.timeTrackingEventService.getAllTimeTrackingEvents();    
-            res.status(200).json(trackingEvents) 
+            if (req.body.startDate && req.body.endDate) trackingEvents = await this.timeTrackingEventService.getTimeTrackingEvents(new Date(req.body.startDate), new Date(req.body.endDate));
+            else trackingEvents = await this.timeTrackingEventService.getAllTimeTrackingEvents();
+            res.status(200).json(trackingEvents)
         } catch (error) {
-            res.status(400).json({message: 'There was an error during time tracking export!'});
-       }        
+            res.status(400).json({ message: 'There was an error during time tracking export!' });
+        }
     }
 
     downloadTimeTrackingEvents = async (
@@ -80,12 +81,19 @@ export default class TimeTrackingController {
     ) => {
         let trackingEvents = [];
         try {
-            if (req.body.startDate && req.body.startDate) trackingEvents = await this.timeTrackingEventService.getTimeTrackingEvents(new Date(req.body.startDate), new Date(req.body.endDate));
-            else trackingEvents = await this.timeTrackingEventService.getAllTimeTrackingEvents();    
-            
-            res.download 
+            if (req.body.startDate && req.body.endDate) trackingEvents = await this.timeTrackingEventService.getTimeTrackingEvents(new Date(req.body.startDate), new Date(req.body.endDate));
+            else trackingEvents = await this.timeTrackingEventService.getAllTimeTrackingEvents();
+            const csv = await convertToCSV(trackingEvents, ['created_at', 'userName', 'ticketId', 'timeSpent', 'totalTimeSpent']);
+            res
+                .set({
+                    "Content-Type": "text/csv",
+                    "Content-Disposition": `attachment; filename="timeTracking.csv"`,
+                })
+                .send(csv);
+            return;
         } catch (error) {
-            res.status(400).json({message: 'There was an error during time tracking download!'});
-       }        
+            console.log(error)
+            res.status(400).json({ message: 'There was an error during time tracking download!' });
+        }
     }
 }

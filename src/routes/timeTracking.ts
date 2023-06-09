@@ -4,7 +4,8 @@ import TimeTrackingController from '../controllers/timeTrackingController';
 const timeTrackingRoutes =  (timeTrackingController: TimeTrackingController) => {
     const router = express.Router();
 
-    router.get('/export', timeTrackingController.getTimeTrackingEvents);
+    router.get('/', timeTrackingController.getTimeTrackingEvents);
+    router.get('/download', timeTrackingController.downloadTimeTrackingEvents);
 
     return router
 }

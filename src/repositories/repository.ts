@@ -10,7 +10,7 @@ export class Repository {
     }
 
     async getAll() {
-        return this.model.find();
+        return this.model.find().lean();
     }
 
     async getById(id: mongoose.ObjectId) {
@@ -18,7 +18,11 @@ export class Repository {
     }
 
     async find(query){
-        return this.model.findOne(query)
+        return this.model.find(query);
+    }
+
+    async findOne(query){
+        return this.model.findOne(query);
     }
 
     async create(obj: object) {

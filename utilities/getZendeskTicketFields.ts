@@ -21,7 +21,7 @@ const getTicketMetricEvents = async () => {
 
 const getTicketAuditEvents = async () => {
     const audit = await makeZendeskRequest('/api/v2/ticket_audits', 'GET')
-    const results = [];
+    const results : any[] = [];
     audit.audits.forEach(a => {
         results.push(a.events)
     })

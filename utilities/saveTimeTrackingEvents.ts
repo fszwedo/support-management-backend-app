@@ -7,6 +7,8 @@ import TimeTrackingEventRepository from "../src/repositories/timeTrackingEventRe
 import TimeTrackingService from "../src/services/timeTrackingService";
 import TimeTrackingController from "../src/controllers/timeTrackingController";
 import timeTrackingRoutes from "../src/routes/timeTracking";
+import getTicketAuditLogs from '../src/services/zendesk/getTicketAuditLogs';
+import getAgents from '../src/services/zendesk/getAgentsService';
 
 const mongooseConnection = async () => {
   mongoose.set("strictQuery", true);
@@ -26,11 +28,11 @@ const timeTrackingEventService = new TimeTrackingService(
   timeTrackingEventRepository
 );
 const timeTrackingEventController = new TimeTrackingController(
-  timeTrackingEventService
+  timeTrackingEventService, getTicketAuditLogs, getAgents
 );
 
 const saveTrackingEvents = async () => {
-  await timeTrackingEventController.saveNewTimeTrackingEvents();
+  await timeTrackingEventController.saveNewTimeTrackingEvents(new Date('01/06/2023'));
 };
 
 const getTrackingEvents = async () => {

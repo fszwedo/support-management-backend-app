@@ -6,6 +6,7 @@ const timeTrackingRoutes =  (timeTrackingController: TimeTrackingController) => 
 
     router.get('/', timeTrackingController.getTimeTrackingEvents);
     router.get('/download', timeTrackingController.downloadTimeTrackingEvents);
+    router.post('/refresh', timeTrackingController.refreshTimeTrackingSince);
 
     return router
 }

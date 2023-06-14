@@ -11,7 +11,8 @@
     "createTestZendeskTickets": "ts-node ./utilities/createTestTickets.ts",
     "updateDbShifts": "ts-node ./utilities/updateDBShiftsFromCSV.ts",
     "sendEmails": "ts-node ./utilities/sendEmailsToAgents.ts",
-    "getZendeskTicketFields": "ts-node ./utilities/getZendeskTicketFields"
+    "getZendeskTicketFields": "ts-node ./utilities/getZendeskTicketFields",
+    "timeTracking": "nodemon ./utilities/saveTimeTrackingEvents.ts"
   },
   "repository": {
     "type": "git",

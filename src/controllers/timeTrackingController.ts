@@ -1,7 +1,7 @@
 import * as express from 'express';
 import getTicketAuditLogs from '../services/zendesk/getTicketAuditLogs';
 import getAgents from '../services/zendesk/getAgentsService';
-import zendeskRequestType from "../services/zendesk/authenticationService";
+import zendeskRequest from "../services/zendesk/authenticationService";
 import TimeTrackingEventService from '../services/timeTrackingService';
 import { TimeTrackingEvent } from '../models/timeTrackingEventModel';
 import { TICKET_CUSTOM_FIELDS } from '../CONSTANTS';
@@ -9,20 +9,24 @@ import { convertToCSV } from '../services/readWriteCsv';
 
 export default class TimeTrackingController {
     private timeTrackingEventService;
+    private getAuditLogs;
+    private getAgents;
 
-    constructor(timeTrackingEventService: TimeTrackingEventService) {
+    constructor(timeTrackingEventService: TimeTrackingEventService, getAuditLogService: typeof getTicketAuditLogs, getAgentsService: typeof getAgents) {
         this.timeTrackingEventService = timeTrackingEventService
+        this.getAuditLogs = getAuditLogService;
+        this.getAgents = getAgentsService;
     }
 
-    saveNewTimeTrackingEvents = async (zendeskRequest: typeof zendeskRequestType, eventSearchStartDate?: Date) => {
+    saveNewTimeTrackingEvents = async (eventSearchStartDate?: Date) => {        
         //get all users - to match time tracking submission with user
-        const agents = await getAgents(zendeskRequest);
+        const agents = await this.getAgents(zendeskRequest);
 
         //get newest tracking event from Mongo
-        const lastTimeTrackingEvent = await this.timeTrackingEventService.getNewestTimeTrackingEvent();
+        const lastTimeTrackingEvent = await this.timeTrackingEventService.getNewestTimeTrackingEvent();  
 
         //get the newest audit logs - with search date if it was passed to saveNewTimeTrackingEvents (so we can backfill older tickets in case of app failure)
-        const auditLogs = await getTicketAuditLogs(eventSearchStartDate);
+        const auditLogs = await this.getAuditLogs(eventSearchStartDate);
 
         //filter audit logs to get the ones from the newest tracking event from mongo (or all events, if theres no data in mongo)
         //we filter IF theres at least one event in db AND we dont have eventSearchStartDate (as otherwise we want to resave everything that's possible)
@@ -59,7 +63,22 @@ export default class TimeTrackingController {
                 //this is to catch e.g. errors when we're trying to save non-unique entries
             }
         }
-        return;
+        return {
+            lastEventDate: timeTrackingEventsToSave.at(-1).created_at,
+            numberOfEventsSaved: timeTrackingEventsToSave.length};
+    }
+
+    refreshTimeTrackingSince = async (
+        req: express.Request,
+        res: express.Response
+    ) => {
+        try {
+            const response =  await this.saveNewTimeTrackingEvents(new Date(req.query.fromDate.toString()));
+            res.status(200).json(response);
+        } catch (error) {
+            res.status(400).json({ message: 'There was an error during time tracking data refresh!' });
+        }
+       
     }
 
     getTimeTrackingEvents = async (

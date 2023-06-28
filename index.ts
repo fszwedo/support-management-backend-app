@@ -36,6 +36,11 @@ import AuthService from './src/services/authService';
 import AuthController from './src/controllers/authController';
 import authRoute from './src/routes/auth';
 
+import rawReportingEventsRepository from './src/repositories/raweventsRepository';
+import rawReportingExportController from './src/controllers/rawReportingExportController';
+import rawReportingExportService from './src/services/rawReportingExportService';
+import reportingExportRoutes from './src/routes/reporting';
+
 const shiftRotaRepository = new ShiftRotaRepository(shiftRotaModel);
 const shiftRotaService = new ShiftRotaService(shiftRotaRepository);
 const shiftRotaController = new ShiftRotaController(shiftRotaService);
@@ -53,6 +58,10 @@ const userController = new UserController(userService);
 const authService = new AuthService(userRepository, process.env.JWTPRIVATEKEY);
 const authController = new AuthController(authService, userService);
 
+const rawReportingEventsRepository1 = new rawReportingEventsRepository();
+const rawReportingExportService1 = new rawReportingExportService(rawReportingEventsRepository1);
+const rawReportingExportController1 = new rawReportingExportController(rawReportingExportService1);
+
 if(!process.env.JWTPRIVATEKEY || !process.env.PORT)console.log("Either JWTPRIVATEKEY or PORT environment variable is not present!")
 if(!process.env.MONGOLOGIN || !process.env.MONGOPW)throw new Error("Either MONGOLOGIN or MONGOPW environment variable is not present!")
 console.log('starting for ' + process.env.URL);
@@ -63,42 +72,43 @@ app.use(cors({
 }));
 app.use(express.json());
 
-//API paths
-app.use('/api/shiftRota', shiftRota(shiftRotaController));
-app.use('/api/shiftChangeRequest', shiftChangeRoute(shiftChangeController));
-app.use('/api/tickets', ticketRoutes(ticketController));
-app.use('/api', authRoute(authController));
-app.use('/api/users', usersRoute(userController));
+// //API paths
+// app.use('/api/shiftRota', shiftRota(shiftRotaController));
+// app.use('/api/shiftChangeRequest', shiftChangeRoute(shiftChangeController));
+// app.use('/api/tickets', ticketRoutes(ticketController));
+// app.use('/api', authRoute(authController));
+// app.use('/api/users', usersRoute(userController));
+app.use('/api/reporting',reportingExportRoutes(rawReportingExportController1));
 
-const logger = new LoggerService(new LoggerRepository(logModel));
+//const logger = new LoggerService(new LoggerRepository(logModel));
 
-const mongooseConnection = async () => {
-    mongoose.set('strictQuery', true);
-    await mongoose.connect(`mongodb+srv://${process.env.MONGOLOGIN}:${process.env.MONGOPW}@${process.env.MONGOCONNECTIONSTRING}`)
-        .then(() => console.log('Connected to MongoDB...'))
-        .catch(error => console.error('Could not connect to MongoDB!', error));    
-}
-mongooseConnection();
+// const mongooseConnection = async () => {
+//     mongoose.set('strictQuery', true);
+//     await mongoose.connect(`mongodb+srv://${process.env.MONGOLOGIN}:${process.env.MONGOPW}@${process.env.MONGOCONNECTIONSTRING}`)
+//         .then(() => console.log('Connected to MongoDB...'))
+//         .catch(error => console.error('Could not connect to MongoDB!', error));    
+// }
+// mongooseConnection();
 
 app.listen(process.env.PORT, () => {
     console.log(`listening on ${process.env.PORT}`)
 });
 
-logger.saveLog({
-    type: 'info/restart',
-    message: 'App started at ' + new Date().toUTCString()
-});
+// logger.saveLog({
+//     type: 'info/restart',
+//     message: 'App started at ' + new Date().toUTCString()
+// });
 
-const job = new cron.CronJob('1/10 * 6-22 * * *',  async function () {
-   assignNewTickets(logger); 
-});
+// const job = new cron.CronJob('1/10 * 6-22 * * *',  async function () {
+//    assignNewTickets(logger); 
+// });
 
-//Running without ticket assignment
-if(process.argv.includes('--noTicketAssignment')){
-    console.log('Running without ticket Assignment')
-} else {job.start()}
+// //Running without ticket assignment
+// if(process.argv.includes('--noTicketAssignment')){
+//     console.log('Running without ticket Assignment')
+// } else {job.start()}
 
-const emailJob = new cron.CronJob('0 12 * * 5',  async function () {
-   sendEmailstoAgents(shiftRotaService); 
-});
-emailJob.start();
+// const emailJob = new cron.CronJob('0 12 * * 5',  async function () {
+//    sendEmailstoAgents(shiftRotaService); 
+// });
+// emailJob.start();

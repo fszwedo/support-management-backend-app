@@ -34,7 +34,7 @@ export default class AuthService {
     }
 
     findUser = async (email: string) => {
-        return await this.repository.find({email: email})
+        return await this.repository.findOne({email: email})
     }
 
     saveUser = async (user: User) => {

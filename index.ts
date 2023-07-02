@@ -36,6 +36,14 @@ import AuthService from './src/services/authService';
 import AuthController from './src/controllers/authController';
 import authRoute from './src/routes/auth';
 
+import timeTrackingEventModel from './src/models/timeTrackingEventModel';
+import TimeTrackingEventRepository from './src/repositories/timeTrackingEventRepository';
+import TimeTrackingService from './src/services/timeTrackingService';
+import getAgentsService from './src/services/zendesk/getAgentsService';
+import getTicketAuditLogsService from './src/services/zendesk/getTicketAuditLogs';
+import TimeTrackingController from './src/controllers/timeTrackingController';
+import timeTrackingRoutes from './src/routes/timeTracking';
+
 const shiftRotaRepository = new ShiftRotaRepository(shiftRotaModel);
 const shiftRotaService = new ShiftRotaService(shiftRotaRepository);
 const shiftRotaController = new ShiftRotaController(shiftRotaService);
@@ -53,8 +61,12 @@ const userController = new UserController(userService);
 const authService = new AuthService(userRepository, process.env.JWTPRIVATEKEY);
 const authController = new AuthController(authService, userService);
 
-if(!process.env.JWTPRIVATEKEY || !process.env.PORT)console.log("Either JWTPRIVATEKEY or PORT environment variable is not present!")
-if(!process.env.MONGOLOGIN || !process.env.MONGOPW)throw new Error("Either MONGOLOGIN or MONGOPW environment variable is not present!")
+const timeTrackingEventRepository = new TimeTrackingEventRepository(timeTrackingEventModel);
+const timeTrackingEventService = new TimeTrackingService(timeTrackingEventRepository);
+const timeTrackingEventController = new TimeTrackingController(timeTrackingEventService, getTicketAuditLogsService, getAgentsService);
+
+if (!process.env.JWTPRIVATEKEY || !process.env.PORT) console.log("Either JWTPRIVATEKEY or PORT environment variable is not present!")
+if (!process.env.MONGOLOGIN || !process.env.MONGOPW) throw new Error("Either MONGOLOGIN or MONGOPW environment variable is not present!")
 console.log('starting for ' + process.env.URL);
 
 const app = express();
@@ -69,6 +81,7 @@ app.use('/api/shiftChangeRequest', shiftChangeRoute(shiftChangeController));
 app.use('/api/tickets', ticketRoutes(ticketController));
 app.use('/api', authRoute(authController));
 app.use('/api/users', usersRoute(userController));
+app.use('/api/timeTracking', timeTrackingRoutes(timeTrackingEventController));
 
 const logger = new LoggerService(new LoggerRepository(logModel));
 
@@ -76,7 +89,7 @@ const mongooseConnection = async () => {
     mongoose.set('strictQuery', true);
     await mongoose.connect(`mongodb+srv://${process.env.MONGOLOGIN}:${process.env.MONGOPW}@${process.env.MONGOCONNECTIONSTRING}`)
         .then(() => console.log('Connected to MongoDB...'))
-        .catch(error => console.error('Could not connect to MongoDB!', error));    
+        .catch(error => console.error('Could not connect to MongoDB!', error));
 }
 mongooseConnection();
 
@@ -89,16 +102,21 @@ logger.saveLog({
     message: 'App started at ' + new Date().toUTCString()
 });
 
-const job = new cron.CronJob('1/10 * 6-22 * * *',  async function () {
-   assignNewTickets(logger); 
+const job = new cron.CronJob('1/10 * 6-22 * * *', async function () {
+    assignNewTickets(logger);
 });
 
 //Running without ticket assignment
-if(process.argv.includes('--noTicketAssignment')){
+if (process.argv.includes('--noTicketAssignment')) {
     console.log('Running without ticket Assignment')
-} else {job.start()}
+} else { job.start() }
 
-const emailJob = new cron.CronJob('0 12 * * 5',  async function () {
-   sendEmailstoAgents(shiftRotaService); 
+const timeTrackingSavingJob = new cron.CronJob('* * * * *', async function () {
+    timeTrackingEventController.saveNewTimeTrackingEvents();
+});
+timeTrackingSavingJob.start();
+
+const emailJob = new cron.CronJob('0 12 * * 5', async function () {
+    sendEmailstoAgents(shiftRotaService);
 });
 emailJob.start();

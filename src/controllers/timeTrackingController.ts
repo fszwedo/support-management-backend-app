@@ -34,7 +34,6 @@ export default class TimeTrackingController {
 
         //for each audit log - get events that are related to time tracking
         const timeTrackingEventsToSave: TimeTrackingEvent[] = [];
-
         if (newAuditLogs.length > 0) {
             newAuditLogs.forEach(log => {
                 const timeSpentEvent = log.events.find(ev => ev.field_name == TICKET_CUSTOM_FIELDS.TIME_SPENT.toString());
@@ -58,13 +57,14 @@ export default class TimeTrackingController {
             let savedEvents;
             try {
                 savedEvents = await this.timeTrackingEventService.saveTimeTrackingEvents(timeTrackingEventsToSave);
+                if (timeTrackingEventsToSave.length > 0)
+                    return {
+                        lastEventDate: timeTrackingEventsToSave.at(-1).created_at,
+                        numberOfNewEventsSaved: savedEvents.success.length
+                    };
             } catch (error) {
                 console.log(error)
             }
-            return {
-                lastEventDate: timeTrackingEventsToSave.at(-1).created_at,
-                numberOfNewEventsSaved: savedEvents.success.length
-            };
         }
         return "No data to be saved!"
     }

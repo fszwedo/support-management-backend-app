@@ -18,12 +18,12 @@ export default class TimeTrackingController {
         this.getAgents = getAgentsService;
     }
 
-    saveNewTimeTrackingEvents = async (eventSearchStartDate?: Date) => {        
+    saveNewTimeTrackingEvents = async (eventSearchStartDate?: Date) => {
         //get all users - to match time tracking submission with user
         const agents = await this.getAgents(zendeskRequest);
 
         //get newest tracking event from Mongo
-        const lastTimeTrackingEvent = await this.timeTrackingEventService.getNewestTimeTrackingEvent();  
+        const lastTimeTrackingEvent = await this.timeTrackingEventService.getNewestTimeTrackingEvent();
 
         //get the newest audit logs - with search date if it was passed to saveNewTimeTrackingEvents (so we can backfill older tickets in case of app failure)
         const auditLogs = await this.getAuditLogs(eventSearchStartDate);
@@ -55,17 +55,18 @@ export default class TimeTrackingController {
                 }
             })
             //save events in the db - if theres already an event with given eventID - skip!
+            let savedEvents;
             try {
-                await this.timeTrackingEventService.saveTimeTrackingEvents(timeTrackingEventsToSave);
+                savedEvents = await this.timeTrackingEventService.saveTimeTrackingEvents(timeTrackingEventsToSave);
             } catch (error) {
                 console.log(error)
-                //this doesnt work - leaving this for further investigation
-                //this is to catch e.g. errors when we're trying to save non-unique entries
             }
+            return {
+                lastEventDate: timeTrackingEventsToSave.at(-1).created_at,
+                numberOfNewEventsSaved: savedEvents.success.length
+            };
         }
-        return {
-            lastEventDate: timeTrackingEventsToSave.at(-1).created_at,
-            numberOfEventsSaved: timeTrackingEventsToSave.length};
+        return "No data to be saved!"
     }
 
     refreshTimeTrackingSince = async (
@@ -73,12 +74,11 @@ export default class TimeTrackingController {
         res: express.Response
     ) => {
         try {
-            const response =  await this.saveNewTimeTrackingEvents(new Date(req.query.fromDate.toString()));
+            const response = await this.saveNewTimeTrackingEvents(new Date(req.query.fromDate.toString()));
             res.status(200).json(response);
         } catch (error) {
             res.status(400).json({ message: 'There was an error during time tracking data refresh!' });
         }
-       
     }
 
     getTimeTrackingEvents = async (

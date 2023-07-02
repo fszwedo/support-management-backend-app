@@ -16,7 +16,6 @@ export interface User {
 }
 
 const UserSchema = new mongoose.Schema({
-    _id:mongoose.Types.ObjectId,
     name: {
         type: String,
         required: true,

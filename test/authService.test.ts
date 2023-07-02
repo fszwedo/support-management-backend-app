@@ -25,7 +25,7 @@ class TestUserRepository extends UserRepository {
         this.users.push(newUser)
     }
 
-    async find (query) {
+    async findOne (query) {
         return this.users.find(user => user.email === query.email)
     }
 }

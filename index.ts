@@ -72,43 +72,43 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// //API paths
-// app.use('/api/shiftRota', shiftRota(shiftRotaController));
-// app.use('/api/shiftChangeRequest', shiftChangeRoute(shiftChangeController));
-// app.use('/api/tickets', ticketRoutes(ticketController));
-// app.use('/api', authRoute(authController));
-// app.use('/api/users', usersRoute(userController));
+//API paths
+app.use('/api/shiftRota', shiftRota(shiftRotaController));
+app.use('/api/shiftChangeRequest', shiftChangeRoute(shiftChangeController));
+app.use('/api/tickets', ticketRoutes(ticketController));
+app.use('/api', authRoute(authController));
+app.use('/api/users', usersRoute(userController));
 app.use('/api/reporting',reportingExportRoutes(rawReportingExportController1));
 
-//const logger = new LoggerService(new LoggerRepository(logModel));
+const logger = new LoggerService(new LoggerRepository(logModel));
 
-// const mongooseConnection = async () => {
-//     mongoose.set('strictQuery', true);
-//     await mongoose.connect(`mongodb+srv://${process.env.MONGOLOGIN}:${process.env.MONGOPW}@${process.env.MONGOCONNECTIONSTRING}`)
-//         .then(() => console.log('Connected to MongoDB...'))
-//         .catch(error => console.error('Could not connect to MongoDB!', error));    
-// }
-// mongooseConnection();
+const mongooseConnection = async () => {
+     mongoose.set('strictQuery', true);
+     await mongoose.connect(`mongodb+srv://${process.env.MONGOLOGIN}:${process.env.MONGOPW}@${process.env.MONGOCONNECTIONSTRING}`)
+         .then(() => console.log('Connected to MongoDB...'))
+         .catch(error => console.error('Could not connect to MongoDB!', error));    
+ }
+ mongooseConnection();
 
 app.listen(process.env.PORT, () => {
     console.log(`listening on ${process.env.PORT}`)
 });
 
-// logger.saveLog({
-//     type: 'info/restart',
-//     message: 'App started at ' + new Date().toUTCString()
-// });
+ logger.saveLog({
+     type: 'info/restart',
+     message: 'App started at ' + new Date().toUTCString()
+ });
 
-// const job = new cron.CronJob('1/10 * 6-22 * * *',  async function () {
-//    assignNewTickets(logger); 
-// });
+ const job = new cron.CronJob('1/10 * 6-22 * * *',  async function () {
+    assignNewTickets(logger); 
+ });
 
-// //Running without ticket assignment
-// if(process.argv.includes('--noTicketAssignment')){
-//     console.log('Running without ticket Assignment')
-// } else {job.start()}
+ //Running without ticket assignment
+ if(process.argv.includes('--noTicketAssignment')){
+     console.log('Running without ticket Assignment')
+ } else {job.start()}
 
-// const emailJob = new cron.CronJob('0 12 * * 5',  async function () {
-//    sendEmailstoAgents(shiftRotaService); 
-// });
-// emailJob.start();
+ const emailJob = new cron.CronJob('0 12 * * 5',  async function () {
+    sendEmailstoAgents(shiftRotaService); 
+ });
+ emailJob.start();

@@ -39,8 +39,8 @@ const selectAgentToAssign = async (agents: Agent[], getLastAssignedAgentId: Func
                 if (agentStartTime <= currentHour &&
                     (agentEndTime - 1 > currentHour ||
                         (agentEndTime - 1 === currentHour && currentMinute < 30) ||
-                        //below we check if end hour is 10PM CET - but it is 9PM UTC, thus 'agentEndTime  === 21'
-                        (agentEndTime === 21 && currentHour === 20)))
+                        //below we check if end hour is 10PM CET - but it is 9PM UTC, thus 'agentEndTime  === 21' - same for summer time 
+                        ((agentEndTime === 21 && currentHour === 20) || (agentEndTime === 20 && currentHour === 19))))
                     /*then*/ currentlyAvailableAgents.push(agents[agent]);
             }
         }

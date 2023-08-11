@@ -27,6 +27,7 @@ export default class TimeTrackingController {
 
         //get the newest audit logs - with search date if it was passed to saveNewTimeTrackingEvents (so we can backfill older tickets in case of app failure)
         const auditLogs = await this.getAuditLogs(eventSearchStartDate);
+        if (!auditLogs) return "No data to be saved!";
 
         //filter audit logs to get the ones from the newest tracking event from mongo (or all events, if theres no data in mongo)
         //we filter IF theres at least one event in db AND we dont have eventSearchStartDate (as otherwise we want to resave everything that's possible)
@@ -37,7 +38,7 @@ export default class TimeTrackingController {
         if (newAuditLogs.length > 0) {
             newAuditLogs.forEach(log => {
                 const timeSpentEvent = log.events.find(ev => ev.field_name == TICKET_CUSTOM_FIELDS.TIME_SPENT.toString());
-                const totalTimeSpentEvent = log.events.find(ev => ev.field_name == TICKET_CUSTOM_FIELDS.TOTAL_TIME_SPENT.toString())
+                const totalTimeSpentEvent = log.events.find(ev => ev.field_name == TICKET_CUSTOM_FIELDS.TOTAL_TIME_SPENT.toString());
 
                 if (timeSpentEvent && totalTimeSpentEvent) {
                     const timeTrackingEvent: TimeTrackingEvent = {
@@ -49,7 +50,7 @@ export default class TimeTrackingController {
                         ticketId: log.ticket_id,
                         timeSpent: parseInt(timeSpentEvent.value),
                         totalTimeSpent: parseInt(totalTimeSpentEvent.value)
-                    }
+                    };
                     timeTrackingEventsToSave.push(timeTrackingEvent);
                 }
             })
@@ -63,10 +64,10 @@ export default class TimeTrackingController {
                         numberOfNewEventsSaved: savedEvents.success.length
                     };
             } catch (error) {
-                console.log(error)
+                console.log(error);
             }
         }
-        return "No data to be saved!"
+        return "No data to be saved!";
     }
 
     refreshTimeTrackingSince = async (

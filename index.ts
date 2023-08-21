@@ -102,7 +102,7 @@ logger.saveLog({
     message: 'App started at ' + new Date().toUTCString()
 });
 
-const job = new cron.CronJob('1/30 * 6-22 * * *', async function () {
+const job = new cron.CronJob('1/30 * * * * *', async function () {
     assignNewTickets(logger);
 });
 

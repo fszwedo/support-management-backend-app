@@ -1,152 +1,153 @@
-import shiftRotaModel from "../models/shiftRotaModel";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+import shiftRotaModel, { ShiftRota } from "../models/shiftRotaModel";
 import ShiftRotaRepository from "../repositories/shiftRotaRepository";
-import { ShiftRota } from "../models/shiftRotaModel";
+dayjs.extend(customParseFormat);
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export default class ShiftRotaService {
-    private shiftRepository: ShiftRotaRepository;
+  private shiftRepository: ShiftRotaRepository;
 
-    constructor(shiftRepository){
-        this.shiftRepository = shiftRepository;
+  constructor(shiftRepository) {
+    this.shiftRepository = shiftRepository;
+  }
+
+  getAllShifts = async () => {
+    return this.shiftRepository.getAll();
+  };
+
+  getTodayShifts = async (): Promise<ShiftRota> => {
+    return this.shiftRepository.getShiftForToday();
+  };
+
+  getNextWeekShifts = async () => {
+    const days = [1, 7, 6, 5, 4, 3, 2];
+    const day1 = new Date();
+    let date1 = null;
+    let date2 = null;
+    if (day1.getDate() == 1) {
+      date1 = day1;
+    } else {
+      date1 = day1.setDate(day1.getDate() + days[day1.getDay()]);
+      date2 = day1.setDate(day1.getDate() + days[day1.getDay()] - 3);
     }
 
-    getAllShifts = async () => { 
-        return this.shiftRepository.getAll();
-    }
-    
-    getTodayShifts =  async (): Promise<ShiftRota> => {
-        return this.shiftRepository.getShiftForToday();
+    let date3 = new Date(date1).toISOString().substring(2).split("T")[0];
+    let date4 = new Date(date2).toISOString().substring(2).split("T")[0];
+    return this.shiftRepository.getShiftsForDateScope(date3, date4);
+  };
+
+  getShiftsForSpecifiedDay = async (day: string) => {
+    return this.shiftRepository.getShiftsForSpecifiedDay(day);
+  };
+
+  getShiftsFromCurrentMonthOnwards = async (day: string) => {
+    return this.shiftRepository.getShiftsForCurrentMonthOnwards(day);
+  };
+
+  saveShiftRotaEntry = async (shiftRotaEntry: ShiftRota) => {
+    const newShiftRota = new shiftRotaModel(shiftRotaEntry);
+
+    try {
+      await newShiftRota.validate();
+      const checkIfThisShiftExists = await this.shiftRepository.getShiftsForSpecifiedDay(shiftRotaEntry.date);
+
+      if (checkIfThisShiftExists) {
+        await this.shiftRepository.updateByDate(shiftRotaEntry);
+        console.log(`Updating entry for ${shiftRotaEntry.date}...`);
+      } else {
+        await this.shiftRepository.create(shiftRotaEntry);
+        console.log(`Creating entry for ${shiftRotaEntry.date}...`);
+      }
+    } catch (ex) {
+      console.log(ex.message);
+      throw ex.message;
     }
 
-    getNextWeekShifts =  async () => {
+    return shiftRotaEntry;
+  };
 
-        
-        const days =[1,7,6,5,4,3,2];
-        const day1 = new Date();
-        let date1 = null;
-        let date2 = null;
-        if(day1.getDate() == 1) {
-           date1 = day1;
+  saveShiftRotaEntriesFromCsv = async (shiftData) => {
+    let formattedShiftData: ShiftRota[] = [];
+
+    shiftData.forEach((shift) => {
+      const { date, agents, times } = this.extractShiftRotaData(shift);
+      let allWorkHours = [];
+      let allTicketAssignmentHours = [];
+
+      for (const time of times) {
+        const [workHours, ticketAssignmentHours] = time.split("/");
+
+        if (workHours) {
+          const workHoursUtc = this.convertShiftRotaHoursToUTC(workHours);
+          allWorkHours.push(workHoursUtc);
+        } else {
+          allWorkHours.push("");
         }
-        else {
-           date1 = day1.setDate(day1.getDate()+days[day1.getDay()]);
-           date2 = day1.setDate(day1.getDate()+days[day1.getDay()]-3);
+
+        if (ticketAssignmentHours) {
+          const ticketAssignmentHoursUtc = this.convertShiftRotaHoursToUTC(ticketAssignmentHours);
+          allTicketAssignmentHours.push(ticketAssignmentHoursUtc);
+        } else {
+          allTicketAssignmentHours.push("");
         }
-        
-        let date3 = new Date(date1).toISOString().substring(2).split('T')[0];;
-        let date4 = new Date(date2).toISOString().substring(2).split('T')[0];;
-        return this.shiftRepository.getShiftsForDateScope(date3,date4);
+      }
+
+      formattedShiftData.push({
+        date,
+        agents,
+        hours: allTicketAssignmentHours,
+        workHours: allWorkHours,
+      });
+    });
+
+    for (const shiftEntry of formattedShiftData) {
+      await this.saveShiftRotaEntry(shiftEntry);
+    }
+  };
+
+  convertShiftRotaHoursToUTC(hours: string) {
+    const timezone = dayjs.tz.guess();
+    const hasMultipleTimeframes = hours.indexOf(";") !== -1;
+
+    if (hasMultipleTimeframes) {
+      const [firstTimeframe, secondTimeframe] = hours.split(";");
+      const firstTimeframeUtc = timeframeToUTC(firstTimeframe);
+      const secondTimeframeUtc = timeframeToUTC(secondTimeframe);
+      return `${firstTimeframeUtc};${secondTimeframeUtc}`;
+    } else {
+      return timeframeToUTC(hours);
     }
 
-    getShiftsForSpecifiedDay = async (day: string) => {
-        return this.shiftRepository.getShiftsForSpecifiedDay(day);
-    }
+    function timeframeToUTC(timeframe: string) {
+      const [startHour, endHour] = timeframe.split("-");
+      const startDate = dayjs().hour(Number(startHour));
+      const endDate = dayjs().hour(Number(endHour));
+      let startHourUtc = dayjs.tz(startDate, timezone).utc().hour();
+      let endHourUtc = dayjs.tz(endDate, timezone).utc().hour();
 
-    getShiftsFromCurrentMonthOnwards = async (day: string) => {
-        return this.shiftRepository.getShiftsForCurrentMonthOnwards(day);
-    }
+      if (startHourUtc === 0 && Number(startHour) > 24) {
+        startHourUtc = 24;
+      }
 
-    saveShiftRotaEntry = async (shiftRotaEntry: ShiftRota) => {
-        const newShiftRota = new shiftRotaModel(shiftRotaEntry);
-        
-        try {
-        await newShiftRota.validate();
-           const checkIfThisShiftExists = await this.shiftRepository.getShiftsForSpecifiedDay(shiftRotaEntry.date)
-                       
-           if (checkIfThisShiftExists) {
-               await this.shiftRepository.updateByDate(shiftRotaEntry);
-               console.log(`Updating entry for ${shiftRotaEntry.date}...`)               
-           }
-           else {
-               await this.shiftRepository.create(shiftRotaEntry);
-               console.log(`Creating entry for ${shiftRotaEntry.date}...`)
-            }
-        }
-        catch (ex) {
-            console.log(ex.message)
-            throw ex.message;
-        }
-        
-        return shiftRotaEntry;
-    }
+      if (endHourUtc === 0 && Number(endHour) > 24) {
+        endHourUtc = 24;
+      }
 
-    saveShiftRotaEntriesFromCsv = async (shiftData: ShiftRota[],offset:number) => {
-        shiftData = passHoursToUTCTimeConversion(shiftData,offset)
-        let successCount = shiftData.length;
-        let formattedShiftData: ShiftRota;
-        let agents: string[];
-        let hours: string[];
-        for (let i = 0; i < shiftData.length; i++){
-            try {
-                agents = Object.keys(shiftData[i]);
-                agents.shift();
-                hours = Object.values(shiftData[i]);
-                hours.shift();
-                formattedShiftData = {
-                    date: shiftData[i].date,
-                    agents: agents,
-                    hours: hours
-                }
-                await this.saveShiftRotaEntry(formattedShiftData);                
-            } catch (error) {
-                console.log(error)                
-                successCount--;
-            }            
-        }
-        
-        console.log(`${successCount} entries have been created/updated!`)
-        if (successCount != shiftData.length) console.log(`${shiftData.length - successCount} error/s occured during the process! Check your data sheet.`)
-        return;
+      return `${startHourUtc}-${endHourUtc}`;
     }
+  }
+
+  extractShiftRotaData(shift: any) {
+    const keys: string[] = Object.keys(shift);
+    const rows: string[] = Object.values(shift);
+    const date = dayjs(rows[0], "YY-MM-DD").format("YY-MM-DD");
+    const agents = keys.filter((column) => column !== "date");
+    const times: string[] = rows.filter((value) => !dayjs(value, "YY-MM-DD", true).isValid());
+
+    return { date, agents, times };
+  }
 }
-
-//to convert shift data hours to UTC using UTCTimeConversion function
-let passHoursToUTCTimeConversion = (shiftData: ShiftRota[], offset: number) => {
-    for (let i = 0; i < shiftData.length; i++) {
-      for (const key in shiftData[i]) {
-        //for date and for empty times like "" as they are not needed to be converted
-        if (key === "date" || shiftData[i][key] === "") continue;
-  
-        let subTimes = shiftData[i][key].split(";");
-        let convertedSubTimes: string[] = [];
-  
-        subTimes.forEach((time:string) => {
-          let [startTimeLocal, endTimeLocal]: string[] = time.split("-");
-          let convertedTime = UTCTimeConversion(startTimeLocal, endTimeLocal, offset);
-          convertedSubTimes.push(convertedTime);
-        });
-
-        shiftData[i][key] = convertedSubTimes.join(";");
-      }
-    }
-    return shiftData;
-  };
-
-
-//UTC time conversion
-const UTCTimeConversion = (startTimeLocal: string, endTimeLocal: string,offset:number) => {
-    //function that takes time in minutes and returns time in hours and minutes format
-    function convertMinsToHrsMins(a: number) {
-      let hours = Math.trunc(a / 60);
-      let minutes = a % 60;
-      //If offset is full hours then result 8-16, if not 8:15-16:15
-      if (minutes > 0) return hours + ":" + minutes;
-      else return hours;
-    }
-  
-    //function to convert start and end times to UTC
-    const convertLocalTimeToUTC = (timeLocal: string) => {
-        let timeLocalMinutes: number;
-        if (timeLocal.length > 2)
-          timeLocalMinutes = Number(timeLocal.split(":")[0]) * 60 + Number(timeLocal.split(":")[1]);
-        else timeLocalMinutes = +timeLocal * 60;
-      
-        let timeLocalUTCMinutes = timeLocalMinutes + offset;
-        return convertMinsToHrsMins(timeLocalUTCMinutes);
-      }
-  
-      let startTimeUTC = convertLocalTimeToUTC(startTimeLocal);
-      let endTimeUTC = convertLocalTimeToUTC(endTimeLocal);
-  
-    return `${startTimeUTC}-${endTimeUTC}`;
-  };
-  

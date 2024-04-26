@@ -6,6 +6,7 @@ export interface ShiftRota {
   agents: string[];
   hours: string[];
   workHours: string[];
+  overwatchAssignments: boolean[];
 }
 
 const Schema = mongoose.Schema;
@@ -33,6 +34,10 @@ const ShiftRotaSchema = new Schema({
   },
   workHours: {
     type: [String],
+    validate: (v) => Array.isArray(v) && v.length > 0,
+  },
+  overwatchAssignments: {
+    type: [Boolean],
     validate: (v) => Array.isArray(v) && v.length > 0,
   },
 });

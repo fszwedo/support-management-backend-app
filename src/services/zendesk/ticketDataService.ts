@@ -14,8 +14,8 @@ export default class TicketDataService {
     return ticketComments.comments;
   }
 
-  async getTicketsWithNewComments(request: { minutesInThePast: number; currentDateUTC: Dayjs }): Promise<TicketComments[]> {
-    const { minutesInThePast, currentDateUTC } = request;
+  async getTicketsWithNewComments(request: { millisecondsInThePast: number; currentDateUTC: Dayjs }): Promise<TicketComments[]> {
+    const { millisecondsInThePast, currentDateUTC } = request;
 
     const openTickets = await this.getOpenTickets();
     const updatedTickets = [];
@@ -23,16 +23,16 @@ export default class TicketDataService {
     for (const openTicket of openTickets) {
       // updated_at, created_at is UTC https://support.zendesk.com/hc/en-us/articles/4408821092762-Which-time-zone-does-Zendesk-use
       const updatedAt = dayjs(openTicket.updated_at);
-      const differenceInMinutes = currentDateUTC.diff(updatedAt, "minutes");
-      if (differenceInMinutes <= minutesInThePast) {
+      const differenceInMilliseconds = currentDateUTC.diff(updatedAt, "milliseconds");
+      if (differenceInMilliseconds <= millisecondsInThePast) {
         const ticketComments = await this.getTicketComments(openTicket.id);
         const newTicketComments = [];
 
         for (const ticketComment of ticketComments) {
           const createdAt = dayjs(ticketComment.created_at);
-          const differenceInMinutes = currentDateUTC.diff(createdAt, "minutes");
+          const differenceInMilliseconds = currentDateUTC.diff(createdAt, "milliseconds");
 
-          if (differenceInMinutes <= minutesInThePast) {
+          if (differenceInMilliseconds <= millisecondsInThePast) {
             newTicketComments.push({
               public: ticketComment.public,
               message: ticketComment.body,

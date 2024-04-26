@@ -1,9 +1,16 @@
+import { agents } from "../agents";
 import { TeamsNotificationRequest } from "./notificationsService";
 
 // https://learn.microsoft.com/en-us/adaptive-cards/authoring-cards/getting-started
 
 export const createCard = (request: TeamsNotificationRequest) => {
-  const { ticketId, agentName, subject, message, from } = request;
+  const { ticketId, agentName, subject, message, from, agentToBeNotified } = request;
+  const agent = agents.find((agent) => agent.shiftRotaName === agentToBeNotified);
+
+  if (!agent) {
+    console.log(`Cannot find ${agentToBeNotified} in agents.ts`);
+  }
+
   return {
     type: "message",
     attachments: [
@@ -18,10 +25,10 @@ export const createCard = (request: TeamsNotificationRequest) => {
             entities: [
               {
                 type: "mention",
-                text: "<at>Michał Markiewicz</at>",
+                text: `<at>${agent.msTeamsName}</at>`,
                 mentioned: {
-                  id: "michal.markiewicz@zoovu.com",
-                  name: "Michał Markiewicz",
+                  id: agent.msTeamsEmail,
+                  name: agent.msTeamsName,
                 },
               },
             ],
@@ -30,7 +37,7 @@ export const createCard = (request: TeamsNotificationRequest) => {
             {
               type: "TextBlock",
               weight: "lighter",
-              text: "Update: New Comment (Agent is OOO), FYI <at>Michał Markiewicz</at>",
+              text: `Update: New Comment (Agent is OOO), FYI <at>${agent.msTeamsName}</at>`,
               size: "small",
               color: "light",
             },

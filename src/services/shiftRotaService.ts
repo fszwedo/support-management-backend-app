@@ -4,6 +4,7 @@ import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import shiftRotaModel, { ShiftRota } from "../models/shiftRotaModel";
 import ShiftRotaRepository from "../repositories/shiftRotaRepository";
+import { agents } from "./agents";
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -74,12 +75,13 @@ export default class ShiftRotaService {
     let formattedShiftData: ShiftRota[] = [];
 
     shiftData.forEach((shift) => {
-      const { date, agents, times } = this.extractShiftRotaData(shift);
+      const { date, agents, workSchedules } = this.extractShiftRotaData(shift);
       let allWorkHours = [];
       let allTicketAssignmentHours = [];
+      let overwatchAssignments = [];
 
-      for (const time of times) {
-        const [workHours, ticketAssignmentHours] = time.split("/");
+      for (const workSchedule of workSchedules) {
+        const [workHours, ticketAssignmentHours, overwatch] = workSchedule.split("/");
 
         if (workHours) {
           const workHoursUtc = this.convertShiftRotaHoursToUTC(workHours);
@@ -94,6 +96,8 @@ export default class ShiftRotaService {
         } else {
           allTicketAssignmentHours.push("");
         }
+
+        overwatchAssignments.push(Boolean(overwatch));
       }
 
       formattedShiftData.push({
@@ -101,6 +105,7 @@ export default class ShiftRotaService {
         agents,
         hours: allTicketAssignmentHours,
         workHours: allWorkHours,
+        overwatchAssignments,
       });
     });
 
@@ -146,8 +151,13 @@ export default class ShiftRotaService {
     const rows: string[] = Object.values(shift);
     const date = dayjs(rows[0], "YY-MM-DD").format("YY-MM-DD");
     const agents = keys.filter((column) => column !== "date");
-    const times: string[] = rows.filter((value) => !dayjs(value, "YY-MM-DD", true).isValid());
+    const workSchedules: string[] = rows.filter((value) => !dayjs(value, "YY-MM-DD", true).isValid());
 
-    return { date, agents, times };
+    return { date, agents, workSchedules };
+  }
+
+  getAgentTeam(agentName: string): "Conversation" | "Search" | undefined {
+    const agent = agents.find((agent) => agent.shiftRotaName === agentName);
+    return agent.team;
   }
 }

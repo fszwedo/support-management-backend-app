@@ -36,11 +36,11 @@ import AuthController from "./src/controllers/authController";
 import authRoute from "./src/routes/auth";
 import AuthService from "./src/services/authService";
 
-import NotificationsService from "./src/services/notificationsService/notificationsService";
 import TimeTrackingController from "./src/controllers/timeTrackingController";
 import timeTrackingEventModel from "./src/models/timeTrackingEventModel";
 import TimeTrackingEventRepository from "./src/repositories/timeTrackingEventRepository";
 import timeTrackingRoutes from "./src/routes/timeTracking";
+import NotificationsService from "./src/services/notificationsService/notificationsService";
 import TimeTrackingService from "./src/services/timeTrackingService";
 import getAgentsService from "./src/services/zendesk/getAgentsService";
 import getTicketAuditLogsService from "./src/services/zendesk/getTicketAuditLogs";
@@ -112,7 +112,7 @@ logger.saveLog({
   message: "App started at " + new Date().toUTCString(),
 });
 
-const job = new cron.CronJob("1/10 * 6-22 * * *", async function () {
+const job = new cron.CronJob(process.env.TICKETASSIGNMENTCRON, async function () {
   assignNewTickets(logger);
 });
 
@@ -123,19 +123,19 @@ if (process.argv.includes("--noTicketAssignment")) {
   job.start();
 }
 
-const timeTrackingSavingJob = new cron.CronJob("* * * * *", async function () {
+const timeTrackingSavingJob = new cron.CronJob(process.env.TICKETASSIGNMENTCRON, async function () {
   timeTrackingEventController.saveNewTimeTrackingEvents();
 });
 timeTrackingSavingJob.start();
 
-const emailJob = new cron.CronJob("0 12 * * 5", async function () {
+const emailJob = new cron.CronJob(process.env.SHIFTEMAILCRON, async function () {
   sendEmailstoAgents(shiftRotaService);
 });
 emailJob.start();
 
 const notificationsService = new NotificationsService();
-const zendeskNotificationsJob = new cron.CronJob("*/10 * * * *", async () => {
+const zendeskNotificationsJob = new cron.CronJob(process.env.ZENDESKNOTIFICATIONCRON, async () => {
   const currentDateUTC = dayjs().utc();
-  notificationsService.unavailableAgentsTicketNotifications({ minutesInThePast: 10, currentDateUTC });
+  notificationsService.unavailableAgentsTicketNotifications({ currentDateUTC });
 });
 zendeskNotificationsJob.start();

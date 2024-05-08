@@ -22,9 +22,14 @@ export default class LastTicketUpdatesCheck extends Repository {
     }
   }
 
-  async getLastTicketUpdatesCheck(): Promise<Dayjs> {
+  async getLastTicketUpdatesCheck(): Promise<Dayjs | null> {
     const lastTicketUpdatesCheck = await this.findOne({});
-    const result = dayjs(lastTicketUpdatesCheck.utcDateString).utc();
-    return result;
+
+    if (lastTicketUpdatesCheck) {
+      const result = dayjs(lastTicketUpdatesCheck.utcDateString).utc();
+      return result;
+    }
+
+    return null;
   }
 }

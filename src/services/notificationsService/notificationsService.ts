@@ -60,10 +60,14 @@ export default class NotificationsService {
   async unavailableAgentsTicketNotifications(request: { currentDateUTC: Dayjs }) {
     const { currentDateUTC } = request;
 
-    const lastTicketUpdatesCheck = await this.lastTicketUpdatesCheckRepository.getLastTicketUpdatesCheck();
-    const millisecondsInThePast = currentDateUTC.diff(lastTicketUpdatesCheck, "milliseconds");
+    let lastTicketUpdatesCheck = await this.lastTicketUpdatesCheckRepository.getLastTicketUpdatesCheck();
     await this.lastTicketUpdatesCheckRepository.storeTicketUpdatesCheckDate();
 
+    if (!lastTicketUpdatesCheck) {
+      lastTicketUpdatesCheck = await this.lastTicketUpdatesCheckRepository.getLastTicketUpdatesCheck();
+    }
+
+    const millisecondsInThePast = currentDateUTC.diff(lastTicketUpdatesCheck, "milliseconds");
     const todayShift = await this.shiftRotaRepository.getShiftForToday();
     const agents: any[] = await getAgentsService(makeZendeskRequest);
 
@@ -131,6 +135,12 @@ export default class NotificationsService {
 
   shouldSendNotification(request: { workHours: string; comment: any; todayShift: ShiftRota }): boolean {
     const { workHours, comment, todayShift } = request;
+
+    // If comment comes from agent then comment.from equals undefined
+    if (!comment.from) {
+      return false;
+    }
+
     if (!workHours) {
       return true;
     }
@@ -142,7 +152,7 @@ export default class NotificationsService {
       return false;
     }
 
-    if (comment.public && todayShift.agents.indexOf(comment.from) === -1) {
+    if (comment.public) {
       if (commentCreationHour >= 0 && commentCreationHour < 8 && Number(workStartHour) < 14) {
         return false;
       }

@@ -1,11 +1,11 @@
 import dayjs, { Dayjs } from "dayjs";
-import { TicketComments } from "src/models/ticketWithNewCommentsModel";
+import { TicketComments } from "../notificationsService/INotificationsService";
 import makeZendeskRequest from "./authenticationService";
 
 export default class TicketDataService {
   constructor() {}
-  async getOpenTickets() {
-    const openTickets = await makeZendeskRequest("/api/v2/search.json?query=status:open", "GET");
+  async getOpenTickets(fromIso: string) {
+    const openTickets = await makeZendeskRequest(`/api/v2/search.json?query=status:open updated_at>=${fromIso}`, "GET");
     return openTickets.results;
   }
 
@@ -14,26 +14,25 @@ export default class TicketDataService {
     return ticketComments.comments;
   }
 
-  async getTicketsWithNewComments(request: { millisecondsInThePast: number; currentDateUTC: Dayjs }): Promise<TicketComments[]> {
-    const { millisecondsInThePast, currentDateUTC } = request;
-
-    const openTickets = await this.getOpenTickets();
+  async getTicketsWithNewComments(minutesPastLastCheck: number, currentDateUTC: Dayjs, fromIso: string): Promise<TicketComments[]> {
+    const openTickets = await this.getOpenTickets(fromIso);
     const updatedTickets = [];
 
     for (const openTicket of openTickets) {
       // updated_at, created_at is UTC https://support.zendesk.com/hc/en-us/articles/4408821092762-Which-time-zone-does-Zendesk-use
       const updatedAt = dayjs(openTicket.updated_at);
-      const differenceInMilliseconds = currentDateUTC.diff(updatedAt, "milliseconds");
-      if (differenceInMilliseconds <= millisecondsInThePast) {
+      const differenceInMinutes = currentDateUTC.diff(updatedAt, "minute", true);
+      if (differenceInMinutes <= minutesPastLastCheck) {
         const ticketComments = await this.getTicketComments(openTicket.id);
         const newTicketComments = [];
 
         for (const ticketComment of ticketComments) {
           const createdAt = dayjs(ticketComment.created_at);
-          const differenceInMilliseconds = currentDateUTC.diff(createdAt, "milliseconds");
+          const differenceInMinutes = currentDateUTC.diff(createdAt, "minute", true);
 
-          if (differenceInMilliseconds <= millisecondsInThePast) {
+          if (differenceInMinutes <= minutesPastLastCheck) {
             newTicketComments.push({
+              id: ticketComment.id,
               public: ticketComment.public,
               message: ticketComment.body,
               from: ticketComment.via.source.from.name,

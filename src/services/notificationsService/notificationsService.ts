@@ -6,19 +6,20 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 import lastTicketUpdatesCheckModel from "../../../src/models/lastTicketUpdatesCheckModel";
-import ticketWithNewCommentsModel from "../../../src/models/ticketWithNewCommentsModel";
-import {
+import logModel from "../../../src/models/logModel";
+import lastTicketUpdatesCheckRepository, {
   default as LastTicketUpdatesCheck,
-  default as lastTicketUpdatesCheckRepository,
 } from "../../../src/repositories/lastTicketUpdatesCheckRepository";
-import { Repository } from "../../../src/repositories/repository";
+import LoggerRepository from "../../../src/repositories/logRepository";
 import shiftRotaModel, { ShiftRota } from "../../models/shiftRotaModel";
 import ShiftRotaRepository from "../../repositories/shiftRotaRepository";
+import LoggerService from "../loggerService";
 import ShiftRotaService from "../shiftRotaService";
 import makeZendeskRequest from "../zendesk/authenticationService";
 import getAgentsService from "../zendesk/getAgentsService";
 import TicketDataService from "../zendesk/ticketDataService";
 import { createCard } from "./card";
+import { Comment, NotificationLog, TicketComments } from "./INotificationsService";
 
 export interface TeamsNotificationRequest {
   ticketId: number;
@@ -32,16 +33,17 @@ export interface TeamsNotificationRequest {
 export default class NotificationsService {
   ticketDataService: TicketDataService;
   shiftRotaRepository: ShiftRotaRepository;
-  updatedTicketsRepository: Repository;
   shiftRotaService: ShiftRotaService;
   lastTicketUpdatesCheckRepository: LastTicketUpdatesCheck;
+  loggerService: LoggerService;
   constructor() {
     this.ticketDataService = new TicketDataService();
     this.shiftRotaRepository = new ShiftRotaRepository(shiftRotaModel);
-    this.updatedTicketsRepository = new Repository(ticketWithNewCommentsModel);
     this.shiftRotaService = new ShiftRotaService(this.shiftRotaRepository);
     this.lastTicketUpdatesCheckRepository = new lastTicketUpdatesCheckRepository(lastTicketUpdatesCheckModel);
+    this.loggerService = new LoggerService(new LoggerRepository(logModel));
   }
+
   async sendTeamsNotification(request: TeamsNotificationRequest) {
     const webhookUrl = process.env.TEAMS_WEBHOOK_URL;
     const card = createCard(request);
@@ -57,8 +59,8 @@ export default class NotificationsService {
     }
   }
 
-  async unavailableAgentsTicketNotifications(request: { currentDateUTC: Dayjs }) {
-    const { currentDateUTC } = request;
+  async unavailableAgentsTicketNotifications(currentDateUTC: Dayjs) {
+    const log = this.initializeLog(currentDateUTC);
 
     let lastTicketUpdatesCheck = await this.lastTicketUpdatesCheckRepository.getLastTicketUpdatesCheck();
     await this.lastTicketUpdatesCheckRepository.storeTicketUpdatesCheckDate();
@@ -67,99 +69,132 @@ export default class NotificationsService {
       lastTicketUpdatesCheck = await this.lastTicketUpdatesCheckRepository.getLastTicketUpdatesCheck();
     }
 
-    const millisecondsInThePast = currentDateUTC.diff(lastTicketUpdatesCheck, "milliseconds");
+    const minutesPastLastCheck = currentDateUTC.diff(lastTicketUpdatesCheck, "minute", true);
+    log.lastTicketUpdatesCheck = lastTicketUpdatesCheck.toISOString();
+
     const todayShift = await this.shiftRotaRepository.getShiftForToday();
     const agents: any[] = await getAgentsService(makeZendeskRequest);
 
-    let ticketsWithNewComments = await this.ticketDataService.getTicketsWithNewComments({
-      millisecondsInThePast,
+    let tickets = await this.ticketDataService.getTicketsWithNewComments(
+      minutesPastLastCheck,
       currentDateUTC,
+      lastTicketUpdatesCheck.toISOString()
+    );
+    await this.processTicketComments(tickets, agents, todayShift, currentDateUTC, log);
+
+    this.loggerService.saveLog({
+      type: "info",
+      message: JSON.stringify(log),
     });
+  }
 
-    for (const ticketWithNewComments of ticketsWithNewComments) {
-      const assignedAgent = agents.filter((agent) => agent.id === ticketWithNewComments.agentId);
-      const assignedAgentName = assignedAgent[0].name;
-      const agentIndexInShift = todayShift.agents.indexOf(assignedAgentName);
-      const workHours = todayShift.workHours[agentIndexInShift];
+  async processTicketComments(tickets: TicketComments[], agents: any[], todayShift: ShiftRota, currentDateUTC: Dayjs, log: any) {
+    for (const ticket of tickets) {
+      log.tickets.push(ticket.ticketId);
+      const { assignedAgentName, workHours } = this.getTicketAgentInformation(agents, ticket, todayShift);
 
-      for (const comment of ticketWithNewComments.comments) {
-        if (this.shouldSendNotification({ workHours, comment, todayShift })) {
+      for (const comment of ticket.comments) {
+        const shouldSendNotification = this.shouldSendNotification(workHours, comment);
+
+        log.comments.push(`ticket: ${ticket.ticketId} comment: ${comment.id} reason: ${shouldSendNotification.reason}`);
+
+        if (shouldSendNotification.should) {
           const agentToBeNotified = this.getAgentToBeNotified(todayShift, currentDateUTC, assignedAgentName);
-          await this.sendTeamsNotification({
-            ticketId: ticketWithNewComments.ticketId,
-            agentName: assignedAgentName,
-            subject: ticketWithNewComments.subject,
-            message: comment.message,
-            from: comment.from,
-            agentToBeNotified,
-          });
+
+          const notificationsRequest = this.prepareNotificationRequest(ticket, assignedAgentName, comment, agentToBeNotified);
+          await this.sendTeamsNotification(notificationsRequest);
         }
       }
     }
   }
 
-  getAgentToBeNotified(todayShift: ShiftRota, currentDateUTC: Dayjs, assignedAgentName: string): string {
-    const currentHour = currentDateUTC.hour();
-    const assignedAgentTeam = this.shiftRotaService.getAgentTeam(assignedAgentName);
-    let workingAgents: { agentName: string; isOverwatch: boolean }[] = [];
+  shouldSendNotification(workHours: string, comment: Comment): { should: boolean; reason: string } {
+    // If comment comes from agent then comment.from equals undefined
+    if (!comment.from || !workHours) {
+      return {
+        should: false,
+        reason: !comment.from ? "comment.from equals undefined" : "agent is not working today",
+      };
+    }
 
-    todayShift.workHours.forEach((workHours: string, index: number) => {
-      if (workHours) {
-        const [workStartHour, workEndHour] = workHours.split("-");
-        if (Number(workStartHour) <= currentHour && Number(workEndHour) >= currentHour) {
-          const agentName = todayShift.agents[index];
-          const isOverwatch = todayShift.overwatchAssignments[index];
-          workingAgents.push({
-            agentName,
-            isOverwatch,
-          });
+    function anyWorkPeriodMakingNotificationObsolete(workHours: string): boolean {
+      let result = false;
+
+      const workPeriods = workHours.split(";");
+      for (const workPeriod of workPeriods) {
+        const [workStartHour, workEndHour] = workPeriod.split("-");
+        const commentCreationHour = dayjs(comment.createdAt).utc().hour();
+        const commentWithinWorkHours = !(commentCreationHour < Number(workStartHour) || commentCreationHour > Number(workEndHour));
+        const nightCommentAndAgentFirstShift = commentCreationHour >= 0 && commentCreationHour < 8 && Number(workStartHour) < 12;
+
+        if (commentWithinWorkHours || nightCommentAndAgentFirstShift) {
+          result = true;
         }
       }
-    });
 
-    const availableAgentsInAssigneesTeam = workingAgents.filter((agent) => this.shiftRotaService.getAgentTeam(agent.agentName) === assignedAgentTeam);
-    const availableOverwatchers = availableAgentsInAssigneesTeam.filter((agent) => agent.isOverwatch);
+      return result;
+    }
+
+    if (anyWorkPeriodMakingNotificationObsolete(workHours)) {
+      return {
+        should: false,
+        reason: "at least one of the work periods makes notification obsolete",
+      };
+    }
+
+    return {
+      should: true,
+      reason: "all checks passed",
+    };
+  }
+
+  getTicketAgentInformation(agents: any, ticketComment: TicketComments, todayShift: ShiftRota) {
+    const assignedAgent = agents.filter((agent) => agent.id === ticketComment.agentId);
+    const assignedAgentName = assignedAgent[0].name;
+    const agentIndexInShift = todayShift.agents.indexOf(assignedAgentName);
+    const workHours = todayShift.workHours[agentIndexInShift];
+
+    return {
+      assignedAgentName,
+      workHours,
+    };
+  }
+
+  getAgentToBeNotified(todayShift: ShiftRota, currentDateUTC: Dayjs, assignedAgentName: string): string {
+    const workingTeamAgents = this.shiftRotaService.getWorkingTeamAgents(todayShift, currentDateUTC, assignedAgentName);
+    const availableOverwatchers = workingTeamAgents.filter((agent) => agent.isOverwatch);
 
     if (availableOverwatchers.length > 0) {
       return availableOverwatchers[0].agentName;
     }
-    
-    const randomWorkingAgentFromTheTeam = availableAgentsInAssigneesTeam[Math.floor(Math.random() * availableAgentsInAssigneesTeam.length)];
 
-    if (randomWorkingAgentFromTheTeam) {
-      return randomWorkingAgentFromTheTeam.agentName;
+    const randomTeammate = workingTeamAgents[Math.floor(Math.random() * workingTeamAgents.length)];
+
+    if (randomTeammate) {
+      return randomTeammate.agentName;
     }
 
+    // In case no one is available, notification should go to a team leader.
     return "Phil";
   }
 
-  shouldSendNotification(request: { workHours: string; comment: any; todayShift: ShiftRota }): boolean {
-    const { workHours, comment, todayShift } = request;
+  prepareNotificationRequest(ticket: TicketComments, agentName: string, comment: Comment, agentToBeNotified: string) {
+    return {
+      ticketId: ticket.ticketId,
+      agentName,
+      subject: ticket.subject,
+      message: comment.message,
+      from: comment.from,
+      agentToBeNotified,
+    };
+  }
 
-    // If comment comes from agent then comment.from equals undefined
-    if (!comment.from) {
-      return false;
-    }
-
-    if (!workHours) {
-      return true;
-    }
-
-    const [workStartHour, workEndHour] = workHours.split("-");
-    const commentCreationHour = dayjs(comment.createdAt).utc().hour();
-
-    if (!(commentCreationHour < Number(workStartHour) || commentCreationHour > Number(workEndHour))) {
-      return false;
-    }
-
-    if (comment.public) {
-      if (commentCreationHour >= 0 && commentCreationHour < 8 && Number(workStartHour) < 14) {
-        return false;
-      }
-
-      return true;
-    }
-
-    return false;
+  initializeLog(currentDateUTC: Dayjs): NotificationLog {
+    return {
+      currentDateUTC: currentDateUTC.toISOString(),
+      lastTicketUpdatesCheck: null,
+      tickets: [],
+      comments: [],
+    };
   }
 }

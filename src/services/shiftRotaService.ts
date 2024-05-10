@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
@@ -33,7 +33,7 @@ export default class ShiftRotaService {
       date1 = day1;
     } else {
       date1 = day1.setDate(day1.getDate() + days[day1.getDay()]);
-      date2 = day1.setDate(day1.getDate() + days[day1.getDay()] - 3);
+      date2 = day1.setDate(day1.getDate() + days[day1.getDay()] - 1);
     }
 
     let date3 = new Date(date1).toISOString().substring(2).split("T")[0];
@@ -159,5 +159,36 @@ export default class ShiftRotaService {
   getAgentTeam(agentName: string): "Conversation" | "Search" | undefined {
     const agent = agents.find((agent) => agent.shiftRotaName === agentName);
     return agent.team;
+  }
+
+  getWorkingTeamAgents(todayShift: ShiftRota, currentDateUTC: Dayjs, assignedAgentName: string) {
+    const currentHour = currentDateUTC.hour();
+    const assignedAgentTeam = this.getAgentTeam(assignedAgentName);
+    let workingTeamAgents: { agentName: string; isOverwatch: boolean }[] = [];
+    todayShift.workHours.forEach((workHours: string, index: number) => {
+      if (workHours) {
+        const workPeriods = workHours.split(";");
+
+        for (const workPeriod of workPeriods) {
+          const [workStartHour, workEndHour] = workPeriod.split("-");
+          if (Number(workStartHour) <= currentHour && Number(workEndHour) >= currentHour) {
+            const agentName = todayShift.agents[index];
+            const sameTeam = this.getAgentTeam(agentName) === assignedAgentTeam;
+            const isOverwatch = todayShift.overwatchAssignments[index];
+
+            if (sameTeam) {
+              workingTeamAgents.push({
+                agentName,
+                isOverwatch,
+              });
+
+              break;
+            }
+          }
+        }
+      }
+    });
+
+    return workingTeamAgents;
   }
 }

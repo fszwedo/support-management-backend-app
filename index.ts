@@ -129,7 +129,7 @@ const timeTrackingSavingJob = new cron.CronJob(process.env.TICKETASSIGNMENTCRON,
 timeTrackingSavingJob.start();
 
 const emailJob = new cron.CronJob(process.env.SHIFTEMAILCRON, async function () {
-  sendEmailstoAgents(shiftRotaService);
+  sendEmailstoAgents(shiftRotaService, userService);
 });
 emailJob.start();
 

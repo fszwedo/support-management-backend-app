@@ -136,6 +136,6 @@ emailJob.start();
 const notificationsService = new NotificationsService();
 const zendeskNotificationsJob = new cron.CronJob(process.env.ZENDESKNOTIFICATIONCRON, async () => {
   const currentDateUTC = dayjs().utc();
-  notificationsService.unavailableAgentsTicketNotifications({ currentDateUTC });
+  notificationsService.unavailableAgentsTicketNotifications(currentDateUTC);
 });
 zendeskNotificationsJob.start();
